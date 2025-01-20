@@ -1,0 +1,41 @@
+{% comment %} 
+    Variables
+{% endcomment %}
+:root {
+
+    --bs-border-radius: {{ settings.border_radius }};
+
+    {% if settings.font_headings_custom == blank %}
+        --bs-headings-font-family: {{ settings.font_headings.family }}, {{ settings.font_headings.fallback_families }};
+        --bs-headings-font-weight: {{ settings.font_headings.weight }};
+    {% endif %}
+
+    {% unless settings.font_body.system %}
+        --bs-body-font-family:  {{ settings.font_body.family }}, {{ settings.font_body.fallback_families }};
+    {% endunless %}
+}
+
+
+{% comment %} 
+    Buttons
+{% endcomment %}
+body .btn {
+    --bs-btn-padding-x: {{ settings.buttons_padding_x }}rem;
+    --bs-btn-padding-y: {{ settings.buttons_padding_y }}rem;
+}
+
+
+
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='{{ settings.color_body_text | replace: '#', '%23' }}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e")
+}
+
+[dir="ltr"] .form-select-md {
+    padding-right: 2.5rem;
+}
+
+[dir="rtl"] .form-select-md {
+    padding-left: 2.5rem;
+}
+
+

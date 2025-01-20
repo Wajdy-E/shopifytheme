@@ -1,0 +1,390 @@
+{% liquid
+assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+%}
+
+<style>
+    .image-comparison-section {
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .image-comparison-section .image-comparison-container {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+      --position: 50%;
+    }
+
+
+    .image-comparison-section .slider-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-comparison-section .image-before {
+      position: absolute;
+      inset: 0;
+      width: var(--position);
+    }
+
+    .image-comparison-section .image-before.vertical {
+    width: 100%;
+    height: var(--position);
+    position: absolute;
+    inset: 0;
+  }
+
+  .image-comparison-section .slider-line.vertical {
+    width: 100%;
+    height: .2rem;
+    left: 0;
+    top: var(--position);
+    transform: translateY(-50%);
+  }
+
+  .image-comparison-section .slider-button.vertical {
+    width: auto;
+    height: auto;
+    left: 50%;
+    top: var(--position);
+    transform: translate(-50%, -50%);
+  }
+
+  .image-comparison-section .slider.vertical {
+    transform: rotate(90deg);
+    transform-origin: center center;
+    height: 100%;
+    width: 100%;
+    cursor: ns-resize;
+  }
+
+
+
+    .image-comparison-section .slider {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .image-comparison-section .slider:focus-visible ~ .slider-button {
+      outline: 5px solid black;
+      outline-offset: 3px;
+    }
+
+    .image-comparison-section .slider-line {
+      position: absolute;
+      inset: 0;
+      width: .2rem;
+      height: 100%;
+      background-color: #fff;
+      left: var(--position);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .image-comparison-section .slider-button {
+      position: absolute;
+      background-color: #fff;
+      color: black;
+      padding: .5rem;
+      border-radius: 100vw;
+      display: grid;
+      place-items: center;
+      top: 50%;
+      left: var(--position);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      box-shadow: 1px 1px 1px hsl(0, 50%, 2%, .5);
+    }
+
+    @media (min-width: 768px) {
+        .image-comparison-section .image-comparison-container, .image-after, .image-comparison-section  {
+          height: {{ section.settings.image_height_desktop }} !important;
+          width: 100% !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+      .image-comparison-section .image-comparison-container, .image-after, .image-comparison-section  {
+          height: {{ section.settings.image_height_mobile }};
+        }
+    }
+</style>
+
+<section
+  id="image-compare-{{ section.id }}"
+  class="
+    image-comparison-section enter-view {% if section.settings.visibility == blank or section.settings.visibility == nil %} d-flex {% else %}
+    {{ section.settings.visibility }} {% endif %} {{ color_scheme_class }}"
+>
+  <div class="{{ section.settings.container }}">
+    <div
+      class="
+        image-comparison-container rounded {% unless section.settings.animation == '' %}animate__animated opacity-0
+        {{ section.settings.animation_speed }}{% endunless %}
+      "
+      draggable="false"
+      data-reveal-direction="{{ section.settings.reveal_direction }}"
+      data-animate-class="{{ section.settings.animation }}"
+      style="animation-delay:150ms;"
+    >
+      <img
+        class="image-before slider-image {% if section.settings.reveal_direction == 'vertical' %}vertical{% endif %}"
+        src="{{ section.settings.image_1 | image_url: width: section.settings.image_1.width }}"
+        alt="before image"
+        width="{{ section.settings.image_1.width }}"
+        height="{{ section.settings.image_1.height }}"
+        fetchpriority="low"
+        loading="lazy"
+      >
+      {% if section.settings.image_2 == blank %}
+        {{ 'lifestyle-2' | placeholder_svg_tag }}
+      {% else %}
+        <img
+          class="image-after slider-image"
+          src="{{ section.settings.image_2 | image_url: width: section.settings.image_2.width }}"
+          alt="after image"
+          width="{{ section.settings.image_2.width }}"
+          height="{{ section.settings.image_2.height }}"
+          fetchpriority="low"
+          loading="lazy"
+        >
+      {% endif %}
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value="50"
+        aria-label="Percentage of before photo shown"
+        class="slider {% if section.settings.reveal_direction == 'vertical' %}vertical{% endif %}"
+        orient="vertical"
+      >
+      <div
+        class="slider-line {% if section.settings.reveal_direction == 'vertical' %}vertical{% endif %}"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="slider-button {% if section.settings.reveal_direction == 'vertical' %}vertical{% endif %}"
+        aria-hidden="true"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="30"
+          height="30"
+          fill="currentColor"
+          viewBox="0 0 256 256"
+        >
+          <rect width="256" height="256" fill="none"></rect>
+          <line
+            x1="128"
+            y1="40"
+            x2="128"
+            y2="216"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          ></line>
+          <line
+            x1="96"
+            y1="128"
+            x2="16"
+            y2="128"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          ></line>
+          <polyline
+            points="48 160 16 128 48 96"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          ></polyline>
+          <line
+            x1="160"
+            y1="128"
+            x2="240"
+            y2="128"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          ></line>
+          <polyline
+            points="208 96 240 128 208 160"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          ></polyline>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Image Comparison Slider",
+  "settings": [
+    {
+            "type": "header",
+            "content": "General Settings"
+        },
+        {
+      "type": "select",
+      "label": "Visibility",
+      "id": "visibility",
+      "default": "d-flex",
+      "options": [
+        {
+          "value": "d-flex",
+          "label": "All screen sizes"
+        },
+        {
+          "value": "d-sm-none d-lg-flex",
+          "label": "On desktop only"
+        },
+        {
+          "value": "d-lg-none d-sm-flex",
+          "label": "On mobile only"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container",
+      "default": "container",
+      "options": [
+        { "value": "container", "label": "Container" },
+        { "value": "container-fluid", "label": "Full width" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "label": "Color scheme",
+      "id": "color_scheme"
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "Disabled", "value": "", "label": "No animation" },
+        { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+        { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+        { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+        { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+        { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+        { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+        { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+        { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+        { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+        { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+        { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+        { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+        { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+        { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+        { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+        { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+        { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+        { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+        { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "Slower" },
+        { "value": "animate__slow", "label": "Slow" },
+        { "value": "", "label": "Normal" },
+        { "value": "animate__fast", "label": "Fast" },
+        { "value": "animate__faster", "label": "Faster" }
+      ]
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "select",
+      "id": "reveal_direction",
+      "label": "Reveal Direction",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "Horizontal"
+        },
+        {
+          "value": "vertical",
+          "label": "Vertical"
+        }
+      ],
+      "default": "horizontal"
+    },
+    {
+      "type": "select",
+      "id": "image_height_desktop",
+      "label": "Image Height (Desktop)",
+      "default": "auto",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "200px", "label": "200px" },
+        { "value": "300px", "label": "300px" },
+        { "value": "400px", "label": "400px" },
+        { "value": "500px", "label": "500px" },
+        { "value": "600px", "label": "600px" },
+        { "value": "700px", "label": "700px" },
+        { "value": "100vh", "label": "100vh" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_height_mobile",
+      "label": "Image Height (Mobile)",
+      "default": "auto",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "200px", "label": "200px" },
+        { "value": "300px", "label": "300px" },
+        { "value": "400px", "label": "400px" },
+        { "value": "500px", "label": "500px" },
+        { "value": "600px", "label": "600px" },
+        { "value": "700px", "label": "700px" },
+        { "value": "100vh", "label": "100vh" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image Comparison Slider"
+    }
+  ]
+}
+{% endschema %}

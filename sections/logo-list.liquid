@@ -1,0 +1,271 @@
+{% liquid
+  assign pt = section.settings.pt | prepend: 'pt-'
+  assign pb = section.settings.pb | prepend: 'pb-'
+  assign mt = section.settings.mt | prepend: 'mt-'
+  assign mb = section.settings.mb | prepend: 'mb-'
+
+  assign bg_color = section.settings.bg_color
+
+  if section.settings.bg_gradient
+    assign bg_color = bg_color | append: ' bg-gradient'
+  endif
+%}
+<style>
+  .logos-slide {
+    display: flex;
+    animation: slide {{ section.settings.speed }}s linear infinite;
+  }
+
+  .logos-slide img {
+    max-height: {{ section.settings.max_logo_height }}px;
+    margin: 0 {{ section.settings.gap }}px;
+  }
+
+  @keyframes slide {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /** Logo list */
+  .logo-list:before,
+  .logo-list:after {
+    position: absolute;
+    top: 0;
+    width: 250px;
+    height: 100%;
+    content: "";
+    z-index: 2;
+  }
+
+    @media screen and (max-width: 767px) {
+    .logo-list:before,
+  .logo-list:after {
+    width:100px;
+  }
+  }
+
+  .logo-list:before {
+    left: 0;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0), white);
+  }
+
+  .logo-list:after {
+    right: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white);
+  }
+
+  .logo-list:hover .logos-slide {
+    animation-play-state: paused;
+  }
+</style>
+
+<section
+  id="logo-list-{{ section.id }}"
+  class="logo-list overflow-hidden position-relative text-nowrap {{ bg_color }} {{ section.settings.separator }} {{ pt }} {{ pb }} {{ mt }} {{ mb }}"
+>
+  <div
+    class="mb-0 logos-slide d-flex"
+    data-block-length="{{ section.blocks.size }}"
+    aria-label="{{ section.settings.list_label }}"
+  >
+    {% if section.blocks.size <= 2 %}
+      {% assign repeat_count = 10 %}
+    {% elsif section.blocks.size <= 4 %}
+      {% assign repeat_count = 4 %}
+    {% elsif section.blocks.size >= 5 %}
+      {% assign repeat_count = 3 %}
+    {% endif %}
+    {% for i in (1..repeat_count) %}
+      {% for block in section.blocks %}
+        {% liquid
+        if section.index == 1
+          assign loading = 'eager'
+          assign fetchpriority = 'high'
+        else
+          assign loading = 'lazy'
+          assign fetchpriority = 'low'
+        endif
+      %}
+        <div class="has-image p-0">
+        {% unless block.settings.url == blank %}
+          <a href="{{ block.settings.url }}">
+        {% endunless %}
+        <img
+          src="{{ block.settings.img | image_url: width: block.settings.img.width }}"
+          alt="{{ block.settings.img.alt | escape }}"
+          loading="lazy"
+          class="img-fluid rounded p-0"
+          width="{{ block.settings.img.width }}"
+          height="{{ block.settings.img.height }}"
+          fetchpriority = "{{ fetchpriority }}"
+        >
+        {% unless block.settings.url == blank %}
+          </a>
+        {% endunless %}
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+    "name": "Logo list",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General"
+        },
+        {
+            "type": "text",
+            "id": "list_label",
+            "label": "List label",
+            "default": "Promotional Features",
+            "info": "Used for accessibility purposes"
+        },
+        {
+            "type": "range",
+            "id": "max_logo_height",
+            "label": "Max logo height",
+            "min": 10,
+            "max": 200,
+            "step": 5,
+            "unit": "px",
+            "default": 150
+        },
+        {
+            "type": "header",
+            "content": "Effect"
+        },
+        {
+            "type": "range",
+            "id": "speed",
+            "label": "Animation duration",
+            "min": 0,
+            "max": 60,
+            "step": 5,
+            "default":15,
+            "unit": "sec"
+        },
+        {
+            "type": "select",
+            "id": "logo_slide_direction",
+            "label": "Logo slide direction",
+            "default": "-100%",
+            "options": [
+                { "value": "-100%", "label": "Left" },
+                { "value": "100%", "label": "Right" }
+
+            ]
+        },
+        {
+            "type": "select",
+            "id": "separator",
+            "label": "Separator",
+            "default": "separator-dot",
+            "options": [
+                { "value": "", "label": "None" },
+                { "value": "separator-dot", "label": "Dot" }
+
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Gap",
+            "info": "Spacing between items."
+        },
+        {
+            "type": "range",
+            "id": "gap",
+            "label": "Gap",
+            "min": 0,
+            "max": 50,
+            "step": 5,
+            "default": 10,
+            "unit": "px"
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 4
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 4
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "image",
+            "name": "Image",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "img",
+                    "label": "Image"
+                },
+                {
+                    "type": "url",
+                    "id": "url",
+                    "label": "URL"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Logo list",
+            "category": "General",
+            "blocks": [
+                {
+                    "type": "image"
+                },
+                {
+                    "type": "image"
+                },
+                {
+                    "type": "image"
+                },
+                {
+                    "type": "image"
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,310 @@
+{% liquid
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+%}
+
+<section class="tabbed-featured-blogs {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }} enter-view" id="tabbed-featured-blogs-{{ section.id }}" aria-labelledby="featured-blogs-heading">
+  <div class="{{ section.settings.container }}">
+    {% render 'section-header', section: section %}
+    <ul class="nav mt-8 {{ section.settings.tab_style }} {{ section.settings.tab_alignment | prepend: 'justify-content-' }} mb-sm-8" id="blogTabs-{{ section.id }}" role="tablist">
+        {%- for block in section.blocks -%}
+        <li class="nav-item" role="presentation">
+            <button
+            class="nav-link{% if forloop.first %} active{% endif %}"
+            id="tab-{{ block.id }}"
+            data-bs-toggle="tab"
+            data-bs-target="#content-{{ block.id }}"
+            type="button"
+            role="tab"
+            aria-controls="content-{{ block.id }}"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            {{ block.shopify_attributes }}
+            >
+            {{ block.settings.tab_title | default: blogs[block.settings.blog_handle].title }}
+            </button>
+        </li>
+        {%- endfor -%}
+    </ul>
+
+    <div class="tab-content" id="blogTabsContent-{{ section.id }}">
+        {%- for block in section.blocks -%}
+        <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="content-{{ block.id }}" role="tabpanel" aria-labelledby="tab-{{ block.id }}" tabindex="0">
+            <div class="row row-cols-{{ section.settings.mobile_columns }} row-cols-lg-{{ section.settings.desktop_columns }} g-{{ settings.blog_card_gap }}">
+            {%- assign articles = blogs[block.settings.blog_handle].articles | limit: block.settings.limit -%}
+            {%- for article in articles -%}
+                {% render 'article-card', article: article, block: block, section: section %}
+            {%- endfor -%}
+            </div>
+        </div>
+        {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+
+{% schema %}
+    {
+      "name": "Tabbed featured blogs",
+      "settings": [
+        {
+          "type": "header",
+          "content": "General settings"
+        },
+        {
+          "type": "select",
+          "id": "container",
+          "label": "Container",
+          "default": "container",
+          "options": [
+            { "value": "container", "label": "Container" },
+            { "value": "container-fluid", "label": "Fluid" }
+          ]
+        },
+        {
+          "type": "color_scheme",
+          "label": "Color scheme",
+          "id": "color_scheme"
+        },
+        {
+          "type": "select",
+          "id": "animation",
+          "label": "Animation",
+          "default": "animate__fadeInUp",
+          "options": [
+            { "group": "Disabled", "value": "", "label": "No animation" },
+            { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+            { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+            { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+            { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+            { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+            { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+            { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+            { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+            { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+            { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+            { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+            { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+            { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+            { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+            { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+            { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+            { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+            { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+            { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+            { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+            { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "animation_speed",
+          "label": "Animation speed",
+          "default": "animate__fast",
+          "options": [
+            { "value": "animate__slower", "label": "Slower" },
+            { "value": "animate__slow", "label": "Slow" },
+            { "value": "", "label": "Normal" },
+            { "value": "animate__fast", "label": "Fast" },
+            { "value": "animate__faster", "label": "Faster" }
+          ]
+        },
+        {
+          "type": "select",
+          "label": "Image orientation",
+          "default": "landscape",
+          "options": [
+            { "label": "Adapt", "value": ""},
+            { "label": "Landscape", "value": "landscape"},
+            {"label": "Wide landscape", "value": "wide"},
+            {"label": "Portrait", "value": "portrait"},
+            {"label": "Square", "value": "square"}
+          ],
+          "id": "aspect_ratio"
+        },
+        {
+          "type": "select",
+          "label": "Tab style",
+          "id": "tab_style",
+          "options": [
+            {
+              "label": "Pills", "value": "nav-pills"
+            },
+            {
+              "label": "Underline", "value": "nav-underline"
+            },
+            {
+              "label": "Border", "value": "nav-tabs"
+            },
+            {
+              "label": "Basic", "value": ""
+            }
+          ],
+    
+          "default": "nav-pills"
+        },
+        {
+          "type": "select",
+          "label": "Alignment",
+          "id": "tab_alignment",
+          "options": [
+            {
+              "label": "Left", "value": "start"
+            },
+            {
+              "label": "Center", "value": "center"
+            },
+            {
+              "label": "Right", "value": "end"
+            }
+          ],
+          "default": "start",
+          "info": "Mobile is left aligned"
+        },
+        {
+          "type": "select",
+          "id": "tab_position",
+          "label": "Tab position",
+          "options": [
+            {
+              "label": "Left", "value": "left"
+            },
+            {
+              "label": "Top", "value": "top"
+            }
+          ],
+          "default": "top",
+          "info": "Mobile remains on top"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Featured blogs"
+        },
+        {
+          "type": "range",
+          "id": "title_font_size_mobile",
+          "label": "Title font-size | mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 7
+        },
+        {
+          "type": "range",
+          "id": "title_font_size_desktop",
+          "label": "Title font-size | desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "type": "header",
+          "content": "Number of columns"
+        },
+        {
+          "type": "checkbox",
+          "id": "scroll",
+          "label": "Scroll on mobile",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "mobile_columns",
+          "label": "Columns on mobile",
+          "default": "1",
+          "options": [
+            { "value": "1", "label": "1 column" },
+            { "value": "2", "label": "2 columns" }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "desktop_columns",
+          "label": "Columns on desktop",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 4
+        },
+        {
+          "type": "header",
+          "content": "Spacing"
+        },
+        {
+          "type": "range",
+          "id": "pt",
+          "label": "Padding Top",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "id": "pb",
+          "label": "Padding Bottom",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "id": "mt",
+          "label": "Margin Top",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "mb",
+          "label": "Margin Bottom",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "default": 0
+        }
+      ],
+      "blocks": [
+        {
+          "type": "blog_tab",
+          "name": "Blog Tab",
+          "settings": [
+            {
+              "type": "blog",
+              "id": "blog_handle",
+              "label": "Select Blog"
+            },
+            {
+                "type": "range",
+                "id": "limit",
+                "label": "Max number of articles to show",
+                "min": 1,
+                "max": 16,
+                "step": 1,
+                "default": 8
+            },
+            {
+              "type": "text",
+              "id": "tab_title",
+              "label": "Tab Title"
+            }
+          ]
+        }
+      ],
+      "presets": [
+        {
+          "name": "Tabbed featured blogs"
+        }
+      ]
+    }
+    {% endschema %}
+    

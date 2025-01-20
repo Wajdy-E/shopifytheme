@@ -1,0 +1,106 @@
+{% liquid 
+    assign current_variant = product.selected_or_first_available_variant
+
+    assign mt = block.settings.mt | prepend: 'mt-'
+    assign mb = block.settings.mb | prepend: 'mb-'
+%}
+
+{%- if product.gift_card? -%}
+    {%- render 'product-gift-card-form', form: form -%}
+{%- endif -%}
+
+<div class="product-buy-buttons {{ mt }} {{ mb }}" {{ block.shopify_attributes }}>
+    <div class="d-flex gap-5">
+        {% if block.settings.show_qty_field %}
+            <div class="quantity-control d-flex align-items-center justify-content-center position-relative" style="max-width: 110px;">
+                <button
+                  class="btn p-4 position-absolute start-10"
+                  type="button"
+                  onclick="onQuantityChange(this)"
+                  aria-label="{{ 'general.accessibility.decrease_qty' | t }}"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                    <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/>
+                  </svg>
+                </button>
+                <label for="{{ product.id }}" class="visually-hidden">Product quantity</label>
+                <input
+                  class="form-control text-center border-0 py-5 product-quantity"
+                  type="text"
+                  value="1"
+                  name="quantity"
+                  id="{{ product.id }}"
+                >
+                <button
+                  class="btn p-4 position-absolute end-10"
+                  type="button"
+                  onclick="onQuantityChange(this)"
+                  aria-label="{{ 'general.accessibility.increase_qty' | t }}"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                  </svg>
+                </button>
+              </div>
+              
+        {% endif %}
+        <button
+            class="btn-atc btn btn-primary w-100"
+            type="submit"
+            name="add"
+            data-text-add-to-cart="{{ 'product.add_to_cart' | t }}"
+            {% unless current_variant.available %}
+                disabled
+            {% endunless %}>
+            {% if current_variant.available %}
+                <span class="btn-atc-text">
+                    Add to cart
+                </span>
+            {% else %}
+                <span class="btn-atc-text">
+                    Sold out
+                </span>
+            {% endif %}
+            {% if block.settings.atc_btn_show_price %}
+                -
+                <span class="btn-atc-price">
+                   {{ current_variant.price | money }}
+                </span>
+            {% endif %}
+        </button>
+    </div>
+    
+    {% if block.settings.show_dynamic_buttons %}
+        <div class="product-form-dynamic-buttons mt-5 pb-2">
+            {{ form | payment_button }}
+        </div>
+    {% endif %}
+    
+    {% if block.settings.show_buy_btn or settings.wishlist_enable %}
+        <div class="d-flex mt-4">
+            {% if block.settings.show_buy_btn %}
+                <button 
+                    class="btn-buy btn btn-sm btn-outline-secondary w-100 {% if settings.wishlist_enable %}me-2{% endif %}" 
+                    type="button"
+                    onclick="onClickBuyBtn(this, event)">
+                    {{ 'product.buy_it_now' | t }}
+                </button>
+            {% endif %}
+            {% if settings.wishlist_enable %}
+                <button 
+                    class="btn-wishlist-add-remove btn btn-sm btn-outline-secondary w-100 d-flex align-items-center justify-content-center {% if section.settings.form_show_buy_btn %}ms-2{% endif %}"
+                    type="button"
+                    data-product-handle="{{ product.handle }}"
+                    data-text-add="{{ 'general.wishlist.add_to_wishlist' | t }}"
+                    data-text-remove="{{ 'general.wishlist.remove_from_wishlist' | t }}"
+                    aria-label="{{ 'general.wishlist.add_to_wishlist' | t }}"
+                    onclick="addOrRemoveFromWishlist(this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="me-2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    <span>{{ 'general.wishlist.btn_label' | t }}</span>
+                </button>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

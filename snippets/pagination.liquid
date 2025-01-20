@@ -1,74 +1,80 @@
-{% comment %}
-  Renders a set of links for paginated results. Must be used within paginate tags.
-
-  Usage:
-  {% paginate results by 2 %}
-    {% render 'pagination', paginate: paginate, anchor: '#yourID' %}
-  {% endpaginate %}
-
-  Accepts:
-  - paginate: {Object}
-  - anchor: {String} (optional) This can be added so that on page reload it takes you to wherever you've placed your anchor tag.
-{% endcomment %}
-
-{{ 'component-pagination.css' | asset_url | stylesheet_tag }}
-
 {%- if paginate.parts.size > 0 -%}
-  <div class="pagination-wrapper">
-    <nav class="pagination" role="navigation" aria-label="{{ 'general.pagination.label' | t }}">
-      <ul class="pagination__list list-unstyled" role="list">
-        {%- if paginate.previous -%}
-          <li>
-            <a
-              href="{{ paginate.previous.url }}{{ anchor }}"
-              class="pagination__item pagination__item--next pagination__item-arrow link motion-reduce"
-              aria-label="{{ 'general.pagination.previous' | t }}"
-            >
-              {% render 'icon-caret' %}
-            </a>
-          </li>
-        {%- endif -%}
-
-        {%- for part in paginate.parts -%}
-          <li>
-            {%- if part.is_link -%}
-              <a
-                href="{{ part.url }}{{ anchor }}"
-                class="pagination__item link"
-                aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
+  <nav aria-label="{{ 'general.pagination.label' | t }}">
+      <ul class="pagination">
+          <!-- Previous Arrow -->
+          <li class="page-item {% if paginate.previous == null %}disabled{% endif %}">
+              <a 
+                href="{% if paginate.previous %}{{ paginate.previous.url }}{{ anchor }}{% else %}#{% endif %}" 
+                class="page-link" 
+                aria-label="{{ 'general.pagination.previous' | t }}"
+                tabindex="{% if paginate.previous == null %}-1{% endif %}"
               >
-                {{- part.title -}}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                  </svg>
               </a>
-            {%- else -%}
-              {%- if part.title == paginate.current_page -%}
-                <a
-                  role="link"
-                  aria-disabled="true"
-                  class="pagination__item pagination__item--current light"
-                  aria-current="page"
-                  aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
-                >
-                  {{- part.title -}}
-                </a>
-              {%- else -%}
-                <span class="pagination__item">{{ part.title }}</span>
-              {%- endif -%}
-            {%- endif -%}
           </li>
-        {%- endfor -%}
 
-        {%- if paginate.next -%}
-          <li>
-            <a
-              href="{{ paginate.next.url }}{{ anchor }}"
-              class="pagination__item pagination__item--prev pagination__item-arrow link motion-reduce"
-              aria-label="{{ 'general.pagination.next' | t }}"
-            >
-              {%- render 'icon-caret' -%}
-            </a>
+          {%- assign number_of_pages = paginate.parts.size -%}
+          {%- assign current_page = paginate.current_page -%}
+
+          {%- for part in paginate.parts -%}
+              {%- assign part_title = part.title -%}
+              {%- assign previous_page = current_page | minus: 1 -%}
+              {%- assign next_page = current_page | plus: 1 -%}
+              {%- assign two_pages_back = current_page | minus: 2 -%}
+              {%- assign two_pages_forward = current_page | plus: 2 -%}
+
+              {%- if part_title == 1 or part_title == number_of_pages -%}
+                  <li class="page-item {% if part_title == current_page %}active{% endif %}">
+                      <a 
+                        href="{{ part.url }}{{ anchor }}" 
+                        class="page-link" 
+                        aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
+                      >
+                          {{- part.title -}}
+                      </a>
+                  </li>
+              {%- elsif part_title == current_page -%}
+                  <li class="page-item active">
+                      <span 
+                        class="page-link" 
+                        aria-current="page" 
+                        aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
+                      >
+                          {{- part.title -}}
+                      </span>
+                  </li>
+              {%- elsif part_title == previous_page or part_title == next_page -%}
+                  <li class="page-item">
+                      <a 
+                        href="{{ part.url }}{{ anchor }}" 
+                        class="page-link" 
+                        aria-label="{{ 'general.pagination.page' | t: number: part.title }}"
+                      >
+                          {{- part.title -}}
+                      </a>
+                  </li>
+              {%- elsif part_title == two_pages_back or part_title == two_pages_forward -%}
+                  <li class="page-item disabled">
+                      <span class="page-link">...</span>
+                  </li>
+              {%- endif -%}
+          {%- endfor -%}
+
+          <!-- Next Arrow -->
+          <li class="page-item {% if paginate.next == null %}disabled{% endif %}">
+              <a 
+                href="{% if paginate.next %}{{ paginate.next.url }}{{ anchor }}{% else %}#{% endif %}" 
+                class="page-link" 
+                aria-label="{{ 'general.pagination.next' | t }}"
+                tabindex="{% if paginate.next == null %}-1{% endif %}"
+              >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                  </svg>
+              </a>
           </li>
-        {%- endif -%}
       </ul>
-    </nav>
-  </div>
+  </nav>
 {%- endif -%}

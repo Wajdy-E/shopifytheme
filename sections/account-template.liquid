@@ -1,0 +1,119 @@
+{% liquid
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme  
+%}
+
+
+<section class="customer account {{ color_scheme_class }} py-15">
+  <div class="container">
+    <div>
+      <h1 class="customer__title">{{ 'customer.account.title' | t }}</h1>
+      <a href="{{ routes.account_logout_url }}" class="d-flex align-items-center gap-3">
+        <?xml version="1.0" ?><svg class="exit-icon" height="18" viewBox="0 0 32 32" width="18" xmlns="http://www.w3.org/2000/svg"><title/><g data-name="1" id="_1"><path d="M27,3V29a1,1,0,0,1-1,1H6a1,1,0,0,1-1-1V27H7v1H25V4H7V7H5V3A1,1,0,0,1,6,2H26A1,1,0,0,1,27,3ZM10.71,20.29,7.41,17H18V15H7.41l3.3-3.29L9.29,10.29l-5,5a1,1,0,0,0,0,1.42l5,5Z" id="logout_account_exit_door"/></g></svg>        <div>{{ 'customer.log_out' | t }}</div>
+      </a>
+    </div>
+
+    <div class="row g-8">
+      <div class="col-lg-8 orders">
+          <div>
+            <h2 class="mb-7">{{ 'customer.orders.title' | t }}</h2>
+            <hr>
+            {% paginate customer.orders by 20 %}
+              {%- if customer.orders.size > 0 -%}
+                <div class="table-responsive">
+                  <table class="table table-hover order-history" style="--bs-table-bg: ;">
+                    <caption class="visually-hidden">{{ 'customer.orders.title' | t }}</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">{{ 'customer.orders.order_number' | t }}</th>
+                        <th scope="col">{{ 'customer.orders.date' | t }}</th>
+                        <th scope="col">{{ 'customer.orders.payment_status' | t }}</th>
+                        <th scope="col">{{ 'customer.orders.fulfillment_status' | t }}</th>
+                        <th scope="col">{{ 'customer.orders.total' | t }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {%- for order in customer.orders -%}
+                        <tr>
+                          <td>
+                            <a href="{{ order.customer_url }}">
+                              {{ order.name }}
+                            </a>
+                          </td>
+                          <td>{{ order.created_at | time_tag: format: 'date' }}</td>
+                          <td>{{ order.financial_status_label }}</td>
+                          <td>{{ order.fulfillment_status_label }}</td>
+                          <td>{{ order.total_net_amount | money_with_currency }}</td>
+                        </tr>
+                      {%- endfor -%}
+                    </tbody>
+                  </table>
+                </div>
+              {%- else -%}
+                <p>{{ 'customer.orders.none' | t }}</p>
+              {%- endif -%}
+            
+              {%- if paginate.pages > 1 -%}
+                <nav aria-label="{{ 'general.pagination.label' | t }}">
+                  <ul class="pagination justify-content-center">
+                    {%- if paginate.previous -%}
+                      <li class="page-item">
+                        <a class="page-link" href="{{ paginate.previous.url }}" aria-label="{{ 'general.pagination.previous' | t }}">
+                          <span aria-hidden="true">&laquo;</span>
+                        </a>
+                      </li>
+                    {%- endif -%}
+            
+                    {%- for part in paginate.parts -%}
+                      <li class="page-item {% if part.title == paginate.current_page %}active{% endif %}">
+                        {%- if part.is_link -%}
+                          <a class="page-link" href="{{ part.url }}" aria-label="{{ 'general.pagination.page' | t: number: part.title }}">
+                            {{ part.title }}
+                          </a>
+                        {%- else -%}
+                          <span class="page-link">{{ part.title }}</span>
+                        {%- endif -%}
+                      </li>
+                    {%- endfor -%}
+            
+                    {%- if paginate.next -%}
+                      <li class="page-item">
+                        <a class="page-link" href="{{ paginate.next.url }}" aria-label="{{ 'general.pagination.next' | t }}">
+                          <span aria-hidden="true">&raquo;</span>
+                        </a>
+                      </li>
+                    {%- endif -%}
+                  </ul>
+                </nav>
+              {%- endif -%}
+            {% endpaginate %}
+            
+          </div>
+      </div>
+
+      <div class="col main-address">
+        <div>
+          <h2>{{ 'customer.account.details' | t }}</h2>
+            <hr>
+          {{ customer.default_address | format_address }}
+
+          <a href="{{ routes.account_addresses_url }}">
+            {{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})
+          </a>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main-account.name",
+  "settings": [
+    {
+        "type": "color_scheme",
+        "label": "Color scheme",
+        "id": "color_scheme"
+    }
+  ]
+}
+{% endschema %}

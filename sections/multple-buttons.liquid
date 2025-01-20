@@ -1,0 +1,261 @@
+{% liquid
+    assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-sm-' 
+    assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-'
+
+    assign desc_fs_mobile = section.settings.description_font_size_mobile | prepend: 'fs-'
+    assign desc_fs_desktop = section.settings.description_font_size_desktop | prepend: 'fs-lg-'
+
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+%}
+
+<section id="multi-buttons-{{ section.id }}" class="multi-buttons enter-view overflow-hidden {% if section.settings.visibility == blank or section.settings.visibility == nil %} d-flex {% else %} 
+{{ section.settings.visibility }} {% endif %} justify-content-center {{ section.settings.text_align }} {{ color_scheme_class }} {{pt}} {{pb}} {{mt}} {{mb}}">
+    <div class="{{ section.settings.container }}">
+            <ul class="list-unstyled row g-5 row-cols-1 {{ row_sm }} {{ row_lg }} text-center">
+                {% for block in section.blocks %}
+                        <li class="col {% unless section.settings.animation == '' %}animate__animated opacity-0 {{ section.settings.animation_speed }}{% endunless %}"
+                        data-animate-class="{{ section.settings.animation }}"
+                        style="animation-delay: {{ forloop.index0 | times: 150 }}ms;"> 
+                            <a href="{{ block.settings.url }}" class="btn multi-buttons-list-item w-100 {{ desc_fs_desktop }} {{ desc_fs_mobile }}" style="color: {{ block.settings.text_color }}; 
+                            background-color: {{ block.settings.background_color }}; --bs-btn-darken-5: {{ block.settings.background_color |  color_darken: 5 }};" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
+                        </li>
+                {% endfor %}
+            </ul>
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Multiple Buttons",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General Settings"
+        },
+        {
+      "type": "select",
+      "label": "Visibility",
+      "id": "visibility",
+      "default": "d-flex",
+      "options": [
+        {
+          "value": "d-flex",
+          "label": "All screen sizes"
+        },
+        {
+          "value": "d-sm-none d-lg-flex",
+          "label": "On desktop only"
+        },
+        {
+          "value": "d-lg-none d-sm-flex",
+          "label": "On mobile only"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container",
+      "default": "container",
+      "options": [
+        { "value": "container", "label": "Container" },
+        { "value": "container-fluid", "label": "Fluid" }
+      ]
+    },
+    {
+        "type": "color_scheme",
+        "label": "Color scheme",
+        "id": "color_scheme"
+    },    
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "Disabled", "value": "", "label": "No animation" },
+        { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+        { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+        { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+        { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+        { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+        { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+        { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+        { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+        { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+        { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+        { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+        { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+        { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+        { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+        { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+        { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+        { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+        { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+        { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "Slower" },
+        { "value": "animate__slow", "label": "Slow" },
+        { "value": "", "label": "Normal" },
+        { "value": "animate__fast", "label": "Fast" },
+        { "value": "animate__faster", "label": "Faster" }
+      ]
+    },
+    {
+        "type": "header",
+        "content": "Font size"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_mobile",
+      "label": "Label font-size | mobile",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_desktop",
+      "label": "Label font-size | desktop",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 3
+    },
+    {
+        "type": "header",
+        "content": "Button styling"
+    },
+    {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "header",
+            "content": "Breakpoints"
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_sm",
+            "label": "Items per row / sm",
+            "info": "Screen width: ≥576px",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_lg",
+            "label": "Items per row / lg",
+            "info": "Screen width: ≥992px",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "default": 3
+        }
+        ],
+        "blocks": [
+            {
+                "name": "URL",
+                "type": "url",
+                "settings": [
+                    {
+                        "type": "url",
+                        "id": "url",
+                        "label": "URL",
+                        "info": "Link any page, collection or product"
+                    },
+                    {
+                        "type": "text",
+                        "label": "Label",
+                        "id": "label",
+                        "default": "URL TITLE"
+                    },
+                    {
+                        "type": "header",
+                        "content": "Styling"
+                    },
+                    {
+                        "type": "color",
+                        "default": "#000000",
+                        "id": "background_color",
+                        "label": "Background color"
+                    },
+                    {
+                        "type": "color",
+                        "default": "#ffffff",
+                        "id": "text_color",
+                        "label": "Text color"
+                    }
+                ]
+            }
+        ],
+        "presets": [
+            {
+                "name": "Multiple Buttons",
+                "blocks": [
+                    {
+                        "type": "url"
+                    },
+                    {
+                        "type": "url"
+                    },
+                    {
+                        "type": "url"
+                    }
+                ]
+            }
+        ]
+}
+{% endschema %}

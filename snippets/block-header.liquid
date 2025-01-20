@@ -1,0 +1,69 @@
+{% liquid
+  assign title_fs_mobile = block.settings.title_font_size_mobile | prepend: 'fs-'
+  assign title_fs_desktop = block.settings.title_font_size_desktop | prepend: 'fs-lg-'
+  assign subheader_fs_mobile = block.settings.subheader_font_size_mobile | prepend: 'fs-'
+  assign subheader_fs_desktop = block.settings.subheader_font_size_desktop | prepend: 'fs-lg-'
+  assign desc_fs_mobile = block.settings.description_font_size_mobile | prepend: 'fs-'
+  assign desc_fs_desktop = block.settings.description_font_size_desktop | prepend: 'fs-lg-'
+  assign title = block.settings.title
+  assign subheader = block.settings.subheader
+  assign description = block.settings.description
+  assign animation = section.settings.animation
+  assign animation_speed = section.settings.animation_speed
+  assign p-btn-text = block.settings.p-btn-text
+  assign p-btn-type = block.settings.p-btn-type
+  assign p-btn-url = block.settings.p-btn-url
+  assign s-btn-text = block.settings.s-btn-text
+  assign s-btn-type = block.settings.s-btn-type
+  assign s-btn-url = block.settings.s-btn-url
+
+
+%}
+<div class="block-header d-flex flex-column gap-4 {{ additional_classes }} {{ alignment }}">
+  {% unless subheader == blank %}
+    <h4
+      class="
+        mb-4 fit-content {% if use_custom_colors %}rounded p-4{% endif %}
+        {{ subheader_fs_mobile }} {{ subheader_fs_desktop }} text-uppercase {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}
+      "
+      data-animate-class="{{ animation }}"
+      style="animation-delay: 150ms;{% if use_custom_colors %} background-color: {{ block.settings.subheading_background }}; color: {{ block.settings.subheading_color }}{% endif %}"
+    >
+      {{ subheader }}
+    </h4>
+  {% endunless %}
+  {% unless title == blank %}
+    <h2
+      class="mb-5 {{ title_fs_mobile }} {{ title_fs_desktop }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+      data-animate-class="{{ animation }}"
+      style="animation-delay: 250ms;"
+    >
+      {{ title }}
+    </h2>
+  {% endunless %}
+  {% unless description == blank %}
+    <p
+      class="mt-n4 mb-5 {{ desc_fs_mobile }} {{ desc_fs_desktop }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+      data-animate-class="{{ animation }}"
+      style="animation-delay: 350ms;"
+    >
+      {{ description }}
+    </p>
+  {% endunless %}
+  <div class="btn-wrapper d-flex gap-6">
+  {% unless p-btn-text == blank %}
+    <a href="{{ p-btn-url }}" class="btn rounded {{ p-btn-type }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+    data-animate-class="{{ animation }}" style="animation-delay: 450ms;">
+      {{ p-btn-text }}
+    </a>
+  {% endunless %}  
+
+  {% unless s-btn-text == blank %}
+    <a href="{{ s-btn-url }}" class="btn rounded {{ s-btn-type }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+    data-animate-class="{{ animation }}" style="animation-delay: 550ms;">
+      {{ s-btn-text }}
+    </a>
+  {% endunless %}
+  </div>
+
+</div>

@@ -1,0 +1,5 @@
+{% if settings.show_product_count %}  
+    <div class="product-count-wrapper position-absolute rounded py-3 px-5" style="top: 3%; right: 3%; background-color: var(--badge-background); color: var(--badge-text);">
+        {{ collection.products_count }} products
+    </div>
+{% endif %}

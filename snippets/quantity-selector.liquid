@@ -1,0 +1,32 @@
+<div class="quantity-control d-flex align-items-center justify-content-center position-relative" style="max-width: 110px;">
+  <button
+    class="btn p-0 position-absolute start-10"
+    type="button"
+    onclick="onQuantityChange(this)"
+    aria-label="{{ 'general.accessibility.decrease_qty' | t }}"
+  >
+  {% render 'minus-icon' %}
+  <span class="visually-hidden">Decrease quantity for {{ line_item_title }} </span>
+  </button>
+  <input
+    id="updates_{{ line_item_key }}"
+    class="form-control text-center border-0 py-5 {{ line_item_quantity }}"
+    name="updates[]"
+    type="text"
+    value="{{ line_item_quantity }}"
+    data-line-item-key="{{ line_item_key }}"
+    data-min-qty="0"
+    aria-label="{{ 'cart.quantity' | t }}"
+    onchange="onChangeCartQty(this)"
+  >
+  <button
+    class="btn p-0 position-absolute end-10"
+    type="button"
+    onclick="onQuantityChange(this)"
+    aria-label="{{ 'general.accessibility.increase_qty' | t }}"
+  >
+  {% render 'plus-icon' %}
+  <span class="visually-hidden">Increase quantity for {{ line_item_title }} </span>
+
+  </button>
+</div>

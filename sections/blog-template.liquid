@@ -1,0 +1,226 @@
+{% liquid
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    assign row_sm = section.settings.mobile_breakpoint | prepend: 'row-cols-'
+    assign row_lg = section.settings.desktop_breakpoint | prepend: 'row-cols-lg-'
+
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+
+    assign limit = section.settings.max_articles
+%}
+<section class="blog-template {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }} enter-view" id="blog-template-{{ section.id }}">
+    <div class="{{ section.settings.container }}">
+        <h1 class="mb-8">{{ blog.title }}</h1>
+        {%- paginate blog.articles by limit -%}
+        <div class="row {{ row_sm }} {{ row_lg }} g-{{ settings.blog_card_gap }}">
+            {% for article in blog.articles %}
+                {% render 'article-card', article: article %}
+            {% endfor %}
+        </div>
+        {% if paginate.pages > 1 %}
+            {% render 'pagination', paginate: paginate %}
+        {% endif %}
+        {% endpaginate %}
+    </div>
+</section>
+
+
+{% schema %}
+{
+    "name": "Blog template",
+    "templates": ["blog"],
+    "settings": [
+        {
+            "type": "header",
+            "content": "General settings"
+        },
+        {
+            "type": "select",
+            "id": "container",
+            "label": "Container",
+            "default": "container",
+            "options": [
+                { "value": "container", "label": "Container" },
+                { "value": "container-fluid", "label": "Fluid" }
+            ]
+        },
+        {
+            "type": "color_scheme",
+            "label": "Color scheme",
+            "id": "color_scheme"
+        },
+        {
+            "type": "select",
+            "id": "animation",
+            "label": "Animation",
+            "default": "animate__fadeInUp",
+            "options": [
+                { "group": "Disabled", "value": "", "label": "No animation" },
+                { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+                { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+                { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+                { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+                { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+                { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+                { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+                { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+                { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+                { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+                { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+                { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+                { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+                { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+                { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+                { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+                { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+                { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+                { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+                { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+                { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+            ]
+        },
+        {
+            "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+          { "value": "animate__slower", "label": "Slower" },
+          { "value": "animate__slow", "label": "Slow" },
+          { "value": "", "label": "Normal" },
+          { "value": "animate__fast", "label": "Fast" },
+          { "value": "animate__faster", "label": "Faster" }
+        ]
+    },
+    {
+        "type": "select",
+        "id": "blog_style",
+        "label": "Blog style",
+        "options": [
+            {
+                "label": "Card (horizontal list)", "value": "horizontal_list"
+            },
+            {
+                "label": "Card (vertical list)", "value": "vertical_list"
+            }
+        ]
+    },
+    {
+        "type": "select",
+        "label": "Image orientation",
+        "default": "",
+        "options": [
+        { "label": "Adapt", "value": ""},
+        { "label": "Landscape", "value": "landscape"},
+        {"label": "Wide landscape", "value": "wide"},
+        {"label": "Portrait", "value": "portrait"},
+        {"label": "Square", "value": "square"}
+      ],
+      "id": "aspect_ratio"
+    },
+    {
+      "type": "range",
+      "id": "max_articles",
+      "label": "Max articles displayed at once",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 6
+    },
+    {
+        "type": "header",
+        "content": "Excerpt settings"
+    },
+    {
+        "type": "select",
+        "id": "hide_excerpt_on",
+        "label": "Hide on",
+        "options": [
+            {
+                "label": "None", "value": "none"
+            },
+            {
+                "label": "Desktop", "value": "desktop"
+            },
+            {
+                "label": "Mobile", "value": "Mobile"
+            },
+            {
+                "label": "All", "value": "all"
+            }
+        ]
+    },
+    {
+        "type": "header",
+        "content": "Breakpoints"
+    },
+    {
+      "type": "checkbox",
+      "id": "scroll",
+      "label": "Scroll on mobile",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "mobile_breakpoint",
+      "label": "Items per row - mobile",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "desktop_breakpoint",
+      "label": "Items per row - desktop",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "pt",
+      "label": "Padding Top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "pb",
+      "label": "Padding Bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "Margin Top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "Margin Bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    }
+        ]
+}
+{% endschema %}

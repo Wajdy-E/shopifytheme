@@ -1,0 +1,474 @@
+{% liquid
+  assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+  if section.index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  else
+    assign loading = 'lazy'
+    assign fetchpriority = 'low'
+  endif
+  assign mobile_banner_height = section.settings.mobile_split_banner_height
+  assign desktop_banner_height = section.settings.split_banner_height
+  assign classes = mobile_banner_height | append: ' w-100 object-fit-cover zoom-on-hover ' | append: desktop_banner_height
+%}
+
+<section
+  class="
+    split-banner pt-{{ section.settings.pt }} pb-{{ section.settings.pb }} mt-{{ section.settings.mt }} mb-{{ section.settings.mb }} enter-view overflow-hidden
+    {% if section.settings.visibility == 'd-block' %}d-flex {% else %}  {{ section.settings.visibility }} {% endif %}
+    {% if customer and section.settings.showTo == 'guest' %}d-none{% elsif section.settings.showTo == 'customer' %}
+     {% unless customer %}d-none{% endunless %}{% endif %} {{ color_scheme_class }}
+  "
+  id="split-banner-{{ section.id }}"
+>
+  <div class="{{ section.settings.container }}">
+    <div class="row m-0 row-cols-md-3 row-cols-1 round overflow-hidden {{ desktop_banner_height }}">
+      <div class="col m-0 p-0 has-image">
+        {{-
+          section.settings.image_1
+          | image_url: width: section.settings.image_1.width
+          | image_tag:
+            loading: loading,
+            fetchpriority: fetchpriority,
+            sizes: '(min-width: 768px) 33vw, 100vw',
+            widths: '300,400,500,600,700,800,900,1000',
+            class: classes
+        -}}
+      </div>
+      <div class="col p-5 d-flex flex-column justify-content-center align-items-center {{ section.settings.text_alignment }}">
+        {% for block in section.blocks %}
+          <div
+            class="{% unless section.settings.animation == '' %}animate__animated opacity-0 {{ section.settings.animation_speed }}{% endunless %}"
+            data-animate-class="{{ section.settings.animation }}"
+            style="animation-delay: {{ forloop.index | times: 150 }}ms;"
+          >
+            {% case block.type %}
+              {% when 'richtext' %}
+                {% assign rich_fs_mobile = 'fs-' | append: block.settings.richtext_font_size_mobile %}
+                {% assign rich_fs_desktop = 'fs-lg-' | append: block.settings.richtext_font_size_desktop %}
+                <div class="{{ rich_fs_desktop }} {{ rich_fs_mobile }}" {{ block.shopify_attributes }}>
+                  {{ block.settings.richtext }}
+                </div>
+              {% when 'paragraph' %}
+                {% assign subheader_fs_mobile = 'fs-' | append: block.settings.subheader_font_size_mobile %}
+                {% assign subheader_fs_desktop = 'fs-lg-' | append: block.settings.subheader_font_size_desktop %}
+                <h2
+                  class="{{ subheader_fs_desktop }} {{subheader_fs_mobile}} text-uppercase  {% if block.settings.font_weight %} fw-normal {% endif %}"
+                  {{ block.shopify_attributes }}
+                >
+                  {{ block.settings.subheader }}
+                </h2>
+              {% when 'header' %}
+                {% assign title_fs_mobile = 'fs-' | append: block.settings.title_font_size_mobile %}
+                {% assign title_fs_desktop = 'fs-lg-' | append: block.settings.title_font_size_desktop %}
+                <h3 class="{{ title_fs_desktop}} {{title_fs_mobile}}" {{ block.shopify_attributes }}>
+                  {{ block.settings.title }}
+                </h3>
+              {% when 'url' %}
+                {% liquid
+                  assign p-btn-text = block.settings['p-btn-text']
+                  assign p-btn-type = block.settings['p-btn-type']
+                  assign p-btn-url = block.settings['p-btn-url']
+                  assign s-btn-text = block.settings['s-btn-text']
+                  assign s-btn-type = block.settings['s-btn-type']
+                  assign s-btn-url = block.settings['s-btn-url']
+                %}
+                <div class="btn-wrapper d-flex gap-6">
+                  {% unless p-btn-text == blank %}
+                    <a href="{{ p-btn-url }}" class="btn rounded {{ p-btn-type }}">
+                      {{ p-btn-text }}
+                    </a>
+                  {% endunless %}
+
+                  {% unless s-btn-text == blank %}
+                    <a href="{{ s-btn-url }}" class="btn rounded {{ s-btn-type }}">
+                      {{ s-btn-text }}
+                    </a>
+                  {% endunless %}
+                </div>
+            {% endcase %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="col m-0 p-0 has-image">
+        {{-
+          section.settings.image_2
+          | image_url: width: section.settings.image_2.width
+          | image_tag:
+            loading: loading,
+            fetchpriority: fetchpriority,
+            sizes: '(min-width: 768px) 33vw, 100vw',
+            widths: '300,400,500,600,700,800,900,1000',
+            class: classes
+        -}}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+    "name": "Split Banner",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General Settings"
+        },
+        {
+        "type": "select",
+        "label": "Visibile on",
+        "id": "visibility",
+        "default": "d-flex",
+        "options": [
+          {
+            "value": "d-flex",
+            "label": "All screen sizes"
+          },
+          {
+            "value": "d-sm-none d-lg-flex",
+            "label": "On desktop only"
+          },
+          {
+            "value": "d-lg-none d-sm-flex",
+            "label": "On mobile only"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "label": "Visibile to",
+        "id": "showTo",
+        "default": "everyone",
+        "info": "If you're not logged in within the customizer and you've chosen display to customers, it will not show within customizer.",
+        "options": [
+          {
+            "label": "Logged in",
+            "value": "customer"
+          },
+          {
+            "label": "Guests only",
+            "value": "guest"
+          },
+          {
+            "label": "Everyone",
+            "value": "everyone"
+          }
+        ]
+
+      },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Width",
+      "default": "container-fluid",
+      "options": [
+        { "value": "container", "label": "Container" },
+        { "value": "container-fluid", "label": "Full width" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "label": "Color scheme",
+      "id": "color_scheme"
+    },
+    {
+      "type": "header",
+      "content": "Alignment"
+    },
+    {
+      "type": "select",
+      "label": "Text alignment",
+      "id": "text_alignment",
+      "default": "text-start",
+      "options": [
+        {
+          "label": "Align left",
+          "value": "text-start"
+        },
+        {
+          "label": "Align center",
+          "value": "text-center"
+        },
+        {
+          "label": "Align right",
+          "value": "text-end"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Text animation"
+    },
+    {
+        "type": "select",
+        "id": "animation",
+        "label": "Animation",
+        "default": "animate__fadeInUp",
+        "options": [
+            { "group": "Disabled", "value": "", "label": "No animation" },
+            { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+            { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+            { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+            { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+            { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+            { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+            { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+            { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+            { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+            { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+            { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+            { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+            { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+            { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+            { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+            { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+            { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+            { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+            { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+            { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+            { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+        ]
+    },
+    {
+        "type": "select",
+        "id": "animation_speed",
+        "label": "Animation speed",
+        "default": "animate__fast",
+        "options": [
+            { "value": "animate__slower", "label": "Slower" },
+            { "value": "animate__slow", "label": "Slow" },
+            { "value": "", "label": "Normal" },
+            { "value": "animate__fast", "label": "Fast" },
+            { "value": "animate__faster", "label": "Faster" }
+        ]
+    },
+    {
+        "type": "header",
+        "content": "Image settings"
+    },
+    {
+      "type": "select",
+      "label": "Desktop image height",
+      "id": "split_banner_height",
+      "options": [
+        { "label": "400px", "value": "h-d-400"},
+        { "label": "500px", "value": "h-d-500"},
+        { "label": "600px", "value": "h-d-600"},
+        { "label": "700px", "value": "h-d-700"},
+        { "label": "800px", "value": "h-d-800"},
+        { "label": "Full screen", "value": "h-d-full"},
+        { "label": "Adapt to first image", "value": "h-d-auto"}
+      ],
+      "default": "h-d-auto"
+    },
+    {
+      "type": "select",
+      "label": "Mobile image height",
+      "id": "mobile_split_banner_height",
+      "options": [
+        { "label": "400px", "value": "h-m-400"},
+        { "label": "500px", "value": "h-m-500"},
+        { "label": "600px", "value": "h-m-600"},
+        { "label": "700px", "value": "h-m-700"},
+        { "label": "800px", "value": "h-m-800"},
+        { "label": "Full screen", "value": "h-m-full"},
+        { "label": "Adapt to first image", "value": "h-m-auto"}
+      ],
+      "default": "h-m-auto"
+    },
+    {
+        "type": "image_picker",
+        "label": "Image 1",
+        "id": "image_1"
+    },
+    {
+        "type": "image_picker",
+        "id": "image_2",
+        "label": "Image 2"
+    }
+
+        ],
+        "blocks": [
+    {
+      "name": "Heading",
+      "type": "header",
+      "limit": 1,
+      "settings": [
+
+          {
+          "type": "range",
+          "id": "title_font_size_mobile",
+          "label": "Title font-size | mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 5
+      },
+      {
+          "type": "range",
+          "id": "title_font_size_desktop",
+          "label": "Title font-size | desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 7
+      },
+      {
+        "type": "inline_richtext",
+        "label": "Heading",
+        "id": "title"
+      }
+      ]
+    },
+    {
+      "type": "richtext",
+      "name": "Richtext",
+      "settings": [
+
+          {
+          "type": "range",
+          "id": "richtext_font_size_mobile",
+          "label": "Description font-size | mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 5
+      },
+      {
+          "type": "range",
+          "id": "richtext_font_size_desktop",
+          "label": "Description font-size | desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 7
+      },
+      {
+        "type": "richtext",
+        "label": "Richtext",
+        "id": "richtext"
+      }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "name": "Subheader",
+      "limit": 1,
+      "settings": [
+          {
+          "type": "range",
+          "id": "subheader_font_size_mobile",
+          "label": "Subheader font-size | mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 3
+
+      },
+      {
+          "type": "range",
+          "id": "subheader_font_size_desktop",
+          "label": "Subheader font-size | desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 5
+      },
+      {
+        "type": "text",
+        "label": "Subheader",
+        "id": "subheader"
+      },
+      {
+        "type": "checkbox",
+        "label": "Enable normal font weight",
+        "id": "font_weight",
+        "default": false
+      }
+      ]
+    },
+    {
+      "name": "Buttons",
+      "type": "url",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Primary Button"
+        },
+        {
+          "type": "url",
+          "id": "p-btn-url",
+          "label": "URL"
+        },
+        {
+          "type": "text",
+          "label": "Button label",
+          "id": "p-btn-text",
+          "default": "Primary button"
+        },
+        {
+          "type": "select",
+          "id": "p-btn-type",
+          "label": "Button style",
+          "options": [
+            {
+              "group": "Primary", "label": "Fill", "value": "btn-primary"
+            },
+            {
+              "group": "Primary", "label": "Outline", "value": "btn-outline-primary"
+            },
+            {
+              "group": "Secondary", "label": "Fill", "value": "btn-secondary"
+            },
+            {
+              "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary"
+            }
+          ],
+          "default": "btn-primary"
+        },
+        {
+          "type": "header",
+          "content": "Secondary Button"
+        },
+        {
+          "type": "url",
+          "id": "s-btn-url",
+          "label": "URL"
+        },
+        {
+          "type": "text",
+          "label": "Button label",
+          "id": "s-btn-text",
+          "default": "Secondary button"
+        },
+        {
+          "type": "select",
+          "id": "s-btn-type",
+          "label": "Button style",
+          "options": [
+            {
+              "group": "Primary", "label": "Fill", "value": "btn-primary"
+            },
+            {
+              "group": "Primary", "label": "Outline", "value": "btn-outline-primary"
+            },
+            {
+              "group": "Secondary", "label": "Fill", "value": "btn-secondary"
+            },
+            {
+              "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary"
+            }
+          ],
+          "default": "btn-secondary"
+        }
+      ]
+    }
+  ],
+        "presets": [
+            {
+                "name": "Split Banner"
+            }
+        ]
+}
+{% endschema %}

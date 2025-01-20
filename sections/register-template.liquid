@@ -1,0 +1,157 @@
+{% liquid
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme  
+%}
+
+<section class="customer register h-100 py-lg-15 py-10 {{ color_scheme_class }}">
+    <div class="container" style="max-width: 600px;">
+        <h1 tabindex="-1" class="fs-lg-12 fs-10 mb-5">
+            {{ 'customer.register.title' | t }}
+        </h1>
+
+        {%- form 'create_customer', novalidate: 'novalidate', class: "d-flex flex-column gap-6" -%}
+        
+        {%- if form.errors -%}
+            <ul class="error-list alert alert-danger small">
+                {%- for field in form.errors -%}
+                    <li>
+                        {%- if field == 'form' -%}
+                            {{ form.errors.messages[field] }}
+                        {%- else -%}
+                            <a href="#RegisterForm-{{ field }}">
+                                {{ form.errors.translated_fields[field] | capitalize }}
+                                {{ form.errors.messages[field] }}
+                            </a>
+                        {%- endif -%}
+                    </li>
+                {%- endfor -%}
+            </ul>
+        {%- endif -%}
+        <div class="d-flex row-cols-lg-2 row-cols-1 gap-6">
+          <div class="mb-3">
+              <label for="RegisterForm-FirstName" class="form-label">
+                  {{ 'customer.register.first_name' | t }}
+              </label>
+              <input
+                  type="text"
+                  class="form-control"
+                  name="customer[first_name]"
+                  id="RegisterForm-FirstName"
+                  {% if form.first_name %}
+                  value="{{ form.first_name }}"
+                  {% endif %}
+                  autocomplete="given-name"
+                  placeholder="{{ 'customer.register.first_name' | t }}"
+              >
+          </div>
+
+          <div class="mb-3">
+              <label for="RegisterForm-LastName" class="form-label">
+                  {{ 'customer.register.last_name' | t }}
+              </label>
+              <input
+                  type="text"
+                  class="form-control"
+                  name="customer[last_name]"
+                  id="RegisterForm-LastName"
+                  {% if form.last_name %}
+                  value="{{ form.last_name }}"
+                  {% endif %}
+                  autocomplete="family-name"
+                  placeholder="{{ 'customer.register.last_name' | t }}"
+              >
+          </div>
+        </div>
+        <div class="mb-3">
+            <label for="RegisterForm-email" class="form-label">
+                {{ 'customer.register.email' | t }}
+            </label>
+            <input
+                type="email"
+                class="form-control"
+                name="customer[email]"
+                id="RegisterForm-email"
+                {% if form.email %}
+                value="{{ form.email }}"
+                {% endif %}
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="email"
+                aria-required="true"
+                {% if form.errors contains 'email' %}
+                aria-invalid="true"
+                aria-describedby="RegisterForm-email-error"
+                {% endif %}
+                placeholder="{{ 'customer.register.email' | t }}"
+            >
+            {%- if form.errors contains 'email' -%}
+            <small id="RegisterForm-email-error" class="text-danger">
+                {{ form.errors.translated_fields.email | capitalize }}
+                {{ form.errors.messages.email }}.
+            </small>
+            {%- endif -%}
+        </div>
+
+        <div class="mb-3">
+            <label for="RegisterForm-password" class="form-label">
+                {{ 'customer.register.password' | t }}
+            </label>
+            <input
+                type="password"
+                class="form-control"
+                name="customer[password]"
+                id="RegisterForm-password"
+                aria-required="true"
+                {% if form.errors contains 'password' %}
+                aria-invalid="true"
+                aria-describedby="RegisterForm-password-error"
+                {% endif %}
+                placeholder="{{ 'customer.register.password' | t }}"
+                
+            >
+            {%- if form.errors contains 'password' -%}
+            <small id="RegisterForm-password-error" class="text-danger">
+                {{ form.errors.translated_fields.password | capitalize }}
+                {{ form.errors.messages.password }}.
+            </small>
+            {%- endif -%}
+        </div>
+        {% if section.settings.show_marketing_consent %}
+            
+            <div class="accepts-marketing mb-3">
+                <input type="hidden" name="customer[accepts_marketing]" value="false" />
+                <input id="accepts-marketing" type="checkbox" name="customer[accepts_marketing]" value="true" checked/>
+                <label for="accepts-marketing" class="small muted">Subscribe to email marketing</label>
+            </div>      
+        {% endif %}
+            <button type="submit" class="btn btn-primary w-100">
+                {{ 'customer.register.submit' | t }}
+            </button>
+
+        {%- endform -%}
+    </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main-register.name",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_shop_login_button",
+      "label": "t:sections.main-register.shop_login_button.enable",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "label": "Color scheme",
+      "id": "color_scheme"
+    },
+    {
+        "type": "checkbox",
+        "default": true,
+        "id": "show_marketing_consent",
+        "label": "Show marketing consent"
+    }
+  ]
+}
+{% endschema %}

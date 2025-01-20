@@ -1,0 +1,96 @@
+<div class="accordion {{ block.settings.accordion_style }}" id="accordion-{{ block.id }}" {{ block.shopify_attributes }}>
+  
+  <!-- Item 1 -->
+  {% if block.settings.title_item_1 != blank %}
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button {% unless block.settings.open_first_item %}collapsed{% endunless %}" 
+              type="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#collapseOne-{{ block.id }}" 
+              aria-expanded="{% if block.settings.open_first_item %}true{% else %}false{% endif %}" 
+              aria-controls="collapseOne-{{ block.id }}"
+              class="fs-lg-{{ block.settings.title_font_size_desktop }} fs-{{ block.settings.title_font_size_mobile }}">
+        {{ block.settings.title_item_1 }}
+        {% render 'plus-icon', class: 'accordion-state-icon' %}
+        {% render 'minus-icon', class: 'accordion-state-icon' %}
+
+      </button>
+    </h2>
+    <div id="collapseOne-{{ block.id }}" class="accordion-collapse collapse {% if block.settings.open_first_item %}show{% endif %}" data-bs-parent="#accordion-{{ block.id }}">
+      <div class="accordion-body fs-lg-{{ block.settings.description_font_size_desktop }} fs-{{ block.settings.description_font_size_mobile }}">
+        {% if block.settings.description_item_1_is_desc %}
+          {{ product.description }}
+        {% elsif block.settings.description_item_1 != blank %}
+          {{ block.settings.description_item_1 }}
+        {% else %}
+          <p>No description available.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Item 2 -->
+  {% if block.settings.title_item_2 != blank %}
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" 
+              type="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#collapseTwo-{{ block.id }}" 
+              aria-expanded="false" 
+              aria-controls="collapseTwo-{{ block.id }}"
+              class="fs-lg-{{ block.settings.title_font_size_desktop }} fs-{{ block.settings.title_font_size_mobile }}">
+        {{ block.settings.title_item_2 }}
+        {% render 'plus-icon', class: 'accordion-state-icon' %}
+        {% render 'minus-icon', class: 'accordion-state-icon' %}
+
+
+      </button>
+    </h2>
+    <div id="collapseTwo-{{ block.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ block.id }}">
+      <div class="accordion-body fs-lg-{{ block.settings.description_font_size_desktop }} fs-{{ block.settings.description_font_size_mobile }}">
+        {% if block.settings.description_item_2_is_desc %}
+          {{ product.description }}
+        {% elsif block.settings.description_item_2 != blank %}
+          {{ block.settings.description_item_2 }}
+        {% else %}
+          <p>No description available.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Item 3 -->
+  {% if block.settings.title_item_3 != blank %}
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" 
+              type="button" 
+              data-bs-toggle="collapse" 
+              data-bs-target="#collapseThree-{{ block.id }}" 
+              aria-expanded="false" 
+              aria-controls="collapseThree-{{ block.id }}"
+              class="fs-lg-{{ block.settings.title_font_size_desktop }} fs-{{ block.settings.title_font_size_mobile }}">
+        {{ block.settings.title_item_3 }}
+        {% render 'plus-icon', class: 'accordion-state-icon' %}
+        {% render 'minus-icon', class: 'accordion-state-icon' %}
+
+      </button>
+    </h2>
+    <div id="collapseThree-{{ block.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ block.id }}">
+      <div class="accordion-body fs-lg-{{ block.settings.description_font_size_desktop }} fs-{{ block.settings.description_font_size_mobile }}">
+        {% if block.settings.description_item_3_is_desc %}
+          {{ product.description }}
+        {% elsif block.settings.description_item_3 != blank %}
+          {{ block.settings.description_item_3 }}
+        {% else %}
+          <p>No description available.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>

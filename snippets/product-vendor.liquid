@@ -1,0 +1,10 @@
+{% if settings.show_vendor or exception %}   
+    <div class="product-vendor">
+        {% if exception and block.settings.custom_product_vendor !=blank %}
+        <p class="m-0 muted small">{{ block.settings.custom_product_vendor }}</p>
+        {% else %}       
+        <p class="m-0 muted small">{{ product.vendor }}</p>
+        {% endif %}
+    </div>
+{% endif %}
+

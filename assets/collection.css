@@ -1,0 +1,43 @@
+/** Grid layout selector */
+#layout-selector{
+    background-color: var(--bs-dark);
+    border-radius: var(--bs-border-radius);
+    padding: 5px 10px;
+}
+.grid-icon {
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--bs-border-radius);
+  }
+  .grid-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  
+  .grid-square {
+    width: 2px;  
+    height: 20px; 
+    border: 2px solid white;
+    box-sizing: border-box;
+    border-radius: var(--bs-border-radius);
+  }
+  
+.grid-icon:not(.active){
+    opacity: 0.4;
+}
+.grid-icon:hover, .grid-icon.active{
+    opacity: 1;
+}
+
+.hover-image {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  width: 200px;
+  height: auto;
+  z-index: 1000;
+}

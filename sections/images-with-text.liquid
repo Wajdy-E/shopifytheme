@@ -1,0 +1,381 @@
+{% liquid
+  assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+  if section.settings.scroll
+    assign mobile_scroll = 'mobile_scroll'
+  endif
+
+  assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-'
+  assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-' 
+
+%}
+
+<section
+  id="icons-with-text-{{ section.id }}"
+  class="
+    enter-view overflow-hidden {% if section.settings.visibility == blank or section.settings.visibility == nil %} d-flex {% else %}
+    {{ section.settings.visibility }} {% endif %} justify-content-center {{ section.settings.text_align }}
+    pt-{{ section.settings.pt }} pb-{{ section.settings.pb }} mt-{{ section.settings.mt }} mb-{{ section.settings.mb }}
+    {{ color_scheme_class }}
+  "
+  style="background-color: {{ section.settings.bg_color }};"
+>
+  <div class="{{ section.settings.container }}">
+    <ul class="list-unstyled row {{ section.settings.text_alignment }} {{ mobile_scroll }} {{ row_sm }} {{ row_lg }} g-8">
+      {% for block in section.blocks %}
+        {% liquid
+          assign title_fs_mobile = block.settings.title_font_size_mobile | prepend: 'fs-'
+          assign title_fs_desktop = block.settings.title_font_size_desktop | prepend: 'fs-lg-'
+          assign desc_fs_mobile = block.settings.description_font_size_mobile | prepend: 'fs-'
+          assign desc_fs_desktop = block.settings.description_font_size_desktop | prepend: 'fs-lg-'
+        %}
+        <li
+          class="col {% unless section.settings.animation == '' %}animate__animated opacity-0 {{ section.settings.animation_speed }}{% endunless %}"
+          style="animation-delay: {{ forloop.index0 | times: 150 }}ms;"
+          data-animate-class="{{ section.settings.animation }}"
+          {{ block.shopify_attributes }}
+        >
+          <div class="d-flex {{ section.settings.image_position }} block rounded has-image p-0">
+            {% assign apparel_number = forloop.index | modulo: 3 | plus: 1 %}
+
+            {% if block.settings.image == blank %}
+              {{ 'hero-apparel-' | append: apparel_number | placeholder_svg_tag }}
+            {% else %}
+              <img
+                src="{{ block.settings.image | image_url: width: block.settings.image.widthi }}"
+                alt="{{ block.settings.image.alt | escape }}"
+                class="img-fluid"
+                loading="lazy"
+              >
+            {% endif %}
+
+            <div class="content p-6">
+              {% unless block.settings.title == blank %}
+                <h2 class="mb-5 {{ title_fs_mobile }} {{ title_fs_desktop }}">
+                  {{ block.settings.title }}
+                </h2>
+              {% endunless %}
+              {% unless block.settings.description == blank %}
+                <p class="mt-n4 mb-5 {{ desc_fs_mobile }} {{ desc_fs_desktop }}">
+                  {{ block.settings.description }}
+                </p>
+              {% endunless %}
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+    "name": "Images with text",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General Settings"
+        },
+        {
+            "type": "select",
+            "label": "Visibility",
+            "id": "visibility",
+            "default": "d-flex",
+            "options": [
+                {
+                    "value": "d-flex",
+                    "label": "All screen sizes"
+                },
+                {
+                    "value": "d-sm-none d-lg-flex",
+                    "label": "On desktop only"
+                },
+                {
+                    "value": "d-lg-none d-sm-flex",
+                    "label": "On mobile only"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "container",
+            "label": "Container",
+            "default": "container",
+            "options": [
+                { "value": "container", "label": "Container" },
+                { "value": "container-fluid", "label": "Full width" }
+            ]
+        },
+        {
+          "type": "color_scheme",
+          "label": "Color scheme",
+          "id": "color_scheme"
+        },
+        {
+            "type": "select",
+            "id": "image_position",
+            "label": "Image position",
+            "options": [
+                {
+                    "label":"Top", "value": "flex-column"
+                },
+                {
+                    "label": "Bottom", "value": "flex-column-reverse"
+                },
+                {
+                    "label": "Left", "value": "flex-row"
+                },
+                {
+                    "label": "Right", "value": "flex-row-reverse"
+                }
+            ],
+            "default": "flex-column"
+        },
+        {
+            "type": "select",
+            "label": "Text alignment",
+            "id": "text_alignment",
+            "options": [
+                {
+                    "label":"Left", "value": "text-start"
+                },
+                {
+                    "label":"Center", "value": "text-center"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "animation",
+            "label": "Animation",
+            "default": "animate__fadeInUp",
+            "options": [
+                { "group": "Disabled", "value": "", "label": "No animation" },
+                { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+                { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+                { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+                { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+                { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+                { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+                { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+                { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+                { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+                { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+                { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+                { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+                { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+                { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+                { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+                { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+                { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+                { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+                { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+                { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+                { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "animation_speed",
+            "label": "Animation speed",
+            "default": "animate__fast",
+            "options": [
+                { "value": "animate__slower", "label": "Slower" },
+                { "value": "animate__slow", "label": "Slow" },
+                { "value": "", "label": "Normal" },
+                { "value": "animate__fast", "label": "Fast" },
+                { "value": "animate__faster", "label": "Faster" }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Font Sizes"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 7
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 5
+        },
+        {
+            "type": "header",
+            "content": "Breakpoints"
+        },
+        {
+            "type": "checkbox",
+            "id": "scroll",
+            "label": "Scroll on mobile",
+            "default": true
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_sm",
+            "label": "Items per row / sm",
+            "info": "Screen width: ≥576px",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_lg",
+            "label": "Items per row / lg",
+            "info": "Screen width: ≥992px",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "text",
+            "name": "Image with Text",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": "Image"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Title"
+                },
+                {
+                    "type": "textarea",
+                    "id": "description",
+                    "label": "Description",
+                    "default": "Short description goes here."
+                },
+                {
+                    "type": "color",
+                    "id": "block_bg_color",
+                    "label": "Block background color"
+                },
+                {
+                    "type": "color",
+                    "id": "text_color",
+                    "label": "Text color"
+                },
+                {
+          "type": "header",
+          "content": "Font Sizes"
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Mobile)",
+          "id": "title_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Desktop)",
+          "id": "title_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "label": "Paragraph Font Size (Mobile)",
+          "id": "description_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "range",
+          "label": "Paragraph Font Size (Desktop)",
+          "id": "description_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        }
+            ]
+        }
+    ],
+    "presets": [
+        {
+                "name": "Images with text"
+        }
+    ]
+}
+{% endschema %}

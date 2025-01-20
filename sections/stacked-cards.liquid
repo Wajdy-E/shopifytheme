@@ -1,0 +1,650 @@
+{% assign color_scheme_class = 'color-' | append: section.settings.color_scheme %}
+<style>
+  @media (min-width: 768px) {
+    #stacked-cards-{{ section.id }} .stacked-card {
+      top: calc(15vh + (var(--index) - 1) * 4vh);
+    }
+
+    {% assign total_blocks = section.blocks.size %}
+    {% if section.settings.scale_style == 'reverse' %}
+      #stacked-cards-{{ section.id }} .stacked-card.overlapped {
+        transform: scale(calc(1 - (var(--index) - 1) * 0.05));
+      }
+    {% else %}
+      #stacked-cards-{{ section.id }} .stacked-card.overlapped {
+        transform: scale(calc(0.80 + (var(--index) - 1) * 0.05));
+      }
+      #stacked-cards-{{ section.id }} .stacked-card.normal-overlapped {
+        transform: scale(calc(0.95 - ({{ total_blocks }} - var(--index)) * 0.05));
+      }
+    {% endif %}
+
+    #stacked-cards-{{ section.id }} img, #stacked-cards-{{ section.id }} video {
+      height: {{ section.settings.desktop_height }}vh;
+      min-height: 100%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    #stacked-cards-{{ section.id }} img, #stacked-cards-{{ section.id }} video {
+      height: {{ section.settings.mobile_height }}vh;
+      min-height: 100%;
+    }
+
+    #stacked-cards-{{ section.id }} .stacked-card {
+      top: 5vh;
+    }
+  }
+</style>
+
+<section id="stacked-cards-{{ section.id }}" class="stacked-cards {{ color_scheme_class }}">
+  <div class="{{ section.settings.container }}">
+    <stacked-cards
+      data-section-id="{{ section.id }}"
+      data-total-blocks="{{ section.blocks.size }}"
+      data-scale-style="{{ section.settings.scale_style }}"
+      role="group"  
+      aria-label="Stacked cards"
+    >
+      <div class="stacked-list" role="list">
+        {% assign index = 0 %}
+        {% for block in section.blocks %}
+          {% assign color_scheme_class = 'color-' | append: block.settings.color_scheme %}
+          {% assign index = index | plus: 1 %}
+          <stacked-card
+            class="stacked-card position-sticky d-block round {{ color_scheme_class }} enter-view overflow-hidden"
+            data-index="{{ index }}"
+            tabindex="0"
+            role="listitem"
+            aria-label="Stacked card {{ index }}" 
+            {{ block.shopify_attributes }}
+          >
+            <div class="row stacked-card-body {{ block.settings.media_side }}">
+              <div class="col-md-{{ block.settings.column_width }} p-0 overflow-hidden has-image">
+                {% if block.type == 'image' %}
+                  {% if block.settings.image == blank %}
+                    {{ 'detailed-apparel-1' | placeholder_svg_tag: 'h-100 w-100' }}
+                  {% else %}
+                    <img
+                      class="object-fit-cover w-100"
+                      src="{{ block.settings.image | image_url: width: block.settings.image.width }}"
+                      alt="{{ block.settings.image.alt | escape }}"
+                      width="{{ block.settings.image.width }}"
+                      height="{{ block.settings.image.height }}"
+                      loading="lazy"
+                    >
+                  {% endif %}
+                {% else %}
+                  {% if block.settings.video %}
+                    <div>
+                      {% assign video_class = 'w-100 object-fit-cover' %}
+                      {{
+                        block.settings.video
+                        | video_tag:
+                          class: video_class,
+                          image_size: '800x',
+                          autoplay: true,
+                          loop: true,
+                          muted: true,
+                          controls: block.settings.controls
+                      }}
+                    </div>
+                  {% endif %}
+                {% endif %}
+              </div>
+              <div class="col align-content-center p-8">
+                {% render 'block-header', block: block %}
+              </div>
+            </div>
+          </stacked-card>
+        {% endfor %}
+      </div>
+    </stacked-cards>
+  </div>
+</section>
+
+
+{% schema %}
+{
+  "name": "Stacked Cards",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Visibility"
+    },
+    {
+      "type": "select",
+      "label": "Visible on",
+      "id": "visibility",
+      "default": "d-flex",
+      "options": [
+        {
+          "value": "d-flex",
+          "label": "All screen sizes"
+        },
+        {
+          "value": "d-sm-none d-lg-flex",
+          "label": "On desktop only"
+        },
+        {
+          "value": "d-lg-none d-sm-flex",
+          "label": "On mobile only"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Width",
+      "default": "container",
+      "options": [
+        { "value": "container", "label": "Default" },
+        { "value": "container-fluid", "label": "Full width" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "label": "Color scheme",
+      "id": "color_scheme"
+    },
+    {
+      "type": "range",
+      "label": "Desktop image height",
+      "id": "desktop_height",
+      "min": 30,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "label": "Mobile image height",
+      "id": "mobile_height",
+      "min": 30,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "label": "Scale style",
+      "id": "scale_style",
+      "default": "reverse",
+      "options": [
+        { "value": "reverse", "label": "Reverse Scale First" },
+        { "value": "normal", "label": "Normal Scale First" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Text animation"
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "Disabled", "value": "", "label": "No animation" },
+        { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+        { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+        { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+        { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+        { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+        { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+        { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+        { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+        { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+        { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+        { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+        { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+        { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+        { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+        { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+        { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+        { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+        { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+        { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "Slower" },
+        { "value": "animate__slow", "label": "Slow" },
+        { "value": "", "label": "Normal" },
+        { "value": "animate__fast", "label": "Fast" },
+        { "value": "animate__faster", "label": "Faster" }
+      ]
+    },
+    {
+      "type": "number",
+      "id": "card_height",
+      "label": "Card Height (vh)",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "color_scheme",
+          "label": "Color scheme",
+          "id": "color_scheme"
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Image width",
+          "options": [
+            {
+              "label": "1/3", "value": "4"
+            },
+            {
+              "label": "1/2", "value": "6"
+            },
+            {
+              "label": "2/3", "value": "8"
+            }
+          ],
+          "default": "6"
+        },
+        {
+          "type": "select",
+          "id": "media_side",
+          "label": "Image Side",
+          "options": [
+            { "value": "", "label": "Left" },
+            { "value": "flex-lg-row-reverse flex-row", "label": "Right" }
+          ],
+          "default": ""
+        },
+        {
+          "type": "text",
+          "label": "Subheading",
+          "id": "subheader",
+          "default": "Write an eye catching one liner"
+        },
+        {
+          "type": "text",
+          "label": "Heading",
+          "id": "title",
+          "default": "This is your heading text"
+        },
+        {
+          "type": "textarea",
+          "label": "Paragraph",
+          "id": "description",
+          "default": "This is your short description text"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "header",
+          "content": "Primary Button"
+        },
+        {
+          "type": "url",
+          "id": "p-btn-url",
+          "label": "URL"
+        },
+        {
+          "type": "text",
+          "label": "Button label",
+          "id": "p-btn-text",
+          "default": "Primary button"
+        },
+        {
+          "type": "select",
+          "id": "p-btn-type",
+          "label": "Button style",
+          "options": [
+            {
+              "group": "Primary", "label": "Fill", "value": "btn-primary"
+            },
+            {
+              "group": "Primary", "label": "Outline", "value": "btn-outline-primary"
+            },
+            {
+              "group": "Secondary", "label": "Fill", "value": "btn-secondary"
+            },
+            {
+              "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary"
+            }
+          ],
+          "default": "btn-primary"
+        },
+        {
+          "type": "header",
+          "content": "Secondary Button"
+        },
+        {
+          "type": "url",
+          "id": "s-btn-url",
+          "label": "URL"
+        },
+        {
+          "type": "text",
+          "label": "Button label",
+          "id": "s-btn-text",
+          "default": "Secondary button"
+        },
+        {
+          "type": "select",
+          "id": "s-btn-type",
+          "label": "Button style",
+          "options": [
+            {
+              "group": "Primary", "label": "Fill", "value": "btn-primary"
+            },
+            {
+              "group": "Primary", "label": "Outline", "value": "btn-outline-primary"
+            },
+            {
+              "group": "Secondary", "label": "Fill", "value": "btn-secondary"
+            },
+            {
+              "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary"
+            }
+          ],
+          "default": "btn-secondary"
+        },
+        {
+          "type": "header",
+          "content": "Font Sizes"
+        },
+        {
+          "type": "range",
+          "label": "Subheading Font Size (Mobile)",
+          "id": "subheader_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 4
+        },
+        {
+          "type": "range",
+          "label": "Subheading Font Size (Desktop)",
+          "id": "subheader_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 6
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Mobile)",
+          "id": "title_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Desktop)",
+          "id": "title_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "label": "Paragraph Font Size (Mobile)",
+          "id": "description_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "range",
+          "label": "Paragraph Font Size (Desktop)",
+          "id": "description_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video Card",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video"
+        },
+        {
+          "type": "color_scheme",
+          "label": "Color scheme",
+          "id": "color_scheme"
+        },
+        {
+          "type": "select",
+          "id": "column_width",
+          "label": "Video width",
+          "options": [
+            {
+              "label": "1/3", "value": "4"
+            },
+            {
+              "label": "1/2", "value": "6"
+            },
+            {
+              "label": "2/3", "value": "8"
+            }
+          ],
+          "default": "6"
+        },
+        {
+          "type": "select",
+          "label": "Video Side",
+          "id": "media_side",
+          "options": [
+            { "value": "", "label": "Left" },
+            { "value": "flex-lg-row-reverse flex-row", "label": "Right" }
+          ],
+          "default": ""
+        },
+        {
+          "type": "checkbox",
+          "id": "controls",
+          "label": "Show Controls",
+          "default": true
+        },
+        {
+          "type": "text",
+          "label": "Subheading",
+          "id": "subheader",
+          "default": "Write an eye catching one liner"
+        },
+        {
+          "type": "text",
+          "label": "Heading",
+          "id": "title",
+          "default": "This is your heading text"
+        },
+        {
+          "type": "textarea",
+          "label": "Paragraph",
+          "id": "description",
+          "default": "This is your short description text"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "header",
+          "content": "Primary Button"
+        },
+        {
+          "type": "url",
+          "id": "p-btn-url",
+          "label": "URL"
+        },
+        {
+          "type": "text",
+          "label": "Button label",
+          "id": "p-btn-text",
+          "default": "Primary button"
+        },
+        {
+          "type": "select",
+          "id": "p-btn-type",
+          "label": "Button style",
+          "options": [
+            {
+              "group": "Primary", "label": "Fill", "value": "btn-primary"
+            },
+            {
+              "group": "Primary", "label": "Outline", "value": "btn-outline-primary"
+            },
+            {
+              "group": "Secondary", "label": "Fill", "value": "btn-secondary"
+            },
+            {
+              "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary"
+            }
+          ],
+          "default": "btn-primary"
+        },
+        {
+          "type": "header",
+          "content": "Secondary Button"
+        },
+        {
+          "type": "url",
+          "id": "s-btn-url",
+          "label": "URL"
+        },
+        {
+          "type": "text",
+          "label": "Button label",
+          "id": "s-btn-text",
+          "default": "Secondary button"
+        },
+        {
+          "type": "select",
+          "id": "s-btn-type",
+          "label": "Button style",
+          "options": [
+            {
+              "group": "Primary", "label": "Fill", "value": "btn-primary"
+            },
+            {
+              "group": "Primary", "label": "Outline", "value": "btn-outline-primary"
+            },
+            {
+              "group": "Secondary", "label": "Fill", "value": "btn-secondary"
+            },
+            {
+              "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary"
+            }
+          ],
+          "default": "btn-secondary"
+        },
+        {
+          "type": "header",
+          "content": "Font Sizes"
+        },
+        {
+          "type": "range",
+          "label": "Subheading Font Size (Mobile)",
+          "id": "subheader_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 4
+        },
+        {
+          "type": "range",
+          "label": "Subheading Font Size (Desktop)",
+          "id": "subheader_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 6
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Mobile)",
+          "id": "title_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Desktop)",
+          "id": "title_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "label": "Paragraph Font Size (Mobile)",
+          "id": "description_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "range",
+          "label": "Paragraph Font Size (Desktop)",
+          "id": "description_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Stacked Cards",
+      "category": "Cards",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

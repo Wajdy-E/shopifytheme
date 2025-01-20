@@ -1,0 +1,111 @@
+<style>
+  .custom-shape-divider-{{ section.id }}{
+    position: relative;
+    width: 100%;
+    overflow-y: visible;
+    height: 0;
+    z-index: {{ section.settings.z_index }};
+      transform: {% if section.settings.flip_vertically %}rotateX(180deg) {% endif %}
+          {% if section.settings.flip %}scaleX(-1){% endif %};
+  }
+  .custom-shape-divider-{{ section.id }} svg{
+      display: block;
+      width: calc(100% + 1.3px);
+      height: {{ section.settings.height }}px;
+      top: 0;
+      position: absolute;
+  }
+</style>
+
+<section class="svg-divider" id="{{ section.id }}">
+  <div class="custom-shape-divider-{{ section.id }} overflow-visible" style="fill: {{ section.settings.fill_color }};">
+    <svg
+      class="shape-divider exception"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1200 120"
+      preserveAspectRatio="none"
+    >
+      {% render 'shapes', shape: section.settings.shape %}
+    </svg>
+  </div>
+</section>
+
+{% schema %}
+{
+    "name": "Shape divider",
+    "settings": [
+    {
+        "type": "select",
+        "id": "shape",
+        "label": "Shape",
+        "options": [
+            {
+                "value": "wave", "label": "Wave"
+            },
+            {
+                "value": "fancy-wave", "label": "Fancy Wave"
+            },
+            {
+                "value": "curve", "label": "Curve"
+            },
+            {
+                "value": "asym-curve", "label": "Asymmetrical Curve"
+            },
+            {
+                "value": "triangle", "label": "Triangle"
+            },
+            {
+                "value": "asym-triangle", "label": "Asymmetrical Triangle"
+            },
+            {
+                "value": "tilt", "label": "Tilt"
+            },
+            {
+                "value": "book", "label": "Book"
+            }
+        ],
+        "default": "wave"
+    },
+    {
+        "type": "color",
+        "id": "fill_color",
+        "label": "Shape Color",
+        "default": "#000000"
+    },
+    {
+        "type": "checkbox",
+        "id": "flip_vertically",
+        "label": "Flip vertically",
+        "default": false
+    },
+    {
+        "type": "checkbox",
+        "default": false,
+        "id": "flip",
+        "label": "Flip horizontally"
+    },
+    {
+        "type": "select",
+        "id": "z_index",
+        "label": "Z axis level",
+        "options": [
+            {"label": "Bring backward", "value": "0"}, { "label": "Bring forward", "value": "2"}
+        ],
+        "default": "2",
+        "info": "Controls whether the shape will be shown over or under a section."
+    },
+    {
+        "type": "number",
+        "id": "height",
+        "label": "Shape height",
+        "default": 150
+    }
+    ],
+    "presets": [
+    {
+        "name": "Shape divider"
+    }
+    ]
+}
+{% endschema %}

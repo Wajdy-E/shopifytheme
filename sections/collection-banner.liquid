@@ -1,0 +1,357 @@
+{% liquid
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+    assign banner_style = section.settings.banner_style
+
+    if section.index == 1
+      assign loading = 'eager'
+      assign fetchpriority = 'high'
+    else
+      assign loading = 'lazy'
+      assign fetchpriority = 'low'
+    endif
+%}
+
+<section class="collection-banner {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }}" id="collection-banner-{{ section.id }}">
+    <div class="{{ section.settings.container }}">
+      {% if banner_style == 'overlay' %}
+        {% liquid
+          assign sizes = '100vw'
+          assign widths = '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200'
+          assign classes = section.settings.desktop_banner_height | append: ' w-100 object-fit-cover ' | append: section.settings.mobile_banner_height 
+        %}
+        <div class="banner-image position-relative {% unless section.settings.container == 'container-fluid' %}rounded{% endunless %} overflow-hidden">
+           {% if collection.featured_image %}
+            {{ collection.featured_image | image_url: width: collection.featured_image.width | image_tag: loading: loading, fetchpriority: fetchpriority, sizes: sizes, widths: widths, class: classes }}
+            <div class="overlay" style="--overlay-color: {{ section.settings.overlay_color }}; --overlay-opacity: {{ section.settings.overlay_opacity }};"></div>            
+          {% endif %}
+            {% if section.settings.show_breadcrumbs %}
+                <div class="breadcrumbs-overlay position-absolute w-100 {{ section.settings.desktop_text_alignment }} {{ section.settings.mobile_text_alignment }}">
+                    {% render 'breadcrumbs' %}
+                </div>
+            {% endif %}
+            
+            <div class="banner-content z-2 {% if collection.featured_image %}position-absolute {{ section.settings.desktop_content_position }} {{ section.settings.mobile_content_position }}{% endif %}">
+                <div class="text-container {{ section.settings.desktop_text_alignment }} {{ section.settings.mobile_text_alignment }}">
+                    <h1 class="banner-title fs-lg-{{ section.settings.title_font_size_desktop }} fs-{{ section.settings.title_font_size_mobile }}">
+                        {{ collection.title }}
+                    </h1>
+                    {% if section.settings.show_description and collection.description %}
+                        <p class="banner-description fs-lg-{{ section.settings.description_font_size_desktop }} fs-{{ section.settings.description_font_size_mobile }}">
+                            {{ collection.description }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% elsif banner_style == 'multi_column' %}
+          {% liquid
+            assign sizes = '(min-width: 768px) 50vw, 100vw'
+            assign widths = '300,400,500,600,700,800,900,1000,1200,1400,1600,1800'
+          %}
+            <div class="row">
+                <div class="col-lg-6 col-12 rounded overflow-hidden">
+                  {{ collection.featured_image | image_url: width: collection.featured_image.width | image_tag: loading: loading, fetchpriority: fetchpriority, sizes: sizes, widths: widths, class: 'img-fluid' }}
+                  </div>
+                <div class="col-lg-6 col-12 d-flex flex-column justify-content-center">
+                    {% if section.settings.show_breadcrumbs %}
+                        <div class="breadcrumbs-content mb-3">
+                            {% render 'breadcrumbs' %}
+                        </div>
+                    {% endif %}
+                    <h1 class="banner-title fs-lg-{{ section.settings.title_font_size_desktop }} fs-{{ section.settings.title_font_size_mobile }}">
+                        {{ collection.title }}
+                    </h1>
+                    {% if section.settings.show_description and collection.description %}
+                        <p class="banner-description fs-lg-{{ section.settings.description_font_size_desktop }} fs-{{ section.settings.description_font_size_mobile }}">
+                            {{ collection.description }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Collection banner",
+    "templates": ["collection"],
+    "settings": [
+        {
+        "type": "header",
+        "content": "General settings"
+        },
+        {
+        "type": "select",
+        "id": "container",
+        "label": "Container",
+        "default": "container",
+        "options": [
+            { "value": "container", "label": "Container" },
+            { "value": "container-fluid", "label": "Full width" }
+        ]
+        },
+        {
+        "type": "color_scheme",
+        "label": "Color scheme",
+        "id": "color_scheme"
+        },
+        {
+      "type": "select",
+      "label": "Desktop image height",
+      "id": "desktop_banner_height",
+      "options": [
+        { "label": "400px", "value": "h-d-400"},
+        { "label": "500px", "value": "h-d-500"},
+        { "label": "600px", "value": "h-d-600"},
+        { "label": "700px", "value": "h-d-700"},
+        { "label": "800px", "value": "h-d-800"},
+        { "label": "Full screen", "value": "h-d-full"},
+        { "label": "Adapt to first image", "value": "h-d-auto"}
+      ],
+      "default": "h-d-400"
+      },
+      {
+        "type": "select",
+        "label": "Mobile image height",
+        "id": "mobile_banner_height",
+        "options": [
+          { "label": "400px", "value": "h-m-400"},
+          { "label": "500px", "value": "h-m-500"},
+          { "label": "600px", "value": "h-m-600"},
+          { "label": "700px", "value": "h-m-700"},
+          { "label": "800px", "value": "h-m-800"},
+          { "label": "Full screen", "value": "h-m-full"},
+          { "label": "Adapt to first image", "value": "h-m-auto"}
+        ],
+        "default": "h-m-auto"
+      },
+        {
+            "type": "checkbox",
+            "default": true,
+            "label": "Show collection description",
+            "id": "show_description"
+        },
+        {
+            "type": "checkbox",
+            "default": true,
+            "id": "show_breadcrumbs",
+            "label": "Show breadcrumbs"
+        },
+        {
+            "type": "select",
+            "label": "Banner style",
+            "options": [
+                {
+                    "label": "Text overlay", "value": "overlay"
+                },
+                {
+                    "label": "2 column", "value": "multi_column"
+                }
+            ],
+            "id": "banner_style",
+            "default": "overlay"
+        },
+        {
+            "type": "header",
+            "content": "Banner overlay settings"
+        },
+        {
+          "type": "header",
+          "content": "Positioning"
+        },
+        {
+          "type": "select",
+          "label": "Desktop content position",
+          "id": "desktop_content_position",
+          "options": [
+            { "label": "Middle Left", "value": "position-middle-left"},
+            { "label": "Middle Center", "value": "position-middle-center"},
+            { "label": "Middle Right", "value": "position-middle-right"},
+            { "label": "Top Center", "value": "position-top-center"},
+            { "label": "Bottom Right", "value": "position-bottom-right"},
+            { "label": "Bottom Left", "value": "position-bottom-left"}
+          ],
+          "default": "position-middle-center"
+        },
+        {
+          "type": "select",
+          "label": "Mobile content position",
+          "id": "mobile_content_position",
+          "options": [
+            { "label": "Middle Left", "value": "position-mobile-middle-left"},
+            { "label": "Middle Center", "value": "position-mobile-middle-center"},
+            { "label": "Middle Right", "value": "position-mobile-middle-right"},
+            { "label": "Top Center", "value": "position-mobile-top-center"},
+            { "label": "Bottom Right", "value": "position-mobile-bottom-right"},
+            { "label": "Bottom Left", "value": "position-mobile-bottom-left"}
+          ],
+          "default": "position-mobile-middle-center"
+        },
+        {
+            "type": "header",
+            "content": "Overrides above"
+        },
+        {
+            "type": "checkbox",
+            "id": "mobile_overlay_position",
+            "default": true,
+            "label": "Show content below image (mobile)"
+        },
+        {
+            "type": "checkbox",
+            "id": "desktop_overlay_position",
+            "default": false,
+            "label": "Show content below image (desktop)"
+        },
+        {
+          "type": "header",
+          "content": "Text Alignment"
+        },
+        {
+          "type": "select",
+          "label": "Desktop text alignment",
+          "id": "desktop_text_alignment",
+          "options": [
+            { "label": "Left", "value": "text-lg-start"},
+            { "label": "Center", "value": "text-lg-center"},
+            { "label": "Right", "value": "text-lg-end"}
+          ],
+          "default": "text-lg-start"
+        },
+        {
+          "type": "select",
+          "label": "Mobile text alignment",
+          "id": "mobile_text_alignment",
+          "options": [
+            { "label": "Left", "value": "text-start"},
+            { "label": "Center", "value": "text-center"},
+            { "label": "Right", "value": "text-end"}
+          ],
+          "default": "text-center"
+        },
+        {
+          "type": "header",
+          "content": "Font Sizes"
+        },
+        {
+          "type": "range",
+          "label": "Subheading Font Size (Mobile)",
+          "id": "subheader_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 4
+        },
+        {
+          "type": "range",
+          "label": "Subheading Font Size (Desktop)",
+          "id": "subheader_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 6
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Mobile)",
+          "id": "title_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Desktop)",
+          "id": "title_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "label": "Paragraph Font Size (Mobile)",
+          "id": "description_font_size_mobile",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "range",
+          "label": "Paragraph Font Size (Desktop)",
+          "id": "description_font_size_desktop",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 8
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay Color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "label": "Overlay Opacity",
+          "min": 0,
+          "max": 1,
+          "step": 0.1,
+          "default": 0.4,
+          "info": "Set to 0 to hide"
+        },
+        {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "pt",
+      "label": "Padding Top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "pb",
+      "label": "Padding Bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "Margin Top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "Margin Bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    }        
+        ]
+}
+{% endschema %}

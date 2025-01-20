@@ -1,0 +1,178 @@
+{% liquid
+  assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+%}
+
+<section class="stacked-images {{ color_scheme_class }}" id="stacked-images-{{ section.id }}">
+  <div class="{{ section.settings.container }}">
+    {% assign index = 0 %}
+    {% for block in section.blocks %}
+      {% assign width = block.settings.column_width %}
+      {% assign index = index | plus: 1 %}
+      <div
+        class="stacked-image top-0 position-sticky row enter-view"
+           
+        style="--index: {{ index }};"
+      >
+        <div class="has-image col-md-{{ width }} {{ block.settings.media_side }} {% unless section.settings.animation == '' %}animate__animated opacity-0
+          {{ section.settings.animation_speed }}{% endunless %}"
+          data-animate-class="{{ section.settings.animation }}"
+          style="animation-delay: {{ forloop.index0 | times: 150 }}ms">
+          {% assign classes = width | prepend: 'img-fluid d-block col-md-' %}
+          {% if block.settings.image == blank %}
+            {{ 'detailed-apparel-1' | placeholder_svg_tag: classes }}
+          {% else %}
+            {% assign vw_width = width | times: 8.333 | append: 'vw' %}
+            {% assign sizes = '(min-width: 768px) ' | append: vw_width | append: ', 100vw' %}
+            {{- block.settings.image | image_url: width: block.settings.image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200', class: classes -}}
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+
+
+{% schema %}
+{
+  "name": "Stacked Images",
+  "settings": [
+    {
+  "type": "header",
+  "content": "Visibility"
+},
+{
+  "type": "select",
+  "label": "Visibile on",
+  "id": "visibility",
+  "default": "d-flex",
+  "options": [
+    {
+      "value": "d-flex",
+      "label": "All screen sizes"
+    },
+    {
+      "value": "d-sm-none d-lg-flex",
+      "label": "On desktop only"
+    },
+    {
+      "value": "d-lg-none d-sm-flex",
+      "label": "On mobile only"
+    }
+  ]
+},
+{
+  "type": "header",
+  "content": "General settings"
+},
+{
+  "type": "select",
+  "id": "container",
+  "label": "Width",
+  "default": "container",
+  "options": [
+      { "value": "container", "label": "Default" },
+      { "value": "container-fluid", "label": "Full width" }
+  ]
+},
+{
+"type": "color_scheme",
+"label": "Color scheme",
+"id": "color_scheme"
+},
+{
+        "type": "select",
+        "id": "animation",
+        "label": "Animation",
+        "default": "animate__fadeInUp",
+        "options": [
+            { "group": "Disabled", "value": "", "label": "No animation" },
+            { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+            { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+            { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+            { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+            { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+            { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+            { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+            { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+            { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+            { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+            { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+            { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+            { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+            { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+            { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+            { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+            { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+            { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+            { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+            { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+            { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+        ]
+    },
+    {
+        "type": "select",
+        "id": "animation_speed",
+        "label": "Animation speed",
+        "default": "animate__fast",
+        "options": [
+            { "value": "animate__slower", "label": "Slower" },
+            { "value": "animate__slow", "label": "Slow" },
+            { "value": "", "label": "Normal" },
+            { "value": "animate__fast", "label": "Fast" },
+            { "value": "animate__faster", "label": "Faster" }
+        ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "column_width",
+          "label": "Image width",
+          "min": 1,
+          "max": 12,
+          "step": 1,
+          "default": 6
+        },
+        {
+          "type": "select",
+          "id": "media_side",
+          "label": "Image Side",
+          "options": [
+            { "value": "justify-content-lg-start", "label": "Left" },
+            { "value": "justify-content-lg-center", "label": "Center" },
+            { "value": "justify-content-lg-end", "label": "Right" }
+          ],
+          "default": "justify-content-lg-start"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Stacked Images",
+      "category": "Image",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

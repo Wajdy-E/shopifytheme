@@ -1,0 +1,373 @@
+{% liquid
+
+  assign pt = section.settings.pt | prepend: 'pt-'
+  assign pb = section.settings.pb | prepend: 'pb-'
+  assign mt = section.settings.mt | prepend: 'mt-'
+  assign mb = section.settings.mb | prepend: 'mb-'
+  
+  assign row_sm = section.settings.mobile_breakpoint | prepend: 'row-cols-'
+  assign row_lg = section.settings.desktop_breakpoint | prepend: 'row-cols-lg-'
+  assign col_sm = section.settings.mobile_breakpoint 
+  assign col_lg = section.settings.desktop_breakpoint
+
+  assign vw_sm = col_sm | times: 100 | divided_by: 12 | append: 'vw' 
+  assign vw_lg = col_lg | times: 100 | divided_by: 12 | append: 'vw' 
+
+  assign sizes = '(min-width: 992px) ' | append: vw_lg | append: ', ' | append: vw_sm 
+
+  if section.settings.scroll
+    assign row_sm = row_sm | append: '-5'
+  endif
+
+  assign tab_style = section.settings.tab_style
+  if tab_style == 'nav-pills' and tab_position != 'top'
+    assign nav_classes = 'nav-pills fit-content h-fit rounded-5 gap-2 p-2 shadow-sm'
+  else 
+    assign nav_classes = 'nav-pills nav-fill fit-content gap-2 p-2 shadow-sm'
+  endif
+  assign tab_alignment = section.settings.tab_alignment | prepend: 'justify-content-lg-' 
+  assign tab_position = section.settings.tab_position
+
+  if tab_position == 'top'
+    assign flex = 'd-flex flex-column'
+    assign innerFlex = section.settings.tab_alignment | prepend: 'align-self-lg-'
+  else
+    assign flex = 'd-lg-flex gap-6'
+    assign innerFlex = 'flex-lg-column gap-6'
+  endif
+
+  assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+
+%}
+
+<style>
+  @media (max-width: 768px){
+      .scroll{
+          flex-wrap: nowrap;
+          overflow-x: scroll;
+      }
+  }
+</style>
+
+<section class="tabbed-collections {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }}">
+  <div class="{{ section.settings.container }} {{ flex }} overflow-hidden ps-0">
+    <ul
+      class="nav {% if tab_style == 'nav-pills' %}{{ nav_classes }}{% elsif  tab_position == 'left' and tab_style == 'nav-tabs' %} {% else %}{{ tab_style }}{% endif %} {{ tab_alignment }} {{ innerFlex }} mb-sm-8 flex-nowrap"
+      id="pills-tab-{{ section.id }}"
+      role="tablist"
+      {% if tab_style == 'nav-pills' %}style="background-color: var(--bs-primary);--bs-nav-link-color: var(--bs-secondary-rgb-alpha-075);--bs-nav-link-hover-color: var(--bs-secondary);--bs-nav-pills-link-active-color: var(--bs-primary);--bs-nav-pills-link-active-bg: var(--bs-secondary);"{% endif %}
+    >
+      {% for block in section.blocks %}
+        {% assign collection_handle = block.settings.collection %}
+        {% assign collection = collections[collection_handle] %}
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link {% if tab_style == 'nav-pills' %}rounded-5{% endif %} me-8 w-100 {% if forloop.first %}active{% endif %}"
+            id="pills-{{ block.id }}-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#pills-{{ block.id }}"
+            type="button"
+            role="tab"
+            aria-controls="pills-{{ block.id }}"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {% if block.settings.collection_title == blank %}
+              <span>{{ collection.title }}</span>
+            {% else %}
+              <span>{{ block.settings.collection_title }}</span>
+            {% endif %}
+          </button>
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="tab-content">
+      {% for block in section.blocks %}
+        <div
+          class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+          id="pills-{{ block.id }}"
+          role="tabpanel"
+          aria-labelledby="pills-{{ block.id }}-tab"
+          tabindex="0"
+        >
+          <div class="row {{ row_sm }} {{ row_lg }} enter-view {% if row_sm contains '-5' %}scroll{% endif %} g-{{ settings.product_card_gap }} overflow-y-hidden">
+            {% assign collection_handle = block.settings.collection %}
+            {% assign collection = collections[collection_handle] %}
+            {% assign max_products = section.settings.max_products | default: 12 %}
+            {% for product in collection.products limit: max_products %}
+              {% if forloop.first and block.settings.show_collection_image %}
+                <div class="col collection-image has-image rounded overflow-hidden {% unless section.settings.animation == '' %}animate__animated opacity-0 {{ section.settings.animation_speed }}{% endunless %}"
+                data-animate-class="{{ section.settings.animation }}" style="animation-delay: 15ms;">
+                {% if collection.image != blank %}                
+                  {{- collection.image | image_url: width: collection.image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200', class: 'h-100 w-100 object-fit-cover object-position-center rounded' -}}
+                  {% else %}
+                  {{ 'hero-apparel-1' | placeholder_svg_tag: 'h-100 w-100 rounded' }}
+                {% endif %}
+                </div>
+              {% endif %}
+              <div class="col pb-8 {{ section.settings.aspect_ratio }}">      
+                {% render 'product-card', product: product, sizes: sizes, section: section %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Tabbed Collections",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General settings"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container",
+      "default": "container",
+      "options": [
+        { "value": "container", "label": "Container" },
+        { "value": "container-fluid", "label": "Fluid" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "label": "Color scheme",
+      "id": "color_scheme"
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "Disabled", "value": "", "label": "No animation" },
+        { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+        { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+        { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+        { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+        { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+        { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+        { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+        { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+        { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+        { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+        { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+        { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+        { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+        { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+        { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+        { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+        { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+        { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+        { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "Slower" },
+        { "value": "animate__slow", "label": "Slow" },
+        { "value": "", "label": "Normal" },
+        { "value": "animate__fast", "label": "Fast" },
+        { "value": "animate__faster", "label": "Faster" }
+      ]
+    },
+    {
+      "type": "select",
+      "label": "Image orientation",
+      "default": "",
+      "options": [
+        { "label": "Adapt", "value": ""},
+        { "label": "Landscape", "value": "landscape"},
+        {"label": "Wide landscape", "value": "wide"},
+        {"label": "Portrait", "value": "portrait"},
+        {"label": "Square", "value": "square"}
+      ],
+      "id": "aspect_ratio"
+    },
+    {
+      "type": "select",
+      "label": "Tab style",
+      "id": "tab_style",
+      "options": [
+        {
+          "label": "Pills", "value": "nav-pills"
+        },
+        {
+          "label": "Underline", "value": "nav-underline"
+        },
+        {
+          "label": "Border", "value": "nav-tabs"
+        },
+        {
+          "label": "Basic", "value": ""
+        }
+      ],
+
+      "default": "nav-pills"
+    },
+    {
+      "type": "select",
+      "label": "Alignment",
+      "id": "tab_alignment",
+      "options": [
+        {
+          "label": "Left", "value": "start"
+        },
+        {
+          "label": "Center", "value": "center"
+        },
+        {
+          "label": "Right", "value": "end"
+        }
+      ],
+      "default": "start",
+      "info": "Mobile is left alligned"
+    },
+    {
+      "type": "select",
+      "id": "tab_position",
+      "label": "Tab position",
+      "options": [
+        {
+          "label": "Left", "value": "left"
+        },
+        {
+          "label": "Top", "value": "top"
+        }
+      ],
+      "default": "top",
+      "info": "Mobile remains on top"
+    },
+    {
+      "type": "header",
+      "content": "Breakpoints",
+      "info": "Adjust items per row based on screen resolution"
+    },
+    {
+      "type": "range",
+      "id": "max_products",
+      "label": "Max Products to Show",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "scroll",
+      "label": "Scroll on mobile",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "mobile_breakpoint",
+      "label": "Items per row - mobile",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "desktop_breakpoint",
+      "label": "Items per row - desktop",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "pt",
+      "label": "Padding Top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "pb",
+      "label": "Padding Bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "Margin Top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "Margin Bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Select collection"
+        },
+        {
+          "type": "checkbox",
+          "default": true,
+          "id": "show_collection_image",
+          "label": "Show collection image"
+        },
+        {
+          "type": "text",
+          "id": "collection_title",
+          "label": "Collection Title",
+          "default": "Collection Title"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tabbed Collections",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

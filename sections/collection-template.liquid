@@ -1,0 +1,377 @@
+{% liquid
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+    assign row_sm = section.settings.mobile_breakpoint | prepend: 'row-cols-'
+    assign row_lg = section.settings.desktop_breakpoint | prepend: 'row-cols-lg-'
+%}
+<section class="collection-grid {{ color_scheme_class }}" id="collection-grid-{{ section.id }}">
+    <div class="{{ section.settings.container}}">
+        <div class="collection-controls bg-light d-flex justify-content-between rounded mb-8 p-5 gap-5">
+            <div class="collections-controls-left d-flex align-items-center">
+                {% if linklists[section.settings.collection_menu] %}
+                    <ul class="nav nav-pills fit-content rounded-5 gap-2 p-2 shadow_sm" style="background-color: var(--bs-primary);--bs-nav-link-color: var(--bs-secondary-rgb-alpha-075);--bs-nav-link-hover-color: var(--bs-secondary);--bs-nav-pills-link-active-color: var(--bs-primary);--bs-nav-pills-link-active-bg: var(--bs-secondary);">
+                      {% for item in linklists[section.settings.collection_menu].links %}
+                        {% if item.type == 'collection_link' %}
+                          <li class="nav-item">
+                            <a class="nav-link btn btn-outline-primary"
+                               href="{{ item.url }}"
+                               title="{{ item.title }}"
+                               data-image="{{ item.object.image | image_url: width: 400 }}">
+                              {{ item.title }}
+                            </a>
+                          </li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  {% endif %}           
+            </div>
+            <div class="collection-controls-right d-flex align-items-center gap-4">
+                <div id="sort-by">
+                    <div class="d-flex d-lg-none">
+                        <button
+                            class="btn-filters btn d-flex align-items-center {{ section.settings.filters_btn_color }}"
+                            aria-label="{{ 'collection.btn_filter_products' | t }}"
+                            type="button">
+                            <span class="ms-3">
+                                {{ 'collection.btn_filter_products' | t }}
+                            </span>
+                            {% if active_filter_values > 0 %}
+                                <b class="badge bg-secondary ms-3">
+                                    {{ active_filter_values }}
+                                </b>
+                            {% endif %}
+                        </button>
+                    </div>
+                    <div class="dropdown h-100">
+                        <button 
+                            class="h-100 btn btn-dark dropdown-toggle d-flex align-items-center justify-content-center" 
+                            type="button" 
+                            id="sortByDropdown" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                            Sort by
+                        
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortByDropdown">
+                            {% for option in collection.sort_options %}
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0);" onclick="onChangeCollectionSortBy('{{ option.value }}')">
+                                        {{ option.name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <span 
+                        id="collection-sort-by-notice" 
+                        class="visually-hidden" 
+                        aria-live="polite" 
+                        aria-atomic="true" 
+                        data-text-sort-by="{{ 'general.accessibility.sorted_by' | t }}">
+                        Sort by: {{ collection.sort_by }}
+                    </span>
+                </div>
+                <div id="layout-selector" class="d-flex gap-4 align-items-center" role="group" aria-label="Layout Selection">
+                    {% assign gridLayouts = "2x2,3x2,4x2,5x2" | split: ',' %}              
+                    {% for layout in gridLayouts %}
+                    {% assign columns = layout | split: 'x' | first | plus: 0 %}
+                    {% assign rows = layout | split: 'x' | last | plus: 0 %}          
+                    <button 
+                        class="grid-icon move-on-hover" 
+                        data-layout="{{ layout }}" 
+                        aria-label="Select {{ layout }} layout" 
+                        role="radio" 
+                        aria-checked="false"
+                        tabindex="0">
+                        <div class="grid-row">
+                            {% for col in (1..columns) %}
+                            <div class="grid-square"></div>
+                            {% endfor %}
+                        </div>
+                    </button>
+                    {% endfor %}
+                </div>
+                <div id="filter-results" class="align-content-center" style="color: black;">
+                    {{ collection.products_count }} products
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <aside class="col-lg-3 col-md-4 mb-4">
+            <div class="position-sticky" style="top: 20px;">
+                <form>
+                <div class="accordion" id="filterAccordion">
+                    {%- for filter in collection.filters -%}
+                    <div class="accordion-item mb-3">
+                        <h2 class="accordion-header" id="heading-{{ forloop.index }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ forloop.index }}" aria-expanded="false" aria-controls="collapse-{{ forloop.index }}">
+                            {{ filter.label }}
+                            {%- if filter.active_values.size > 0 -%}
+                            <span class="badge bg-secondary ms-2">{{ filter.active_values.size }}</span>
+                            {%- endif -%}
+                        </button>
+                        </h2>
+                        <div id="collapse-{{ forloop.index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ forloop.index }}" data-bs-parent="#filterAccordion">
+                        <div class="accordion-body">
+                            <div class="d-flex justify-content-between">
+                            <p>{{ filter.active_values.size }} selected</p>
+                            {%- if filter.active_values.size > 0 -%}
+                                <p><a href="{{ filter.url_to_remove }}">Reset</a></p>
+                            {%- endif -%}
+                            </div>
+
+                            {%- case filter.type -%}
+                            {%- when 'boolean' -%}
+                                <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <label for="Filter-{{ filter.param_name }}-{{ filter.true_value.value }}">
+                                    <input type="checkbox"
+                                        name="{{ filter.param_name }}"
+                                        value="{{ filter.true_value.value }}"
+                                        id="Filter-{{ filter.param_name }}"
+                                        {% if filter.true_value.active -%}checked{%- endif %}
+                                        {% if filter.true_value.count == 0 and filter.true_value.active == false -%}disabled{%- endif %}
+                                    > {{ filter.true_value.label }}
+                                    </label>
+                                </li>
+                                <li>
+                                    <label for="Filter-{{ filter.param_name }}-{{ filter.false_value.value }}">
+                                    <input type="checkbox"
+                                        name="{{ filter.param_name }}"
+                                        value="{{ filter.false_value.value }}"
+                                        id="Filter-{{ filter.param_name }}"
+                                        {% if filter.false_value.active -%}checked{%- endif %}
+                                        {% if filter.false_value.count == 0 and filter.false_value.active == false -%}disabled{%- endif %}
+                                    > {{ filter.false_value.label }}
+                                    </label>
+                                </li>
+                                </ul>
+                                <div class="mt-2">
+                                <input type="submit" class="btn btn-primary" value="Apply">
+                                </div>
+                            {%- when 'list' -%}
+                                <ul class="list-unstyled">
+                                {%- for filter_value in filter.values -%}
+                                    <li class="mb-2">
+                                    <label for="Filter-{{ filter.param_name }}-{{ forloop.index }}">
+                                        <input type="checkbox"
+                                        name="{{ filter_value.param_name }}"
+                                        value="{{ filter_value.value }}"
+                                        id="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                                        {% if filter_value.active -%}checked{%- endif %}
+                                        {% if filter_value.count == 0 and filter_value.active == false -%}disabled{%- endif %}
+                                        >
+                                        <span class="d-inline-block">
+                                        {%- case filter_value.display.type -%}
+                                            {%- when 'colors' -%}
+                                            <span style="background-color: {{ filter_value.display.value }}; width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></span>
+                                            {%- when 'image' -%}
+                                            {{
+                                                filter_value.display.value
+                                                | image_url: width: 25
+                                                | image_tag: alt: filter_value.display.value.alt
+                                            }}
+                                            {%- else -%}
+                                            <span class="visual-display__child"></span>
+                                        {%- endcase -%}
+                                        </span>
+                                        {{ filter_value.label }}
+                                    </label>
+                                    </li>
+                                {%- endfor -%}
+                                </ul>
+                                <div class="mt-2">
+                                <input type="submit" class="btn btn-primary" value="Apply">
+                                </div>
+                            {%- when 'price_range' -%}
+                                <div class="filter-group-display__price-range">
+                                <div class="filter-group-display__price-range-from">
+                                    <span>{{ cart.currency.symbol }}</span>
+
+                                    <input class="form-control" name="{{ filter.min_value.param_name }}"
+                                    id="Filter-{{ filter.min_value.param_name }}"
+                                    {% if filter.min_value.value -%}
+                                        value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                                    {%- endif %}
+                                    type="number"
+                                    placeholder="0"
+                                    min="0"
+                                    max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                                    >
+                                    <label for="Filter-{{ filter.min_value.param_name }}">From</label>
+                                </div>
+                                <div class="filter-group-display__price-range-to mt-2">
+                                    <span>{{ cart.currency.symbol }}</span>
+
+                                    <input class="form-control" name="{{ filter.max_value.param_name }}"
+                                    id="Filter-{{ filter.max_value.param_name }}"
+                                    {% if filter.max_value.value -%}
+                                        value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                                    {%- endif %}
+                                    type="number"
+                                    placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                                    min="0"
+                                    max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                                    >
+                                    <label for="Filter-{{ filter.max_value.param_name }}">To</label>
+                                </div>
+                                </div>
+                                <div class="filter-group-display__submit mt-2">
+                                <input type="submit" class="btn btn-primary" value="Apply">
+                                </div>
+                            {%- endcase -%}
+                        </div>
+                        </div>
+                    </div>
+                    {%- endfor -%}
+                </div>
+
+                <div class="mt-4">
+                    <p><a href="{{ collection.url }}?sort_by={{ collection.sort_by }}" class="btn btn-outline-secondary">Clear all</a></p>
+
+                    {%- for filter in collection.filters -%}
+                    {%- if filter.type == "price_range" -%}
+                        {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                        <p>
+                            <a href="{{ filter.url_to_remove }}" class="btn btn-sm btn-outline-secondary">
+                            {%- assign min_value = filter.min_value.value | default: 0 -%}
+                            {%- assign max_value = filter.max_value.value | default: filter.range_max -%}
+                            {{ min_value | money }} - {{ max_value | money }} X
+                            </a>
+                        </p>
+                        {%- endif -%}
+                    {%- else -%}
+                        {%- for filter_value in filter.active_values -%}
+                        <p>
+                            <a href="{{ filter_value.url_to_remove }}" class="btn btn-sm btn-outline-secondary">
+                            {{ filter.label }}: {{ filter_value.label }} X
+                            </a>
+                        </p>
+                        {%- endfor -%}
+                    {%- endif -%}
+                    {%- endfor -%}
+                </div>
+                </form>
+            </div>
+            </aside>
+
+            <div class="col">
+            <div class="row {{ row_sm }} {{ row_lg }} g-{{ settings.product_card_gap }}" id="product-list">
+                {%- for product in collection.products -%}
+                <div class="col mb-4 {{ section.settings.aspect_ratio }}">
+                    {% render 'product-card', product: product, section: section, index: forloop.index0 %}
+                </div>
+                {%- endfor -%}
+            </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Collection template",
+    "templates": ["collection"],
+    "settings": [
+        {
+            "type": "header",
+            "content": "General settings"
+        },
+        {
+        "type": "select",
+        "id": "container",
+        "label": "Container",
+        "default": "container",
+        "options": [
+            { "value": "container", "label": "Container" },
+            { "value": "container-fluid", "label": "Full width" }
+        ]
+        },
+        {
+            "type": "color_scheme",
+            "label": "Color scheme",
+            "id": "color_scheme"
+        },
+        {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "Disabled", "value": "", "label": "No animation" },
+        { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+        { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+        { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+        { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+        { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+        { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+        { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+        { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+        { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+        { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+        { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+        { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+        { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+        { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+        { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+        { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+        { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+        { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+        { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "Slower" },
+        { "value": "animate__slow", "label": "Slow" },
+        { "value": "", "label": "Normal" },
+        { "value": "animate__fast", "label": "Fast" },
+        { "value": "animate__faster", "label": "Faster" }
+      ]
+    },
+    {
+        "type": "select",
+        "label": "Image orientation",
+        "default": "",
+        "options": [
+            { "label": "Adapt", "value": ""},
+            { "label": "Landscape", "value": "landscape"},
+            {"label": "Wide landscape", "value": "wide"},
+            {"label": "Portrait", "value": "portrait"},
+            {"label": "Square", "value": "square"}
+        ],
+        "id": "aspect_ratio"
+    },
+    {
+        "type": "link_list",
+        "id": "collection_menu",
+        "label": "Collection menu",
+        "info": "Feature other collections"
+    },
+    {
+        "type": "range",
+        "id": "mobile_breakpoint",
+        "label": "Items per row - mobile",
+        "min": 1,
+        "max": 3,
+        "step": 1,
+        "default": 1
+        },
+        {
+        "type": "range",
+        "id": "desktop_breakpoint",
+        "label": "Items per row - desktop",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "default": 4
+        }
+    ]
+}
+{% endschema %}

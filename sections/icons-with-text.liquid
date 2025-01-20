@@ -1,0 +1,410 @@
+{% liquid
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+    if section.settings.scroll
+    assign mobile_scroll = 'mobile_scroll'
+    endif
+    assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-'
+    assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-'
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+%}
+
+<section 
+    id="icons-with-text-{{ section.id }}" 
+    class="enter-view overflow-hidden {% if section.settings.visibility == blank or section.settings.visibility == nil %} d-flex {% else %} 
+    {{ section.settings.visibility }} {% endif %} justify-content-center {{ section.settings.text_align }} {{ color_scheme_class }}
+    {{ pt }} {{ pb }} {{ mt }} {{ mb }}"  
+    style="background-color: {{ section.settings.bg_color }};">
+    <div class="{{ section.settings.container }}">
+        {% render 'section-header' %}
+        <ul class="list-unstyled row {{ mobile_scroll }} {{ row_sm }} {{ row_lg }} g-8">
+            {% for block in section.blocks %}
+                {% assign animation_delay = forloop.index0 | times: 150 %}
+                <li class="col" style="animation-delay: {{ animation_delay }}ms;">
+                    {% render 'icon-with-text', 
+                        icon: block.settings.icon,
+                        icon_size: section.settings.icon_size,
+                        icon_color: block.settings.icon_color,
+                        svg_url: block.settings.svg_url,
+                        title: block.settings.title,
+                        description: block.settings.description,
+                        text_color: block.settings.text_color,
+                        block_bg_color: block.settings.block_bg_color,
+                        inner_block_shadow: section.settings.inner_block_shadow,
+                        inner_block_border_radius: section.settings.inner_block_border_radius,
+                        title_font_size_mobile: section.settings.title_font_size_mobile,
+                        title_font_size_desktop: section.settings.title_font_size_desktop,
+                        description_font_size_mobile: section.settings.description_font_size_mobile,
+                        description_font_size_desktop: section.settings.description_font_size_desktop,
+                        shopify_attributes: block.shopify_attributes,
+                        animation_class: section.settings.animation,
+                        animation_speed: section.settings.animation_speed,
+                        animation_delay: animation_delay,
+                        orientation: section.settings.orientation,
+                        text_alignment: section.settings.text_alignment,
+                        height: 'h-100',
+                        classes: 'block'
+                    %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+
+{% schema %}
+{
+    "name": "Icons with Text",
+    "settings": [
+        {
+            "type": "header",
+            "content": "General Settings"
+        },
+        {
+            "type": "select",
+            "label": "Visibility",
+            "id": "visibility",
+            "default": "d-flex",
+            "options": [
+                {
+                    "value": "d-flex",
+                    "label": "All screen sizes"
+                },
+                {
+                    "value": "d-sm-none d-lg-flex",
+                    "label": "On desktop only"
+                },
+                {
+                    "value": "d-lg-none d-sm-flex",
+                    "label": "On mobile only"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "container",
+            "label": "Container",
+            "default": "container",
+            "options": [
+                { "value": "container", "label": "Container" },
+                { "value": "container-fluid", "label": "Full width" }
+            ]
+        },
+        {
+        "type": "color_scheme",
+        "label": "Color scheme",
+        "id": "color_scheme"
+        },
+        {
+            "type": "select",
+            "id": "orientation",
+            "label": "Icon position",
+            "options": [
+                {
+                    "label":"Top", "value": "flex-column"
+                },
+                {
+                    "label": "Left", "value": "flex-row"
+                }
+            ],
+            "default": "flex-column"
+        },
+        {
+            "type": "select",
+            "id": "inner_block_shadow",
+            "label": "Inner block shadow",
+            "default": "",
+            "options": [
+                { "value": "", "label": "None" },
+                { "value": "shadow-sm", "label": "Small shadow" },
+                { "value": "shadow", "label": "Medium shadow" },
+                { "value": "shadow-lg", "label": "Large shadow" }
+            ]
+        },
+        {
+            "type": "select",
+            "label": "Text alignment",
+            "id": "text_alignment",
+            "options": [
+                {
+                    "label":"Left", "value": "center-left"
+                },
+                {
+                    "label":"Center", "value": "center-center"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "animation",
+            "label": "Animation",
+            "default": "animate__fadeInUp",
+            "options": [
+                { "group": "Disabled", "value": "", "label": "No animation" },
+                { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+                { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+                { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+                { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+                { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+                { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+                { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+                { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+                { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+                { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+                { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+                { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+                { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+                { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+                { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+                { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+                { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+                { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+                { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+                { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+                { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "animation_speed",
+            "label": "Animation speed",
+            "default": "animate__fast",
+            "options": [
+                { "value": "animate__slower", "label": "Slower" },
+                { "value": "animate__slow", "label": "Slow" },
+                { "value": "", "label": "Normal" },
+                { "value": "animate__fast", "label": "Fast" },
+                { "value": "animate__faster", "label": "Faster" }
+            ]
+        },
+        {
+            "type": "range",
+            "id": "icon_size",
+            "label": "Icon size",
+            "min": 10,
+            "max": 100,
+            "step": 1,
+            "default": 50
+        },
+        {
+            "type": "header",
+            "content": "Font Sizes"
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_mobile",
+            "label": "Title font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 6
+        },
+        {
+            "type": "range",
+            "id": "title_font_size_desktop",
+            "label": "Title font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 7
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 5
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "header",
+            "content": "Breakpoints"
+        },
+        {
+            "type": "checkbox",
+            "id": "scroll",
+            "label": "Scroll on mobile",
+            "default": true
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_sm",
+            "label": "Items per row / sm",
+            "info": "Screen width: ≥576px",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_lg",
+            "label": "Items per row / lg",
+            "info": "Screen width: ≥992px",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "default": 3
+        }
+    ],
+    "blocks": [
+        {
+            "type": "icon_text",
+            "name": "Icon with Text",
+            "settings": [
+                {
+                    "type": "select",
+                    "id": "icon",
+                    "label": "Icon",
+                    "default": "question_mark",
+                    "options": [
+                        { "value": "none", "label": "None" },
+                        { "value": "apple", "label": "Apple" },
+                        { "value": "banana", "label": "Banana" },
+                        { "value": "bottle", "label": "Bottle" },
+                        { "value": "box", "label": "Box" },
+                        { "value": "carrot", "label": "Carrot" },
+                        { "value": "chat_bubble", "label": "Chat Bubble" },
+                        { "value": "check_mark", "label": "Check Mark" },
+                        { "value": "clipboard", "label": "Clipboard" },
+                        { "value": "dairy", "label": "Dairy" },
+                        { "value": "dairy_free", "label": "Dairy Free" },
+                        { "value": "dryer", "label": "Dryer" },
+                        { "value": "eye", "label": "Eye" },
+                        { "value": "fire", "label": "Fire" },
+                        { "value": "gluten_free", "label": "Gluten Free" },
+                        { "value": "heart", "label": "Heart" },
+                        { "value": "iron", "label": "Iron" },
+                        { "value": "leaf", "label": "Leaf" },
+                        { "value": "leather", "label": "Leather" },
+                        { "value": "lightning_bolt", "label": "Lightning Bolt" },
+                        { "value": "lipstick", "label": "Lipstick" },
+                        { "value": "lock", "label": "Lock" },
+                        { "value": "map_pin", "label": "Map Pin" },
+                        { "value": "nut_free", "label": "Nut Free" },
+                        { "value": "pants", "label": "Pants" },
+                        { "value": "paw_print", "label": "Paw Print" },
+                        { "value": "pepper", "label": "Pepper" },
+                        { "value": "perfume", "label": "Perfume" },
+                        { "value": "plane", "label": "Plane" },
+                        { "value": "plant", "label": "Plant" },
+                        { "value": "price_tag", "label": "Price Tag" },
+                        { "value": "question_mark", "label": "Question Mark" },
+                        { "value": "recycle", "label": "Recycle" },
+                        { "value": "return", "label": "Return" },
+                        { "value": "ruler", "label": "Ruler" },
+                        { "value": "serving_dish", "label": "Serving Dish" },
+                        { "value": "shirt", "label": "Shirt" },
+                        { "value": "shoe", "label": "Shoe" },
+                        { "value": "silhouette", "label": "Silhouette" },
+                        { "value": "snowflake", "label": "Snowflake" },
+                        { "value": "star", "label": "Star" },
+                        { "value": "stopwatch", "label": "Stopwatch" },
+                        { "value": "truck", "label": "Truck" },
+                        { "value": "washing", "label": "Washing" }
+                    ]
+                },
+                {
+                    "type": "color",
+                    "id": "icon_color",
+                    "label": "Icon color",
+                    "default": "#000000"
+                },
+                {
+                    "type": "html",
+                    "id": "svg_url",
+                    "label": "SVG URL"
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": "Title",
+                    "default": "Title"
+                },
+                {
+                    "type": "textarea",
+                    "id": "description",
+                    "label": "Description",
+                    "default": "Short description goes here."
+                },
+                {
+                    "type": "color",
+                    "id": "block_bg_color",
+                    "label": "Block background color"
+                },
+                {
+                    "type": "color",
+                    "id": "text_color",
+                    "label": "Text color"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Icons with Text",
+            "category": "Custom",
+            "blocks": [
+                { "type": "icon_text", "settings": { "icon": "apple", "icon_color": "#FF0000", "title": "Icon 1", "description": "Description for icon 1" } },
+                { "type": "icon_text", "settings": { "icon": "banana", "icon_color": "#FFFF00", "title": "Icon 2", "description": "Description for icon 2" } },
+                { "type": "icon_text", "settings": { "icon": "bottle", "icon_color": "#0000FF", "title": "Icon 3", "description": "Description for icon 3" } },
+                { "type": "icon_text", "settings": { "icon": "box", "icon_color": "#8B4513", "title": "Icon 4", "description": "Description for icon 4" } },
+                { "type": "icon_text", "settings": { "icon": "carrot", "icon_color": "#FFA500", "title": "Icon 5", "description": "Description for icon 5" } },
+                { "type": "icon_text", "settings": { "icon": "chat_bubble", "icon_color": "#008000", "title": "Icon 6", "description": "Description for icon 6" } }
+            ]
+        }
+    ]
+}
+{% endschema %}

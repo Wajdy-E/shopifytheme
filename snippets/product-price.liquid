@@ -1,0 +1,8 @@
+<div class="product-prices d-flex gap-4" {{ block.shopify_attributes }}>
+    <strong class="product-price m-0">
+        {{ product.selected_or_first_available_variant.price |  money }}
+    </strong>
+    <s class="product-compare m-0 fw-bold">
+        {{ product.selected_or_first_available_variant.compare_at_price | money }}
+    </s>
+</div>

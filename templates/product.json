@@ -1,216 +1,114 @@
 {
   "sections": {
-    "main": {
-      "type": "main-product",
+    "template-product": {
+      "type": "template-product",
       "blocks": {
-        "vendor": {
-          "type": "text",
+        "title_VhB7VE": {
+          "type": "title",
           "settings": {
-            "text": "{{ product.vendor }}",
-            "text_style": "uppercase"
+            "title_font_size_mobile": 7,
+            "title_font_size_desktop": 9,
+            "mt": 3,
+            "mb": 3
           }
         },
-        "title": {
-          "type": "title"
-        },
-        "caption": {
-          "type": "text",
+        "price_ijV4z8": {
+          "type": "price",
           "settings": {
-            "text": "{{ product.metafields.descriptors.subtitle.value }}",
-            "text_style": "subtitle"
+            "font_size_mobile": 4,
+            "font_size_desktop": 4,
+            "mt": 3,
+            "mb": 3
           }
         },
-        "price": {
-          "type": "price"
-        },
-        "variant_picker": {
-          "type": "variant_picker",
+        "description_KHFhhK": {
+          "type": "description",
           "settings": {
-            "picker_type": "button"
+            "title": "Details",
+            "title_font_size_mobile": 6,
+            "title_font_size_desktop": 8,
+            "description_font_size_mobile": 2,
+            "description_font_size_desktop": 2,
+            "mt": 3,
+            "mb": 3
           }
         },
-        "quantity_selector": {
-          "type": "quantity_selector"
+        "variant_selector_HaCjpt": {
+          "type": "variant_selector",
+          "settings": {
+            "variant_style": "pills",
+            "use_color_swatch": true,
+            "swatch_indicators": "color,colour",
+            "num_of_columns": 2,
+            "mt": 3,
+            "mb": 3
+          }
         },
-        "buy_buttons": {
+        "buy_buttons_DYHapV": {
           "type": "buy_buttons",
           "settings": {
-            "show_dynamic_checkout": true,
-            "show_gift_card_recipient": true
+            "show_qty_field": true,
+            "qty_field_position": "inline",
+            "show_buy_btn": true,
+            "show_dynamic_buttons": false,
+            "atc_btn_show_price": true,
+            "mt": 3,
+            "mb": 3
           }
         },
-        "description": {
-          "type": "description"
-        },
-        "collapsible-row-0": {
-          "type": "collapsible_tab",
+        "accordion_RW9AfA": {
+          "type": "accordion",
           "settings": {
-            "heading": "Materials",
-            "icon": "leather",
-            "content": "",
-            "page": ""
-          }
-        },
-        "collapsible-row-1": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "Shipping & Returns",
-            "icon": "truck",
-            "content": "",
-            "page": ""
-          }
-        },
-        "collapsible-row-2": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "Dimensions",
-            "icon": "ruler",
-            "content": "",
-            "page": ""
-          }
-        },
-        "collapsible-row-3": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "Care Instructions",
-            "icon": "heart",
-            "content": "",
-            "page": ""
-          }
-        },
-        "share": {
-          "type": "share",
-          "settings": {
-            "share_label": "Share"
+            "accordion_style": "",
+            "open_first_item": true,
+            "title_font_size_mobile": 2,
+            "title_font_size_desktop": 2,
+            "description_font_size_mobile": 2,
+            "description_font_size_desktop": 2,
+            "title_item_1": "Accordion Item 1",
+            "description_item_1": "",
+            "description_item_1_is_desc": true,
+            "icon_item_1": "",
+            "title_item_2": "Accordion Item 2",
+            "description_item_2": "<p>Add some description or inject a metafield<\/p>",
+            "description_item_2_is_desc": true,
+            "icon_item_2": "",
+            "title_item_3": "",
+            "description_item_3": "",
+            "description_item_3_is_desc": true,
+            "icon_item_3": "",
+            "mt": 3,
+            "mb": 3
           }
         }
       },
       "block_order": [
-        "vendor",
-        "title",
-        "caption",
-        "price",
-        "variant_picker",
-        "quantity_selector",
-        "buy_buttons",
-        "description",
-        "collapsible-row-0",
-        "collapsible-row-1",
-        "collapsible-row-2",
-        "collapsible-row-3",
-        "share"
+        "title_VhB7VE",
+        "price_ijV4z8",
+        "description_KHFhhK",
+        "variant_selector_HaCjpt",
+        "buy_buttons_DYHapV",
+        "accordion_RW9AfA"
       ],
       "settings": {
-        "enable_sticky_info": true,
-        "gallery_layout": "stacked",
-        "media_size": "large",
-        "constrain_to_viewport": true,
-        "mobile_thumbnails": "hide",
-        "hide_variants": true,
-        "enable_video_looping": false,
-        "padding_top": 36,
-        "padding_bottom": 12
-      }
-    },
-    "image-with-text": {
-      "type": "image-with-text",
-      "blocks": {
-        "image-with-text-0": {
-          "type": "heading",
-          "settings": {
-            "heading": "Image with text",
-            "heading_size": "h1"
-          }
-        },
-        "image-with-text-1": {
-          "type": "text",
-          "settings": {
-            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.<\/p>",
-            "text_style": "body"
-          }
-        }
-      },
-      "block_order": [
-        "image-with-text-0",
-        "image-with-text-1"
-      ],
-      "settings": {
-        "height": "small",
-        "desktop_image_width": "medium",
-        "layout": "text_first",
-        "desktop_content_position": "top",
-        "desktop_content_alignment": "left",
-        "content_layout": "no-overlap",
-        "color_scheme": "scheme-2",
-        "mobile_content_alignment": "left",
-        "padding_top": 36,
-        "padding_bottom": 36
-      }
-    },
-    "multicolumn": {
-      "type": "multicolumn",
-      "blocks": {
-        "column-0": {
-          "type": "column",
-          "settings": {
-            "title": "Free Shipping",
-            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.<\/p>",
-            "link_label": "",
-            "link": ""
-          }
-        },
-        "column-1": {
-          "type": "column",
-          "settings": {
-            "title": "Hassle-Free Exchanges",
-            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.<\/p>",
-            "link_label": "",
-            "link": ""
-          }
-        }
-      },
-      "block_order": [
-        "column-0",
-        "column-1"
-      ],
-      "settings": {
-        "title": "",
-        "heading_size": "h1",
-        "image_width": "full",
-        "image_ratio": "adapt",
-        "columns_desktop": 2,
-        "column_alignment": "left",
-        "background_style": "none",
-        "button_label": "",
-        "button_link": "",
-        "swipe_on_mobile": false,
-        "color_scheme": "scheme-1",
-        "columns_mobile": "1",
-        "padding_top": 36,
-        "padding_bottom": 36
-      }
-    },
-    "related-products": {
-      "type": "related-products",
-      "settings": {
-        "heading": "You may also like",
-        "heading_size": "h2",
-        "columns_desktop": 4,
-        "color_scheme": "scheme-1",
-        "image_ratio": "square",
-        "show_secondary_image": true,
-        "show_vendor": false,
-        "show_rating": false,
-        "columns_mobile": "2",
-        "padding_top": 36,
-        "padding_bottom": 28
+        "color_scheme": "",
+        "show_breadcrumbs": false,
+        "show_share_btn": true,
+        "jump_to_variant": false,
+        "aspect_ratio": "square",
+        "gallery_mobile_full_width": true,
+        "gallery_show_thumbnails_mobile": true,
+        "gallery_enable_lightbox": true,
+        "prev_next_show": true,
+        "prev_next_img_orientation": "square",
+        "pt": 9,
+        "pb": 6,
+        "mt": 0,
+        "mb": 0
       }
     }
   },
   "order": [
-    "main",
-    "image-with-text",
-    "multicolumn",
-    "related-products"
+    "template-product"
   ]
 }

@@ -1,0 +1,350 @@
+{% liquid 
+    assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-' 
+    assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-'
+
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+
+    if section.settings.scroll 
+        assign row_sm = row_sm | append: '-5'
+    endif
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+%}
+
+<section 
+    id="featured-collections-{{ section.id }}" 
+    class="enter-view overflow-hidden {% if section.settings.visibility == blank or section.settings.visibility == nil %}d-flex {% else %} 
+    {{ section.settings.visibility }} {% endif %} justify-content-center {{ section.settings.bg_color }} {{ section.settings.text_align }} 
+    {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }}">
+    <div class="{{ section.settings.container }}">
+        {% render 'section-header', section: section %}   
+        <div class="row g-{{ settings.collection_card_gap }} {{ section.settings.aspect_ratio }} {{ row_sm }} {{ row_lg }} {% if row_sm contains '-5' %}scroll{% endif %}">
+            {% for block in section.blocks %}
+                {% render 'collection-card', collection: collections[block.settings.collection], block: block, index: forloop.index %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+{% schema %}
+{
+  "name": "Featured Collections",
+  "settings": [
+    {
+      "type": "select",
+      "label": "Visibility",
+      "id": "visibility",
+      "default": "d-flex",
+      "options": [
+        {
+          "value": "d-flex",
+          "label": "All screen sizes"
+        },
+        {
+          "value": "d-sm-none d-lg-flex",
+          "label": "On desktop only"
+        },
+        {
+          "value": "d-lg-none d-sm-flex",
+          "label": "On mobile only"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container",
+      "default": "container",
+      "options": [
+        { "value": "container", "label": "Container" },
+        { "value": "container-fluid", "label": "Fluid" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "label": "Color scheme",
+      "id": "color_scheme"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text align",
+      "default": "text-center",
+      "options": [
+        { "value": "text-start", "label": "Left" },
+        { "value": "text-center", "label": "Center" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Featured Collections"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_mobile",
+      "label": "Title font-size | mobile",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_desktop",
+      "label": "Title font-size | desktop",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "text",
+      "id": "subheader",
+      "label": "Subheader",
+      "default": "Our Collections"
+    },
+    {
+      "type": "range",
+      "id": "subheader_font_size_mobile",
+      "label": "Subheader font-size | mobile",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "subheader_font_size_desktop",
+      "label": "Subheader font-size | desktop",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description (optional)",
+      "default": "<p>Add an optional description to this section</p>"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_mobile",
+      "label": "Description font-size | mobile",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_desktop",
+      "label": "Description font-size | desktop",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "Disabled", "value": "", "label": "No animation" },
+        { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+        { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+        { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+        { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+        { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+        { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+        { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+        { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+        { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+        { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+        { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+        { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+        { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+        { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+        { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+        { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+        { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+        { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+        { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "Slower" },
+        { "value": "animate__slow", "label": "Slow" },
+        { "value": "", "label": "Normal" },
+        { "value": "animate__fast", "label": "Fast" },
+        { "value": "animate__faster", "label": "Faster" }
+      ]
+    }, 
+    {
+      "type": "header",
+      "content": "Collection"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Image orientation",
+      "default": "square",
+      "options": [
+        { "value": "square", "label": "Square" },
+        { "value": "landscape", "label": "Landscape" },
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "circle", "label": "Circle" }
+      ],
+      "info": "Applies once a collection or image is selected."
+    },
+    {
+      "type": "select",
+      "id": "collection_img_thumbnail",
+      "label": "Image thumbnail",
+      "default": "img-thumbnail",
+      "options": [
+        { "value": "", "label": "None" },
+        { "value": "img-thumbnail", "label": "Thumbnail" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "collection_show_title",
+      "label": "Show collection titles",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "collection_title_font_size_mobile",
+      "label": "Title font-size | mobile",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "collection_title_font_size_desktop",
+      "label": "Title font-size | desktop",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "header",
+      "content": "Breakpoints",
+      "info": "Adjust items per row based on screen resolution"
+    },
+    {
+      "type": "checkbox",
+      "id": "scroll",
+      "label": "Scroll on mobile",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "breakpoint_sm",
+      "label": "Items per row - mobile",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "breakpoint_lg",
+      "label": "Items per row - desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "pt",
+      "label": "Padding top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "pb",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "Margin top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "Margin bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "img",
+          "label": "Image",
+          "info": "In case you prefer to use a different image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "info": "In case you prefer to use a different title"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured Collections",
+      "category": "Collections"
+    }
+  ]
+}
+
+{% endschema %}

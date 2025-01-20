@@ -1,15 +1,22 @@
 {
   "sections": {
-    "main": {
-      "type": "main-list-collections",
+    "template-list-collections": {
+      "type": "template-list-collections",
       "settings": {
+        "limit": 48,
+        "text_align": "text-center",
         "title": "Collections",
-        "sort": "alphabetical",
-        "image_ratio": "square"
+        "description": "<p>Add on optional description to this section<\/p>",
+        "breakpoint_sm": 2,
+        "breakpoint_lg": 3,
+        "pt": 11,
+        "pb": 11,
+        "mt": 0,
+        "mb": 0
       }
     }
   },
   "order": [
-    "main"
+    "template-list-collections"
   ]
 }

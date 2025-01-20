@@ -1,0 +1,126 @@
+<div class="position-relative p-0 has-image">
+  {{-
+    section.settings.image
+    | image_url: width: section.settings.image.width
+    | image_tag:
+      loading: 'lazy',
+      fetchpriority: 'low',
+      sizes: '100vw',
+      widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200',
+      class: 'w-100 exception'
+  -}}
+  {% for block in section.blocks %}
+    <div
+      class="d-none d-md-block position-absolute"
+      style="top: {{ block.settings.vertical_position_desktop }}%; left: {{ block.settings.horizontal_position_desktop }}%;"
+      {{ block.shopify_attributes }}
+    >
+      <div class="pulse" style="--pulse-color: {{ section.settings.pulse_color }}">
+        <span style="--i: 0"></span>
+        <span style="--i: 1"></span>
+        <span style="--i: 2"></span>
+        <span style="--i: 3"></span>
+        <button
+          type="button"
+          class="btn popover-trigger"
+          data-bs-toggle="popover"
+          data-bs-title="Popover title"
+          data-bs-content="{{ block.settings.popover_text }}"
+        ></button>
+      </div>
+    </div>
+    <div
+      class="d-block d-md-none position-absolute"
+      style="top: {{ block.settings.vertical_position_mobile }}%; left: {{ block.settings.horizontal_position_mobile }}%;"
+      {{ block.shopify_attributes }}
+    >
+      <div class="pulse" style="--pulse-color: {{ section.settings.pulse_color }}">
+        <span style="--i: 0"></span>
+        <span style="--i: 1"></span>
+        <span style="--i: 2"></span>
+        <span style="--i: 3"></span>
+        <button
+          type="button"
+          class="btn popover-trigger"
+          data-bs-toggle="popover"
+          data-bs-title="Popover title"
+          data-bs-content="{{ block.settings.popover_text }}"
+        ></button>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% schema %}
+{
+  "name": "Image Tooltip Section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "color",
+      "id": "pulse_color",
+      "label": "Pulse Color",
+      "default": "#ff0000"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "button",
+      "name": "Tooltip Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "popover_text",
+          "label": "Tooltip Text"
+        },
+        {
+          "type": "range",
+          "id": "horizontal_position_desktop",
+          "label": "Horizontal Position (Desktop)",
+          "default": 50,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "type": "range",
+          "id": "vertical_position_desktop",
+          "label": "Vertical Position (Desktop)",
+          "default": 50,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "type": "range",
+          "id": "horizontal_position_mobile",
+          "label": "Horizontal Position (Mobile)",
+          "default": 50,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "type": "range",
+          "id": "vertical_position_mobile",
+          "label": "Vertical Position (Mobile)",
+          "default": 50,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image Tooltip Section",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

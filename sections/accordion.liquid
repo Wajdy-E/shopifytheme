@@ -1,0 +1,418 @@
+{% liquid
+  assign pt = section.settings.pt | prepend: 'pt-'
+  assign pb = section.settings.pb | prepend: 'pb-'
+  assign mt = section.settings.mt | prepend: 'mt-'
+  assign mb = section.settings.mb | prepend: 'mb-'
+
+  assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+
+%}
+<section id="accordion-{{ section.id }}" class="enter-view {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }}">
+  <div class="container">
+    <div class="px-sm-7 px-0 rounded">
+      <div
+        class="
+          row p-lg-15 py-sm-10 border mx-auto {% unless section.settings.animation == '' %}animate__animated opacity-0
+          {{ section.settings.animation_speed }}{% endunless %}
+        "
+        data-animate-class="{{ section.settings.animation }}"
+        style="animation-delay:150ms;"
+      >
+        {% if section.settings.columns == 'two' %}
+          <div class="row">
+            <div class="col-12 col-md-6">
+              <div id="accordion-left-{{ section.id }}" class="accordion {{ section.settings.style }}">
+                {% assign index = 0 %}
+                {% for block in section.blocks %}
+                  {% if block.type == 'heading' %}
+                    <div class="accordion-heading">
+                      <h2 class="fs-4 fs-lg-5">{{ block.settings.seperator }}</h2>
+                    </div>
+                  {% else %}
+                    {% assign is_even = index | modulo: 2 %}
+                    {% if is_even == 0 %}
+                      <div class="accordion-item" {{ block.shopify_attributes }}>
+                        <div class="accordion-header">
+                          <button
+                            class="accordion-button collapsed py-8"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapse{{ index }}"
+                            aria-expanded="false"
+                            aria-controls="flush-collapse{{ index }}"
+                          >
+                            <div class="d-flex align-items-center">
+                              {% if block.settings.icon != 'none' %}
+                                {% render 'icon-accordion', icon: block.settings.icon, size: 20 %}
+                              {% endif %}
+                              <h3 class="fs-5 fs-lg-6 ms-5 my-0">
+                                {{ block.settings.header | default: 'Collapsible content' }}
+                              </h3>
+                            </div>
+                          </button>
+                        </div>
+                        <div
+                          id="flush-collapse{{ index }}"
+                          class="accordion-collapse collapse"
+                          data-bs-parent="#accordion-left-{{ section.id }}"
+                        >
+                          <div class="accordion-body">
+                            <p class="fs-4 fs-lg-5">{{ block.settings.content }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    {% endif %}
+                    {% assign index = index | plus: 1 %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div id="accordion-right-{{ section.id }}" class="accordion {{ section.settings.style }}">
+                {% assign index = 0 %}
+                {% for block in section.blocks %}
+                  {% if block.type == 'heading' %}
+                    <div class="accordion-heading">
+                      <h2 class="fs-4 fs-lg-5">{{ block.settings.seperator }}</h2>
+                    </div>
+                  {% else %}
+                    {% assign is_even = index | modulo: 2 %}
+                    {% if is_even != 0 %}
+                      <div class="accordion-item" {{ block.shopify_attributes }}>
+                        <div class="accordion-header">
+                          <button
+                            class="accordion-button collapsed py-8"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapse{{ index }}"
+                            aria-expanded="false"
+                            aria-controls="flush-collapse{{ index }}"
+                          >
+                            <div class="d-flex align-items-center">
+                              {% if block.settings.icon != 'none' %}
+                                {% render 'icon-accordion', icon: block.settings.icon, size: 20 %}
+                              {% endif %}
+                              <h3 class="fs-5 fs-lg-6 ms-5 my-0">
+                                {{ block.settings.header | default: 'Collapsible content' }}
+                              </h3>
+                            </div>
+                          </button>
+                        </div>
+                        <div
+                          id="flush-collapse{{ index }}"
+                          class="accordion-collapse collapse"
+                          data-bs-parent="#accordion-right-{{ section.id }}"
+                        >
+                          <div class="accordion-body">
+                            <p class="fs-4 fs-lg-5">{{ block.settings.content }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    {% endif %}
+                    {% assign index = index | plus: 1 %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="accordion {{ section.settings.style }} w-100">
+            {% for block in section.blocks %}
+              {% if block.type == 'heading' %}
+                <div class="accordion-heading">
+                  <h2 class="fs-4 fs-lg-5">{{ block.settings.seperator }}</h2>
+                </div>
+              {% else %}
+                <div class="accordion-item" {{ block.shopify_attributes }}>
+                  <div class="accordion-header">
+                    <button
+                      class="accordion-button collapsed py-8"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#flush-collapse{{ forloop.index }}"
+                      aria-expanded="false"
+                      aria-controls="flush-collapse{{ forloop.index }}"
+                    >
+                      <div class="d-flex align-items-center">
+                        {% if block.settings.icon != 'none' %}
+                          {% render 'icon-accordion', icon: block.settings.icon, size: 20 %}
+                        {% endif %}
+                        <h3 class="fs-5 fs-lg-6 ms-5 my-0">
+                          {{ block.settings.header | default: 'Collapsible content' }}
+                        </h3>
+                      </div>
+                    </button>
+                  </div>
+                  <div
+                    id="flush-collapse{{ forloop.index }}"
+                    class="accordion-collapse {% if forloop.first and section.settings.show %} show {% endif %} collapse"
+                    data-bs-parent="#accordion-{{ section.id }}"
+                  >
+                    <div class="accordion-body">
+                      <p class="fs-4 fs-lg-5">{{ block.settings.content }}</p>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+    "name": "Accordion",
+    "settings": [
+      {
+        "type": "color_scheme",
+        "label": "Color scheme",
+        "id": "color_scheme"
+        },
+        {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "Disabled", "value": "", "label": "No animation" },
+        { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+        { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+        { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+        { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+        { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+        { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+        { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+        { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+        { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+        { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+        { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+        { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+        { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+        { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+        { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+        { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+        { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+        { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+        { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "Slower" },
+        { "value": "animate__slow", "label": "Slow" },
+        { "value": "", "label": "Normal" },
+        { "value": "animate__fast", "label": "Fast" },
+        { "value": "animate__faster", "label": "Faster" }
+      ]
+    },
+        {
+            "type": "checkbox",
+            "label": "Open first by default",
+            "id": "show",
+            "default": false
+        },
+        {
+            "type": "select",
+            "label": "Style",
+            "id": "style",
+            "default": "",
+            "options": [
+                {
+                    "label": "With border",
+                    "value": ""
+                },
+                {
+                    "value": "accordion-flush",
+                    "label": "Borderless"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "label": "Columns",
+            "id": "columns",
+            "default": "one",
+            "options": [
+                {
+                    "label": "One Column",
+                    "value": "one"
+                },
+                {
+                    "label": "Two Columns",
+                    "value": "two"
+                }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+    ],
+    "blocks": [
+        {
+            "type": "collapsible_row",
+            "name": "Accordion Item",
+            "settings": [
+                {
+                    "type": "inline_richtext",
+                    "id": "header",
+                    "label": "Accordion header"
+                },
+                {
+                    "type": "textarea",
+                    "id": "content",
+                    "label": "Content"
+                },
+                {
+                    "type": "select",
+                    "id": "icon",
+                    "label": "Icon",
+                    "default": "question_mark",
+                    "options": [
+                        { "value": "none", "label": "None" },
+                        { "value": "apple", "label": "Apple" },
+                        { "value": "banana", "label": "Banana" },
+                        { "value": "bottle", "label": "Bottle" },
+                        { "value": "box", "label": "Box" },
+                        { "value": "carrot", "label": "Carrot" },
+                        { "value": "chat_bubble", "label": "Chat Bubble" },
+                        { "value": "check_mark", "label": "Check Mark" },
+                        { "value": "clipboard", "label": "Clipboard" },
+                        { "value": "dairy", "label": "Dairy" },
+                        { "value": "dairy_free", "label": "Dairy Free" },
+                        { "value": "dryer", "label": "Dryer" },
+                        { "value": "eye", "label": "Eye" },
+                        { "value": "fire", "label": "Fire" },
+                        { "value": "gluten_free", "label": "Gluten Free" },
+                        { "value": "heart", "label": "Heart" },
+                        { "value": "iron", "label": "Iron" },
+                        { "value": "leaf", "label": "Leaf" },
+                        { "value": "leather", "label": "Leather" },
+                        { "value": "lightning_bolt", "label": "Lightning Bolt" },
+                        { "value": "lipstick", "label": "Lipstick" },
+                        { "value": "lock", "label": "Lock" },
+                        { "value": "map_pin", "label": "Map Pin" },
+                        { "value": "nut_free", "label": "Nut Free" },
+                        { "value": "pants", "label": "Pants" },
+                        { "value": "paw_print", "label": "Paw Print" },
+                        { "value": "pepper", "label": "Pepper" },
+                        { "value": "perfume", "label": "Perfume" },
+                        { "value": "plane", "label": "Plane" },
+                        { "value": "plant", "label": "Plant" },
+                        { "value": "price_tag", "label": "Price Tag" },
+                        { "value": "question_mark", "label": "Question Mark" },
+                        { "value": "recycle", "label": "Recycle" },
+                        { "value": "return", "label": "Return" },
+                        { "value": "ruler", "label": "Ruler" },
+                        { "value": "serving_dish", "label": "Serving Dish" },
+                        { "value": "shirt", "label": "Shirt" },
+                        { "value": "shoe", "label": "Shoe" },
+                        { "value": "silhouette", "label": "Silhouette" },
+                        { "value": "snowflake", "label": "Snowflake" },
+                        { "value": "star", "label": "Star" },
+                        { "value": "stopwatch", "label": "Stopwatch" },
+                        { "value": "truck", "label": "Truck" },
+                        { "value": "washing", "label": "Washing" }
+                    ]
+                }
+            ]
+        },
+      {
+        "type": "heading",
+        "name": "Heading",
+        "settings": [
+          {
+            "type": "inline_richtext",
+            "id": "seperator",
+            "label": "Group accordions by headers",
+          }
+        ]
+      }
+    ],
+    "presets": [
+        {
+            "name": "Accordion",
+            "category": "Accordion",
+            "blocks": [
+                {
+                    "type": "collapsible_row",
+                    "settings": {
+                        "header": "FAQ 1",
+                        "content": "This is the answer to FAQ 1.",
+                        "icon": "question_mark"
+                    }
+                },
+                {
+                    "type": "collapsible_row",
+                    "settings": {
+                        "header": "FAQ 2",
+                        "content": "This is the answer to FAQ 2.",
+                        "icon": "question_mark"
+                    }
+                },
+                {
+                    "type": "collapsible_row",
+                    "settings": {
+                        "header": "FAQ 3",
+                        "content": "This is the answer to FAQ 3.",
+                        "icon": "question_mark"
+                    }
+                },
+                {
+                    "type": "collapsible_row",
+                    "settings": {
+                        "header": "FAQ 4",
+                        "content": "This is the answer to FAQ 4.",
+                        "icon": "question_mark"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

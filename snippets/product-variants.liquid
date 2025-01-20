@@ -1,0 +1,60 @@
+{% unless product.has_only_default_variant %}
+
+<div class="variant-selector {{ variant_style }} {% if variant_style == 'pills' %}d-flex flex-column gap-8{% endif %}" {{ block.shopify_attributes }}>
+    {% if variant_style == 'single_dropdown' %}
+        <select name="id" onchange="handleVariantChange(this, event)">
+            {% for variant in product.variants %}
+                <option value="{{ variant.id }}">
+                    {{ variant.title }}
+                </option>
+            {% endfor %}
+        </select>     
+    {% elsif variant_style == 'pills' %}
+        {% for option in product.options_with_values %}
+            <div class="variant-options">
+                {% liquid
+                    assign selected_value = option.selected_value | default: option.values.first
+                    assign use_color_swatch = block.settings.use_color_swatch
+                    if use_color_swatch
+                        assign is_color = false
+                        assign downcased_option = option.name | escape | downcase
+                        assign swatch_indicators = block.settings.swatch_indicators | downcase
+                        if swatch_indicators contains downcased_option
+                            assign is_color = true
+                        endif
+                    endif
+                %}
+                <fieldset class="flex-wrap {% if is_color %}color-swatch{% endif %}">
+                    <legend>{{ option.name | escape }}: {{ selected_value | escape }}</legend>
+                    {% for value in option.values %}
+                    <div class="option-values{% if is_color != true %} btn{% endif %}{% if selected_value == value and is_color != true %} btn-primary{% elsif is_color != true %} btn-outline-primary{% endif %} p-0 move-on-hover">
+                            <input class="{% if selected_value == value %}selected{% endif %}" type="radio" name="{{ option.name | escape }}" value="{{ value }}" id="{{ option.name | handleize }}-{{ value | handleize }}" onchange="handleVariantChange(this, event)" {% if selected_value == value %} checked{% endif %}>
+                            <label for="{{ option.name | handleize }}-{{ value | handleize }}" class="{% if is_color == true %}w-100 h-100 {% else %}px-10 py-5 {% endif %}variant-pill-btn fs-4" {% if is_color %}style="background-color: white; background-color: {{ value }};"{% endif %}>{{ value }}</label>
+                        </div>
+                    {% endfor %}
+                </fieldset>
+            </div>
+        {% endfor %} 
+        
+    {% else %}
+        <div class="row row-cols-lg-{{ columns }} row-cols-1">
+            {% for option in product.options_with_values %}
+                <div class="select-container">
+                    <div class="variant-options d-flex flex-column">
+                        <label for="{{ option.name | handleize | escape }}-{{ product.id }}-option-{{ forloop.index }}">{{ option.name }}</label>
+                        <select class="form-control" name="{{ option.name | handleize | escape }}" id="{{ option.name | handleize }}-{{ product.id }}-option-{{ forloop.index }}" onchange="handleVariantChange(this, event)">
+                            {% for value in option.values %}
+                                <option value="{{ value }}">
+                                    {{ value }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div> 
+                </div>   
+            {% endfor %}
+        </div>            
+    {% endif %}
+    
+</div>
+
+{% endunless %}

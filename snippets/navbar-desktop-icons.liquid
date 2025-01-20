@@ -1,0 +1,112 @@
+<ul class="nav navbar-icons justify-content-end" aria-label="{{ 'general.accessibility.utility_icons' | t }}">
+    {% for link in linklists[section.settings.menu_desktop].links %}
+        {% liquid 
+            if link.title == '|'
+                assign show_links = true
+            endif 
+        %}
+        {% if show_links and link.title != '|' %}
+            {% if link.links == blank %}
+                <li class="nav-item">
+                    <a
+                        class="nav-link rounded {{ section.settings.menu_desktop_font_family }} {{ section.settings.menu_desktop_font_size | prepend: 'fs-' }} {% if link.active %}active{% endif %}" 
+                        href="{{ link.url }}"
+                        aria-current="{% if link.active %}page{% endif %}">
+                        {{ link.title }}
+                    </a>
+                </li>
+            {% else %}
+            <li class="nav-item dropdown">
+                <a 
+                    class="nav-link rounded dropdown-toggle {{ section.settings.menu_desktop_font_family }} {{ section.settings.menu_desktop_font_size | prepend: 'fs-' }} {% if link.child_active %}active{% endif %}" 
+                    href="#"
+                    data-bs-toggle="dropdown" 
+                    aria-expanded="false"
+                    data-index="{{ forloop.index }}"
+                    role="button">
+                    {{ link.title }}
+                </a>
+                <ul class="dropdown-menu">
+                    {% for child_link in link.links %}
+                        <li>
+                            <a 
+                                id="navbar-childitem-{{ forloop.index }}" 
+                                class="dropdown-item {% if child_link.active %}active{% endif %}" 
+                                href="{{ child_link.url }}"
+                                aria-current="{% if child_link.active %}page{% endif %}">
+                                {{ child_link.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    <li class="nav-item ms-2">
+        <a
+            class="nav-link move-on-hover" 
+            href="#offcanvas-search" 
+            data-bs-toggle="offcanvas"
+            aria-controls="offcanvas-search" 
+            role="button"
+            aria-label="{{ 'general.accessibility.search' | t }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        </a>
+    </li>
+    {% if shop.customer_accounts_enabled %}
+        <li class="nav-item">
+            <a 
+                class="nav-link move-on-hover {% if template.name == 'login' or template.name == 'account' %}active{% endif %}" 
+                aria-current="{% if template.name == 'login' or template.name == 'account' %}page{% endif %}" 
+                href="{{ routes.account_url }}"
+                aria-label="{{ 'general.accessibility.account' | t }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                </svg>
+            </a>
+        </li>
+    {% endif %}
+    {% if settings.wishlist_enable %}
+        <li class="nav-item">
+            <a 
+                class="wishlist-icon nav-link move-on-hover"
+                href="#offcanvas-wishlist"
+                data-bs-toggle="offcanvas" 
+                aria-controls="offcanvas-wishlist" 
+                aria-label="{{ 'general.accessibility.wishlist' | t }}"
+                role="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span 
+                    class="wishlist-count-badge badge {% if section.settings.bg_color contains 'bg-primary' %}bg-white text-dark{% else %}bg-primary{% endif %}" 
+                    aria-live="polite"
+                    aria-atomic="true"
+                    hidden>
+                </span>
+            </a>
+        </li>
+    {% endif %}
+    <li class="nav-item">
+        <a 
+            class="cart-icon nav-link move-on-hover" 
+            {% if settings.cart_drawer_disable == true or request.page_type == 'cart' %}
+                href="{{ routes.cart_url }}" 
+            {% else %}
+                class="btn" data-bs-toggle="offcanvas" data-bs-target="#CartDrawer" aria-controls="CartDrawer"
+                href="#CartDrawer"
+            {% endif %}
+            aria-label="{{ 'general.accessibility.cart' | t }} {{ cart.item_count }}">
+            {% render 'cart-icon' %}
+            <span 
+                class="cart-count-badge badge"
+                {% if cart.item_count == 0 %}hidden{% endif %}>
+                {{ cart.item_count }}
+            </span>
+        </a>           
+    </li>
+</ul>

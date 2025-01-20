@@ -1,25 +1,94 @@
 {
   "sections": {
     "main": {
-      "type": "main-page",
-      "settings": {
-        "padding_top": 36,
-        "padding_bottom": 36
-      }
-    },
-    "form": {
       "type": "contact-form",
+      "blocks": {
+        "text_r3qY4K": {
+          "type": "text",
+          "settings": {
+            "override_width": true,
+            "title": "Your Title",
+            "title_font_size_mobile": 4,
+            "title_font_size_desktop": 4,
+            "description": "<p>Add on optional description to this block<\/p>",
+            "description_font_size_mobile": 2,
+            "description_font_size_desktop": 2
+          }
+        },
+        "separator_6DpxmP": {
+          "type": "separator",
+          "settings": {
+            "opacity": 0.1,
+            "mt": 6,
+            "mb": 6
+          }
+        },
+        "input_field_74pWfK": {
+          "type": "input_field",
+          "settings": {
+            "override_width": false,
+            "type": "text",
+            "label": "Your Name",
+            "required": true
+          }
+        },
+        "input_field_NGChxG": {
+          "type": "input_field",
+          "settings": {
+            "override_width": false,
+            "type": "text",
+            "label": "Your Name",
+            "required": true
+          }
+        },
+        "textarea_8MEAF3": {
+          "type": "textarea",
+          "settings": {
+            "override_width": true,
+            "rows": 8,
+            "label": "Your Message",
+            "required": true
+          }
+        },
+        "submit_btn_ALzQGn": {
+          "type": "submit_btn",
+          "settings": {
+            "override_width": true,
+            "btn_text": "Send",
+            "btn_color": "btn-primary"
+          }
+        }
+      },
+      "block_order": [
+        "text_r3qY4K",
+        "separator_6DpxmP",
+        "input_field_74pWfK",
+        "input_field_NGChxG",
+        "textarea_8MEAF3",
+        "submit_btn_ALzQGn"
+      ],
       "settings": {
-        "heading": "",
-        "heading_size": "h1",
-        "color_scheme": "scheme-1",
-        "padding_top": 36,
-        "padding_bottom": 36
+        "color_scheme": "",
+        "bg_image_left": "shopify:\/\/shop_images\/ripe-red-strawberries-in-a-white-bowl.jpg",
+        "overlay_color": "#000000",
+        "overlay_opacity": 0.4,
+        "show_social_icons": true,
+        "title": "Contact us",
+        "title_font_size_mobile": 6,
+        "title_font_size_desktop": 8,
+        "description": "<p>Add on optional description to this section<\/p>",
+        "description_font_size_mobile": 2,
+        "description_font_size_desktop": 2,
+        "form_fields_size": "md",
+        "form_success_msg": "<p>Thanks for contacting us. We'll get back to you as soon as possible.<\/p>",
+        "pt": 15,
+        "pb": 15,
+        "mt": 0,
+        "mb": 0
       }
     }
   },
   "order": [
-    "main",
-    "form"
+    "main"
   ]
 }

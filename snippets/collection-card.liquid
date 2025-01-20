@@ -1,0 +1,31 @@
+{% liquid
+  assign hover_state = false
+  if collection.products_count > 0 and settings.show_first_on_hover
+    assign hover_state = true
+  endif
+  
+  if hover_state
+    assign classes = 'img-fluid primary-image'
+  else 
+    assign classes = 'img-fluid zoom-on-hover'
+  endif
+%}
+
+<div class="col rounded collection-card {{ settings.collection_card_style }}" style="padding-bottom: var(--bs-gutter-x)">
+  <div class="collection-card-wrapper overflow-hidden rounded {% if hover_state %}has-more-than-one{% endif %} {{ settings.collection_card_shadow }}">
+    <a href="{{ collection.url }}" class="text-decoration-none">
+        <div class="collection-image position-relative overflow-hidden{% if hover_state %} secondary-on-hover{% endif %}">
+            {{  collection.featured_image | image_url: width: collection.featured_image.width |  image_tag: loading: 'lazy', fetchpriority: 'low', class: classes  }}
+            {% if hover_state and collection.products[0].featured_image %}
+              {{- collection.products[0].featured_image | image_url: width: collection.products[0].featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200', class: 'img-fluid secondary-image' -}}
+          {% endif %}
+            {% render 'product-count-badge', collection: collection %}
+        </div>
+    </a>
+    <div class="collection-info text-start d-flex align-items-center justify-content-between pt-8">
+        <h4 class="fs-lg-7 col-10 p-0 ms-4 h-100 align-content-center">{{ collection.title }}</h4>
+        <a href="{{ collection.url }}" title="{{ collection.title }}" class="col btn p-0 h-100 align-content-center view-button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="20" width="20" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z"/></svg>        </a>
+    </div>
+  </div>
+</div>

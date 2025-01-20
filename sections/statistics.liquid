@@ -1,0 +1,340 @@
+{% liquid
+    assign pt = section.settings.pt | prepend: 'pt-'
+    assign pb = section.settings.pb | prepend: 'pb-'
+    assign mt = section.settings.mt | prepend: 'mt-'
+    assign mb = section.settings.mb | prepend: 'mb-'
+    assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-'
+    assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-'
+    if section.settings.scroll
+        assign mobile_scroll = 'mobile_scroll' 
+    endif 
+
+    assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+
+    assign rich_fs_mobile = 'fs-' | append: section.settings.count_font_size_mobile
+    assign rich_fs_desktop = 'fs-lg-' | append: section.settings.count_font_size_desktop
+    assign rich_fs_mobile_description = 'fs-' | append: block.settings.description_font_size_mobile
+    assign rich_fs_desktop_description = 'fs-lg-' | append: section.settings.description_font_size_desktop
+%}
+
+<section class="statistics enter-view {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }}" id="statistics-{{ section.id }}">
+    <div class="{{ section.settings.container }}">
+        <ul class="list-unstyled row {{ section.settings.text_alignment }} {{ row_lg }} {{ row_sm }} {{ mobile_scroll }} g-8">
+            {% for block in section.blocks %}
+                <li class="col {% unless section.settings.animation == '' %}animate__animated opacity-0 {{ section.settings.animation_speed }}{% endunless %}" 
+                style="animation-delay: {{ forloop.index0 | times: 150 }}ms;" data-animate-class="{{ section.settings.animation }}" {{ block.shopify_attributes }}>
+                    <div class="counter block rounded h-100">
+                        <h3 class="fw-bold {{ rich_fs_desktop }} {{ rich_fs_mobile }}">{{ block.settings.prefix }}
+                            <span data-count="{{ block.settings.stat }}">0</span>{{ block.settings.suffix }}
+                        </h3>
+                        <h4 class="{{ rich_fs_mobile_description }} {{ rich_fs_desktop_description }}">{{ block.settings.description }}</h4>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Statistics",
+    "settings": [
+        {
+        "type": "select",
+        "id": "container",
+        "label": "Section Width",
+        "default": "container",
+        "options": [
+            { "value": "container", "label": "Default" },
+            { "value": "container-fluid", "label": "Full width" }
+        ]
+      },
+      {
+      "type": "color_scheme",
+      "label": "Color scheme",
+      "id": "color_scheme"
+    },
+      {
+        "type": "select",
+        "label": "Text alignment",
+        "id": "text_alignment",
+        "default": "text-center",
+        "options": [
+          {
+            "label": "Align left",
+            "value": "text-start"
+          },
+          {
+            "label": "Align center",
+            "value": "text-center"
+          },
+          {
+            "label": "Align right",
+            "value": "text-end"
+          }
+        ]
+        },
+        {
+            "type": "header",
+            "content": "Font size settings"
+        },
+        {
+            "type": "range",
+            "id": "count_font_size_mobile",
+            "label": "Count font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "count_font_size_desktop",
+            "label": "Count font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 12
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_mobile",
+            "label": "Description font-size | mobile",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 5
+        },
+        {
+            "type": "range",
+            "id": "description_font_size_desktop",
+            "label": "Description font-size | desktop",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "default": 7
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_sm",
+            "label": "Items per row / sm",
+            "info": "Screen width: ≥576px",
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 2
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_lg",
+            "label": "Items per row / lg",
+            "info": "Screen width: ≥992px",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "default": 3
+        },
+      {
+        "type": "select",
+        "id": "animation",
+        "label": "Animation",
+        "default": "animate__fadeInUp",
+        "options": [
+          { "group": "Disabled", "value": "", "label": "No animation" },
+          { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+          {
+            "group": "Fade",
+            "value": "animate__fadeInDown",
+            "label": "Fade-in-down"
+          },
+          {
+            "group": "Fade",
+            "value": "animate__fadeInLeft",
+            "label": "Fade-in-left"
+          },
+          {
+            "group": "Fade",
+            "value": "animate__fadeInRight",
+            "label": "Fade-in-right"
+          },
+          {
+            "group": "Fade",
+            "value": "animate__fadeInUp",
+            "label": "Fade-in-up"
+          },
+          { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+          {
+            "group": "Zoom",
+            "value": "animate__zoomInDown",
+            "label": "Zoom-in-down"
+          },
+          {
+            "group": "Zoom",
+            "value": "animate__zoomInLeft",
+            "label": "Zoom-in-left"
+          },
+          {
+            "group": "Zoom",
+            "value": "animate__zoomInRight",
+            "label": "Zoom-in-right"
+          },
+          {
+            "group": "Zoom",
+            "value": "animate__zoomInUp",
+            "label": "Zoom-in-up"
+          },
+          {
+            "group": "Back",
+            "value": "animate__backInDown",
+            "label": "Back-in-down"
+          },
+          {
+            "group": "Back",
+            "value": "animate__backInLeft",
+            "label": "Back-in-left"
+          },
+          {
+            "group": "Back",
+            "value": "animate__backInRight",
+            "label": "Back-in-right"
+          },
+          {
+            "group": "Back",
+            "value": "animate__backInUp",
+            "label": "Back-in-up"
+          },
+          {
+            "group": "Bounce",
+            "value": "animate__bounceIn",
+            "label": "Bounce-in"
+          },
+          {
+            "group": "Bounce",
+            "value": "animate__bounceInDown",
+            "label": "Bounce-in-down"
+          },
+          {
+            "group": "Bounce",
+            "value": "animate__bounceInLeft",
+            "label": "Bounce-in-left"
+          },
+          {
+            "group": "Bounce",
+            "value": "animate__bounceInRight",
+            "label": "Bounce-in-right"
+          },
+          {
+            "group": "Bounce",
+            "value": "animate__bounceInUp",
+            "label": "Bounce-in-up"
+          },
+          {
+            "group": "LightSpeed",
+            "value": "animate__lightSpeedInLeft",
+            "label": "LightSpeed-in-left"
+          },
+          {
+            "group": "LightSpeed",
+            "value": "animate__lightSpeedInRight",
+            "label": "LightSpeed-in-right"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "animation_speed",
+        "label": "Animation speed",
+        "default": "animate__slow",
+        "options": [
+          { "value": "animate__slower", "label": "Slower" },
+          { "value": "animate__slow", "label": "Slow" },
+          { "value": "", "label": "Normal" },
+          { "value": "animate__fast", "label": "Fast" },
+          { "value": "animate__faster", "label": "Faster" }
+        ]
+      },
+      {
+            "type": "header",
+            "content": "Section spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        }
+            
+        ],
+        "blocks": [
+            {
+                "name": "Counter",
+                "type": "header",
+                "settings": [
+                    {
+                        "type": "header",
+                        "content": "Heading"
+                    },
+                    {
+                    "type": "number",
+                    "label": "Number",
+                    "id": "stat",
+                    "default": 97
+                    },
+                    {
+                        "type": "inline_richtext",
+                        "label": "Suffix",
+                        "id": "suffix",
+                        "default": "%"
+                    },
+                    {
+                        "type": "inline_richtext",
+                        "label": "Prefix",
+                        "id": "prefix"
+                    },
+                    {
+                    "type": "richtext",
+                    "label": "Short description",
+                    "id": "description",
+                    "default": "<p>Share some cool facts</p>"
+                    }        
+
+                ]
+            }
+        ],
+        "presets": [
+            {
+                "name": "Statistics"
+            }
+        ]
+}
+{% endschema %}

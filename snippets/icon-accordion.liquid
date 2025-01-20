@@ -1,12 +1,13 @@
 {%- if icon != 'none' -%}
   <svg
-    class="icon icon-accordion"
+    class="icon icon-accordion flex-shrink-0 rounded-0"
     aria-hidden="true"
     focusable="false"
     xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
+    width="{{ size }}"
+    height="{{ size }}"
     viewBox="0 0 20 20"
+    fill="{{ color }}"
   >
     {%- case icon -%}
     {%- when 'apple' -%}

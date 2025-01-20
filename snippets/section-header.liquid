@@ -1,0 +1,37 @@
+{% liquid
+    assign title_fs_mobile = section.settings.title_font_size_mobile | prepend: 'fs-'
+    assign title_fs_desktop = section.settings.title_font_size_desktop | prepend: 'fs-lg-'
+    assign subheader_fs_mobile = section.settings.subheader_font_size_mobile | prepend: 'fs-'
+    assign subheader_fs_desktop = section.settings.subheader_font_size_desktop | prepend: 'fs-lg-'
+    assign desc_fs_mobile = section.settings.description_font_size_mobile | prepend: 'fs-'
+    assign desc_fs_desktop = section.settings.description_font_size_desktop | prepend: 'fs-lg-'
+    assign title = section.settings.title
+    assign subheader = section.settings.subheader
+    assign description = section.settings.description
+    assign animation = section.settings.animation
+    assign animation_speed = section.settings.animation_speed
+%}
+
+{% unless subheader == blank and title == blank and description == blank %}
+    <div class="section-heading">
+        {% unless subheader == blank %}
+            <h4 class="mb-4 {{ subheader_fs_mobile }} {{ subheader_fs_desktop }} text-uppercase {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+            data-animate-class="{{ animation }}" style="animation-delay: 150ms;">
+            {{ subheader }}
+            </h4>
+        {% endunless %}
+        {% unless title == blank %}
+            <h2 class="mb-5 {{ title_fs_mobile }} {{ title_fs_desktop }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+            data-animate-class="{{ animation }}" style="animation-delay: 250ms;">
+            {{ title }}
+            </h2>
+        {% endunless %}
+        {% unless description == blank %}
+            <p class="mt-n4 mb-5 {{ desc_fs_mobile }} {{ desc_fs_desktop }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+            data-animate-class="{{ animation }}" style="animation-delay: 350ms;">
+            {{ description }}
+            </p>
+        {% endunless %}
+        </div>
+
+{% endunless %}

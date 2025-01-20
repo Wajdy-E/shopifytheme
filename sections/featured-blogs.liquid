@@ -1,0 +1,244 @@
+{% liquid 
+    assign row_sm = 'row-cols-sm-1' 
+    assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-' 
+    if section.settings.scroll 
+        assign row_sm = row_sm | append: '-5' 
+    endif 
+%}
+
+<style>
+    @media (max-width: 768px){
+        .scroll{
+            flex-wrap: nowrap;
+            overflow-x: scroll;
+        }
+    }
+</style>
+
+<section class="featured-blogs pt-{{ section.settings.pt }} pb-{{ section.settings.pb }} mt-{{ section.settings.mt }} mb-{{ section.settings.mb }}" id="featured-blogs-{{ section.id }}">
+    <div class="{{ section.settings.container }}">
+        <ul class="row {{ row_sm }} {{ row_lg }} {% if section.settings.scroll %}scroll{% endif %} list-unstyled">
+            {% for article in section.settings.blog.articles %}
+                <li class="card mb-3 g-0 {% unless section.settings.animation == '' %}animate__animated {{ section.settings.animation_speed }}{% endunless %}"
+                    data-animate-class="{{ section.settings.animation }}"
+                    style="animation-delay: {{ forloop.index | times: 150 }}ms;">
+                            <img class="card-img-top {{ section.settings.img_thumbnail }} img-{{ section.settings.featured_img_orientation }}" src="{{ article.image | image_url: width: 500 }}" 
+                            alt="{{ article.title }}">
+                            <div class="card-body">
+                                {% unless section.settings.hide_date and section.settings.hide_author %}
+                                    <div class="card-text d-flex justify-content-between">
+                                        {% unless section.settings.hide_date %}
+                                        <p class="date">{{ article.published_at | date: '%B %d, %Y' }}</p>                          
+                                        {% endunless %}
+                                        {% unless section.settings.hide_author %}
+                                        <p class="author-name">By: {{ article.author }}</p>
+                                        {% endunless %}
+                                        </div>
+                                {% endunless %}
+                                <div class="card-title blog-title">
+                                   <h3> {{- article.title }}</h3>
+                                </div>
+                                {% unless section.settings.hide_excerpt %}
+                                    <div class="card-text">
+                                        <p class="excerpt">{{ article.excerpt }}</p>
+                                    </div>
+                                {% endunless %}
+                                <div class="card-text">
+                                    <a href="{{ article.url }}" class="read-more">Read more...</a>
+                                </div>
+                            </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+{% schema %}
+{
+    "name": "Featured blogs",
+    "settings": [
+        {
+            "type": "select",
+            "label": "Visibility",
+            "id": "visibility",
+            "default": "d-flex",
+            "options": [
+                {
+                    "value": "d-flex",
+                    "label": "All screen sizes"
+                },
+                {
+                    "value": "d-sm-none d-lg-flex",
+                    "label": "On desktop only"
+                },
+                {
+                    "value": "d-lg-none d-sm-flex",
+                    "label": "On mobile only"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "container",
+            "label": "Container",
+            "default": "container",
+            "options": [
+                { "value": "container", "label": "Container" },
+                { "value": "container-fluid", "label": "Fluid" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "animation",
+            "label": "Animation",
+            "default": "animate__fadeInUp",
+            "options": [
+                { "group": "Disabled", "value": "", "label": "No animation" },
+                { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+                { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+                { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+                { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+                { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+                { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+                { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+                { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+                { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+                { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+                { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+                { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+                { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+                { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+                { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+                { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+                { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+                { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+                { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+                { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+                { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "featured_img_orientation",
+            "label": "Image orientation",
+            "default": "landscape",
+            "options": [
+                { "value": "square", "label": "Square" },
+                { "value": "landscape", "label": "Landscape" },
+                { "value": "portrait", "label": "Portrait" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "img_thumbnail",
+            "label": "Image thumbnail",
+            "default": "img-thumbnail",
+            "options": [
+                { "value": "", "label": "None" },
+                { "value": "img-thumbnail", "label": "Thumbnail" }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "animation_speed",
+            "label": "Animation speed",
+            "default": "animate__fast",
+            "options": [
+                { "value": "animate__slower", "label": "Slower" },
+                { "value": "animate__slow", "label": "Slow" },
+                { "value": "", "label": "Normal" },
+                { "value": "animate__fast", "label": "Fast" },
+                { "value": "animate__faster", "label": "Faster" }
+            ]
+        }, 
+        {
+            "type": "blog",
+            "label": "Blog category",
+            "id": "blog"
+        },
+        {
+            "type": "header",
+            "content": "Breakpoints",
+            "info": "Adjust items per row based on screen resolution"
+        },
+        {
+            "type": "checkbox",
+            "id": "scroll",
+            "label": "Scroll on mobile",
+            "default": true
+        },
+        {
+            "type": "range",
+            "id": "breakpoint_lg",
+            "label": "Items per row - desktop",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "header",
+            "content": "Spacing"
+        },
+        {
+            "type": "range",
+            "id": "pt",
+            "label": "Padding top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "pb",
+            "label": "Padding bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 10
+        },
+        {
+            "type": "range",
+            "id": "mt",
+            "label": "Margin top",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "range",
+            "id": "mb",
+            "label": "Margin bottom",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "default": 0
+        },
+        {
+            "type": "checkbox",
+            "id": "hide_author",
+            "label": "Hide author",
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "hide_date",
+            "label": "Hide date",
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "hide_excerpt",
+            "label": "Hide excerpt",
+            "default": false
+        }
+    ],
+    "presets": [
+        {
+            "name": "Featured blogs"
+        }
+    ]
+}
+{% endschema %}
