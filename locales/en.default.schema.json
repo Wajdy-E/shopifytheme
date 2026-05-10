@@ -1680,7 +1680,8 @@
           "name": "Share",
           "settings": {
             "text": {
-              "label": "Text"
+              "label": "Text",
+              "default": "Share"
             },
             "featured_image_info": {
               "content": "If you include a link in social media posts, the page’s featured image will be shown as the preview image. [Learn more](https://help.shopify.com/manual/online-store/images/showing-social-media-thumbnail-images)."
@@ -2421,7 +2422,10 @@
       }
     },
     "main-register": {
-      "name": "Registration"
+      "name": "Registration",
+      "shop_login_button": {
+        "enable": "Enable Sign in with Shop"
+      }
     },
     "main-reset-password": {
       "name": "Password reset"
@@ -2479,6 +2483,354 @@
             "label": "2 columns"
           }
         }
+      }
+    },
+    "marquee": {
+      "name": "Image & text marquee",
+      "settings": {
+        "visibility": {
+          "label": "Visibility",
+          "options": {
+            "all": "All screen sizes",
+            "desktop_only": "On desktop only",
+            "mobile_only": "On mobile only"
+          }
+        },
+        "container": {
+          "label": "Container",
+          "options": {
+            "container": "Container",
+            "fluid": "Fluid"
+          }
+        },
+        "color_scheme": {
+          "label": "Color scheme"
+        },
+        "text_align": {
+          "label": "Text align",
+          "options": {
+            "left": "Left",
+            "center": "Center"
+          }
+        },
+        "title": {
+          "label": "Title",
+          "default": "Marquee"
+        },
+        "title_font_size_mobile": {
+          "label": "Title font-size | mobile"
+        },
+        "title_font_size_desktop": {
+          "label": "Title font-size | desktop"
+        },
+        "subheader": {
+          "label": "Subheader",
+          "default": "Highlights"
+        },
+        "subheader_font_size_mobile": {
+          "label": "Subheader font-size | mobile"
+        },
+        "subheader_font_size_desktop": {
+          "label": "Subheader font-size | desktop"
+        },
+        "description": {
+          "label": "Description (optional)",
+          "default": "<p>Add an optional description above the scrolling row.</p>"
+        },
+        "description_font_size_mobile": {
+          "label": "Description font-size | mobile"
+        },
+        "description_font_size_desktop": {
+          "label": "Description font-size | desktop"
+        },
+        "animation": {
+          "label": "Animation",
+          "groups": {
+            "disabled": "Disabled",
+            "fade": "Fade",
+            "zoom": "Zoom"
+          },
+          "options": {
+            "none": "No animation",
+            "fade_in": "Fade In",
+            "fade_in_down": "Fade-in-down",
+            "fade_in_left": "Fade-in-left",
+            "fade_in_right": "Fade-in-right",
+            "fade_in_up": "Fade-in-up",
+            "zoom_in": "Zoom-in",
+            "zoom_in_down": "Zoom-in-down",
+            "zoom_in_left": "Zoom-in-left",
+            "zoom_in_right": "Zoom-in-right",
+            "zoom_in_up": "Zoom-in-up"
+          }
+        },
+        "animation_speed": {
+          "label": "Animation speed",
+          "options": {
+            "slower": "Slower",
+            "slow": "Slow",
+            "normal": "Normal",
+            "fast": "Fast",
+            "faster": "Faster"
+          }
+        },
+        "header_marquee": {
+          "content": "Marquee"
+        },
+        "marquee_label": {
+          "label": "Scrolling region label",
+          "info": "Describes the moving row for screen readers.",
+          "default": "Scrolling promotional content"
+        },
+        "item_height": {
+          "label": "Row height (images & text)"
+        },
+        "speed": {
+          "label": "Animation duration"
+        },
+        "direction": {
+          "label": "Scroll direction",
+          "options": {
+            "left": "Left",
+            "right": "Right"
+          }
+        },
+        "gap": {
+          "label": "Gap between items (desktop)"
+        },
+        "gap_mobile": {
+          "label": "Gap between items (mobile)"
+        },
+        "pause_on_hover": {
+          "label": "Pause on hover"
+        },
+        "min_track_repeats": {
+          "label": "Minimum track repeats",
+          "info": "The theme duplicates your blocks to fill the strip; this is the minimum number of full cycles (always an even number for a seamless loop)."
+        },
+        "header_spacing": {
+          "content": "Spacing"
+        },
+        "pt": {
+          "label": "Padding top"
+        },
+        "pb": {
+          "label": "Padding bottom"
+        },
+        "mt": {
+          "label": "Margin top"
+        },
+        "mb": {
+          "label": "Margin bottom"
+        }
+      },
+      "blocks": {
+        "image": {
+          "name": "Image",
+          "settings": {
+            "image": {
+              "label": "Image"
+            },
+            "url": {
+              "label": "Link"
+            }
+          }
+        },
+        "text": {
+          "name": "Text",
+          "settings": {
+            "text": {
+              "label": "Text",
+              "default": "<p>Your message</p>"
+            },
+            "text_font_size_mobile": {
+              "label": "Text font-size | mobile"
+            },
+            "text_font_size_desktop": {
+              "label": "Text font-size | desktop"
+            },
+            "allow_text_wrap": {
+              "label": "Allow text to wrap"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "Image & text marquee",
+        "category": "Image"
+      }
+    },
+    "brand_timeline": {
+      "name": "Brand timeline",
+      "settings": {
+        "title": {
+          "default": "Our story"
+        },
+        "subheader": {
+          "default": "Brand timeline"
+        },
+        "description": {
+          "default": "<p>Milestones that shaped who we are today.</p>"
+        },
+        "header_timeline": {
+          "content": "Timeline"
+        },
+        "desktop_layout": {
+          "label": "Desktop image placement",
+          "options": {
+            "alternate": "Alternate left / right",
+            "image_start": "Image on start side",
+            "text_start": "Text on start side"
+          }
+        },
+        "mobile_stack": {
+          "label": "Mobile column order",
+          "options": {
+            "image_first": "Image then text",
+            "text_first": "Text then image"
+          }
+        },
+        "heading_text_align": {
+          "label": "Heading text alignment",
+          "info": "Applies to the section title, subheader, and description above the timeline.",
+          "options": {
+            "right": "Right"
+          }
+        },
+        "content_alignment": {
+          "label": "Milestone content alignment",
+          "info": "Vertical alignment of image and text within each milestone row (desktop split layout).",
+          "options": {
+            "top": "Top",
+            "center": "Center",
+            "bottom": "Bottom"
+          }
+        },
+        "timeline_style": {
+          "label": "Timeline style",
+          "options": {
+            "line": "Line and nodes",
+            "minimal": "Minimal",
+            "none": "None"
+          }
+        },
+        "image_ratio": {
+          "label": "Image ratio",
+          "options": {
+            "adapt": "Adapt to image",
+            "1x1": "1:1",
+            "4x3": "4:3",
+            "16x9": "16:9"
+          }
+        },
+        "header_image_max_height": {
+          "content": "Image max height"
+        },
+        "enable_max_image_height": {
+          "label": "Limit image height",
+          "info": "Caps milestone image height on mobile and desktop. Images use object-fit to stay cropped."
+        },
+        "max_image_height_mobile": {
+          "label": "Max image height | mobile"
+        },
+        "max_image_height_desktop": {
+          "label": "Max image height | desktop"
+        },
+        "max_width_text": {
+          "label": "Text column width",
+          "options": {
+            "full": "Full width",
+            "sm": "Narrow",
+            "md": "Medium",
+            "lg": "Wide",
+            "xl": "Extra wide"
+          }
+        },
+        "header_typography": {
+          "content": "Milestone typography"
+        },
+        "milestone_label_font_size_mobile": {
+          "label": "Milestone label font-size | mobile"
+        },
+        "milestone_label_font_size_desktop": {
+          "label": "Milestone label font-size | desktop"
+        },
+        "milestone_title_font_size_mobile": {
+          "label": "Milestone title font-size | mobile"
+        },
+        "milestone_title_font_size_desktop": {
+          "label": "Milestone title font-size | desktop"
+        },
+        "milestone_body_font_size_mobile": {
+          "label": "Milestone body font-size | mobile"
+        },
+        "milestone_body_font_size_desktop": {
+          "label": "Milestone body font-size | desktop"
+        }
+      },
+      "blocks": {
+        "milestone": {
+          "name": "Milestone",
+          "settings": {
+            "image": {
+              "label": "Image"
+            },
+            "label": {
+              "label": "Label",
+              "default": "Year or chapter"
+            },
+            "title": {
+              "label": "Heading",
+              "default": "Milestone title"
+            },
+            "text": {
+              "label": "Text",
+              "default": "<p>Short supporting copy for this milestone.</p>"
+            },
+            "badge_preset": {
+              "label": "Badge",
+              "options": {
+                "none": "None",
+                "founded": "Founded",
+                "milestone": "Milestone",
+                "award": "Award",
+                "launch": "Launch",
+                "custom": "Custom"
+              }
+            },
+            "badge_custom": {
+              "label": "Custom badge text"
+            },
+            "layout": {
+              "label": "Layout override",
+              "options": {
+                "default": "Follow section",
+                "image_left": "Image left",
+                "image_right": "Image right",
+                "full_width_image": "Full-width image"
+              }
+            },
+            "text_alignment": {
+              "label": "Text block alignment",
+              "options": {
+                "left": "Left",
+                "center": "Center",
+                "right": "Right"
+              }
+            },
+            "link": {
+              "label": "Link"
+            },
+            "link_label": {
+              "label": "Link label",
+              "default": "Read more"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "Brand timeline",
+        "category": "Story"
       }
     },
     "multicolumn": {
@@ -3356,6 +3708,235 @@
       },
       "presets": {
         "name": "Collapsible content"
+      }
+    },
+    "shoppable-lookbook": {
+      "name": "Shoppable lookbook",
+      "settings": {
+        "visibility": {
+          "label": "Visibility",
+          "options": {
+            "all": "All screen sizes",
+            "desktop": "On desktop only",
+            "mobile": "On mobile only"
+          }
+        },
+        "container": {
+          "label": "Container",
+          "options": {
+            "container": "Container",
+            "fluid": "Fluid"
+          }
+        },
+        "color_scheme": {
+          "label": "Color scheme"
+        },
+        "layout_header": {
+          "content": "Layout"
+        },
+        "layout": {
+          "label": "Layout",
+          "options": {
+            "image_only": "Image only",
+            "split_left": "Split (image left)",
+            "split_right": "Split (image right)"
+          }
+        },
+        "image": {
+          "label": "Image"
+        },
+        "image_ratio": {
+          "label": "Image ratio",
+          "options": {
+            "adapt": "Adapt to image",
+            "1x1": "Square (1:1)",
+            "4x3": "Landscape (4:3)",
+            "16x9": "Wide (16:9)",
+            "21x9": "Ultra wide (21:9)"
+          }
+        },
+        "overlay": {
+          "label": "Overlay"
+        },
+        "overlay_opacity": {
+          "label": "Overlay opacity"
+        },
+        "copy_header": {
+          "content": "Text"
+        },
+        "subheader": {
+          "label": "Subheading",
+          "default": "Subheading"
+        },
+        "subheader_font_size_mobile": {
+          "label": "Subheading font-size | mobile"
+        },
+        "subheader_font_size_desktop": {
+          "label": "Subheading font-size | desktop"
+        },
+        "title": {
+          "label": "Heading",
+          "default": "Heading"
+        },
+        "title_font_size_mobile": {
+          "label": "Heading font-size | mobile"
+        },
+        "title_font_size_desktop": {
+          "label": "Heading font-size | desktop"
+        },
+        "description": {
+          "label": "Description",
+          "default": "<p>Tell your customers what to shop in this look.</p>"
+        },
+        "description_font_size_mobile": {
+          "label": "Description font-size | mobile"
+        },
+        "description_font_size_desktop": {
+          "label": "Description font-size | desktop"
+        },
+        "button_label": {
+          "label": "Button label"
+        },
+        "button_link": {
+          "label": "Button link"
+        },
+        "pins_header": {
+          "content": "Hotspots"
+        },
+        "pins_aria_label": {
+          "label": "Pins region label",
+          "default": "Shop this look"
+        },
+        "pin_style_default": {
+          "label": "Default pin appearance",
+          "options": {
+            "dot": "Dot",
+            "plus": "Plus",
+            "number": "Numbered"
+          }
+        },
+        "pin_size": {
+          "label": "Pin size"
+        },
+        "pin_color": {
+          "label": "Pin color"
+        },
+        "pin_animation": {
+          "label": "Pin animation",
+          "options": {
+            "none": "None",
+            "pulse": "Pulse"
+          }
+        },
+        "card_style": {
+          "label": "Card style",
+          "options": {
+            "floating": "Floating",
+            "minimal": "Minimal"
+          }
+        },
+        "show_vendor": {
+          "label": "Show vendor"
+        },
+        "show_price": {
+          "label": "Show price"
+        },
+        "show_compare_at_price": {
+          "label": "Show compare at price"
+        },
+        "cta_label": {
+          "label": "CTA label",
+          "default": "View product"
+        },
+        "mobile_behavior": {
+          "label": "Mobile behavior",
+          "options": {
+            "bottom_sheet": "Bottom sheet",
+            "popover": "Popover"
+          }
+        },
+        "merch_header": {
+          "content": "View all"
+        },
+        "enable_view_all": {
+          "label": "Enable “View all” link"
+        },
+        "view_all_collection": {
+          "label": "View all collection"
+        },
+        "view_all_label": {
+          "label": "View all label"
+        },
+        "max_hotspots_info": {
+          "content": "Tip: keep hotspots to a minimum for the best UX."
+        },
+        "spacing_header": {
+          "content": "Spacing"
+        },
+        "pt": {
+          "label": "Padding top"
+        },
+        "pb": {
+          "label": "Padding bottom"
+        },
+        "mt": {
+          "label": "Margin top"
+        },
+        "mb": {
+          "label": "Margin bottom"
+        }
+      },
+      "blocks": {
+        "hotspot": {
+          "name": "Hotspot",
+          "settings": {
+            "product": {
+              "label": "Product"
+            },
+            "x": {
+              "label": "X position (%)"
+            },
+            "y": {
+              "label": "Y position (%)"
+            },
+            "label": {
+              "label": "Label"
+            },
+            "pin_style_override": {
+              "label": "Custom pin appearance",
+              "info": "Off: this pin uses the section default. On: choose a style below for this hotspot only."
+            },
+            "pin_style": {
+              "label": "Pin appearance",
+              "info": "Only applies when “Custom pin appearance” is enabled.",
+              "options": {
+                "dot": "Dot",
+                "plus": "Plus",
+                "number": "Numbered"
+              }
+            },
+            "desktop_align": {
+              "label": "Card alignment (desktop)",
+              "options": {
+                "auto": "Auto",
+                "left": "Left",
+                "right": "Right"
+              }
+            },
+            "highlight": {
+              "label": "Highlight pin"
+            }
+          }
+        }
+      },
+      "presets": {
+        "default": {
+          "name": "Shoppable lookbook",
+          "category": "Image",
+          "subheader": "Shop the look",
+          "title": "Featured outfit",
+          "description": "<p>Add hotspots to link products directly on the image.</p>"
+        }
       }
     }
   }

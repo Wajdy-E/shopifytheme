@@ -1,15 +1,41 @@
+{% doc %}
+  Renders subheading, heading, description, and CTA buttons for banner-style blocks.
+
+  @param {object} block - Block with content and typography settings.
+  @param {object} section - Parent section (animation settings).
+  @param {string} [alignment] - Extra alignment classes for the wrapper.
+  @param {string} [additional_classes] - Optional extra classes on the wrapper.
+  @param {boolean} [use_custom_colors] - When true, styles subheading with block accent colors.
+  @param {string} [header_animation] - When set (e.g. video blocks), overrides section animation.
+  @param {string} [header_animation_speed] - When set, overrides section animation speed.
+{% enddoc %}
+
 {% liquid
-  assign title_fs_mobile = block.settings.title_font_size_mobile | prepend: 'fs-'
-  assign title_fs_desktop = block.settings.title_font_size_desktop | prepend: 'fs-lg-'
-  assign subheader_fs_mobile = block.settings.subheader_font_size_mobile | prepend: 'fs-'
-  assign subheader_fs_desktop = block.settings.subheader_font_size_desktop | prepend: 'fs-lg-'
-  assign desc_fs_mobile = block.settings.description_font_size_mobile | prepend: 'fs-'
-  assign desc_fs_desktop = block.settings.description_font_size_desktop | prepend: 'fs-lg-'
+  assign sub_m = block.settings.subheader_font_size_mobile | default: block.settings.mobile_subheading_font_size | default: 4
+  assign subheader_fs_mobile = sub_m | prepend: 'fs-'
+  assign sub_d = block.settings.subheader_font_size_desktop | default: block.settings.desktop_subheading_font_size | default: 6
+  assign subheader_fs_desktop = sub_d | prepend: 'fs-lg-'
+  assign t_m = block.settings.title_font_size_mobile | default: block.settings.mobile_heading_font_size | default: section.settings.title_font_size_mobile | default: 8
+  assign title_fs_mobile = t_m | prepend: 'fs-'
+  assign t_d = block.settings.title_font_size_desktop | default: block.settings.desktop_heading_font_size | default: section.settings.title_font_size_desktop | default: 10
+  assign title_fs_desktop = t_d | prepend: 'fs-lg-'
+  assign d_m = block.settings.description_font_size_mobile | default: block.settings.mobile_paragraph_font_size | default: section.settings.description_font_size_mobile | default: 5
+  assign desc_fs_mobile = d_m | prepend: 'fs-'
+  assign d_d = block.settings.description_font_size_desktop | default: block.settings.desktop_paragraph_font_size | default: section.settings.description_font_size_desktop | default: 8
+  assign desc_fs_desktop = d_d | prepend: 'fs-lg-'
   assign title = block.settings.title
-  assign subheader = block.settings.subheader
+  assign subheader = block.settings.subheader | strip
   assign description = block.settings.description
-  assign animation = section.settings.animation
-  assign animation_speed = section.settings.animation_speed
+  if header_animation != nil
+    assign animation = header_animation
+  else
+    assign animation = section.settings.animation
+  endif
+  if header_animation_speed != nil
+    assign animation_speed = header_animation_speed
+  else
+    assign animation_speed = section.settings.animation_speed
+  endif
   assign p-btn-text = block.settings.p-btn-text
   assign p-btn-type = block.settings.p-btn-type
   assign p-btn-url = block.settings.p-btn-url
@@ -29,7 +55,7 @@
       data-animate-class="{{ animation }}"
       style="animation-delay: 150ms;{% if use_custom_colors %} background-color: {{ block.settings.subheading_background }}; color: {{ block.settings.subheading_color }}{% endif %}"
     >
-      {{ subheader }}
+      {{- subheader -}}
     </h4>
   {% endunless %}
   {% unless title == blank %}

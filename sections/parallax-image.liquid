@@ -1,0 +1,442 @@
+{% liquid
+  assign pt = section.settings.pt | prepend: 'pt-'
+  assign pb = section.settings.pb | prepend: 'pb-'
+  assign mt = section.settings.mt | prepend: 'mt-'
+  assign mb = section.settings.mb | prepend: 'mb-'
+  assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+  assign hero_desktop = section.settings.image | default: section.settings.mobile_image
+  assign hero_mobile = section.settings.mobile_image | default: hero_desktop
+  assign bg_url_sm = ''
+  assign bg_url_lg = ''
+  if hero_desktop != blank
+    assign bg_url_sm = hero_mobile | image_url: width: 1200
+    assign bg_url_lg = hero_desktop | image_url: width: 3840
+  endif
+  assign parallax_class = ''
+  if section.settings.parallax_fixed
+    assign parallax_class = 'parallax-image__bg--fixed-lg'
+  endif
+%}
+
+<section
+  id="parallax-image-{{ section.id }}"
+  class="parallax-image enter-view {% if section.settings.visibility == blank or section.settings.visibility == nil %}d-flex{% else %}{{ section.settings.visibility }}{% endif %} {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }}"
+>
+  {% style %}
+    #parallax-image-{{ section.id }} .parallax-image__viewport {
+      min-height: {{ section.settings.min_height_mobile }}vh;
+    }
+    @media (min-width: 992px) {
+      #parallax-image-{{ section.id }} .parallax-image__viewport {
+        min-height: {{ section.settings.min_height_desktop }}vh;
+      }
+    }
+    {% if hero_desktop != blank %}
+    #parallax-image-{{ section.id }} .parallax-image__bg {
+      background-image: url('{{ bg_url_sm }}');
+    }
+    @media (min-width: 992px) {
+      #parallax-image-{{ section.id }} .parallax-image__bg {
+        background-image: url('{{ bg_url_lg }}');
+      }
+    }
+    {% endif %}
+  {% endstyle %}
+
+  <div class="parallax-image__viewport position-relative overflow-hidden w-100">
+    {% if hero_desktop != blank %}
+      {% if hero_desktop.alt != blank %}
+        <span class="visually-hidden">{{ hero_desktop.alt | escape }}</span>
+      {% endif %}
+      <div class="parallax-image__bg {{ parallax_class }}" aria-hidden="true"></div>
+    {% else %}
+      <div class="parallax-image__placeholder position-absolute top-0 start-0 w-100 h-100 z-0 bg-light">
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'w-100 h-100' }}
+      </div>
+    {% endif %}
+
+    <div
+      class="overlay z-1"
+      style="--overlay-color: {{ section.settings.overlay_color }}; --overlay-opacity: {{ section.settings.overlay_opacity }};"
+    ></div>
+
+    <div
+      class="parallax-image__content position-absolute z-2 h-fit w-100 p-4 p-lg-5 d-flex {{ section.settings.desktop_content_position }} {{ section.settings.desktop_text_alignment }} {{ section.settings.mobile_content_position }} {{ section.settings.mobile_text_alignment }}"
+    >
+      <div class="{{ section.settings.container }} {{ section.settings.text_align }}">
+        {% render 'section-header', section: section %}
+        {% if section.settings.button_label != blank and section.settings.button_link != blank %}
+          <div class="mt-4">
+            <a
+              href="{{ section.settings.button_link }}"
+              class="btn {{ section.settings.button_style }}"
+            >
+              {{- section.settings.button_label -}}
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Parallax image",
+  "tag": "section",
+  "class": "section-parallax-image",
+  "settings": [
+    {
+      "type": "select",
+      "id": "visibility",
+      "label": "Visibility",
+      "default": "d-flex",
+      "options": [
+        { "value": "d-flex", "label": "All screen sizes" },
+        { "value": "d-sm-none d-lg-flex", "label": "On desktop only" },
+        { "value": "d-lg-none d-sm-flex", "label": "On mobile only" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container",
+      "default": "container",
+      "options": [
+        { "value": "container", "label": "Container" },
+        { "value": "container-fluid", "label": "Fluid" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text align",
+      "default": "text-center",
+      "options": [
+        { "value": "text-start", "label": "Left" },
+        { "value": "text-center", "label": "Center" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image",
+      "info": "Optional. Uses the main image when empty."
+    },
+    {
+      "type": "header",
+      "content": "Parallax & height"
+    },
+    {
+      "type": "checkbox",
+      "id": "parallax_fixed",
+      "label": "Parallax on large screens",
+      "default": true,
+      "info": "Uses a fixed background on desktop and tablet widths. Mobile uses a scrolling background for better performance."
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile",
+      "label": "Minimum height (mobile)",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 50,
+      "info": "Viewport height (min-height)."
+    },
+    {
+      "type": "range",
+      "id": "min_height_desktop",
+      "label": "Minimum height (desktop)",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 60,
+      "info": "Viewport height (min-height)."
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.4,
+      "info": "Set to 0 to hide the overlay."
+    },
+    {
+      "type": "header",
+      "content": "Content position"
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_position",
+      "label": "Desktop content position",
+      "options": [
+        { "label": "Middle left", "value": "position-middle-left" },
+        { "label": "Middle center", "value": "position-middle-center" },
+        { "label": "Middle right", "value": "position-middle-right" },
+        { "label": "Top center", "value": "position-top-center" },
+        { "label": "Bottom right", "value": "position-bottom-right" },
+        { "label": "Bottom left", "value": "position-bottom-left" }
+      ],
+      "default": "position-middle-center"
+    },
+    {
+      "type": "select",
+      "id": "mobile_content_position",
+      "label": "Mobile content position",
+      "options": [
+        { "label": "Middle center", "value": "position-mobile-middle-center" },
+        { "label": "Top center", "value": "position-mobile-top-center" },
+        { "label": "Bottom right", "value": "position-mobile-bottom-right" },
+        { "label": "Bottom left", "value": "position-mobile-bottom-left" }
+      ],
+      "default": "position-mobile-middle-center"
+    },
+    {
+      "type": "header",
+      "content": "Text alignment"
+    },
+    {
+      "type": "select",
+      "id": "desktop_text_alignment",
+      "label": "Desktop text alignment",
+      "options": [
+        { "label": "Left", "value": "text-lg-start center-left" },
+        { "label": "Center", "value": "text-lg-center center-center" },
+        { "label": "Right", "value": "text-lg-end center-right" }
+      ],
+      "default": "text-lg-center center-center"
+    },
+    {
+      "type": "select",
+      "id": "mobile_text_alignment",
+      "label": "Mobile text alignment",
+      "options": [
+        { "label": "Left", "value": "text-start center-left" },
+        { "label": "Center", "value": "text-center center-center" },
+        { "label": "Right", "value": "text-end center-right" }
+      ],
+      "default": "text-center center-center"
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Parallax story"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_mobile",
+      "label": "Title font-size | mobile",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_desktop",
+      "label": "Title font-size | desktop",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "text",
+      "id": "subheader",
+      "label": "Subheader",
+      "default": "Featured"
+    },
+    {
+      "type": "range",
+      "id": "subheader_font_size_mobile",
+      "label": "Subheader font-size | mobile",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "subheader_font_size_desktop",
+      "label": "Subheader font-size | desktop",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description (optional)",
+      "default": "<p>Add supporting copy that sits over the image.</p>"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_mobile",
+      "label": "Description font-size | mobile",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_desktop",
+      "label": "Description font-size | desktop",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "Animation",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "Disabled", "value": "", "label": "No animation" },
+        { "group": "Fade", "value": "animate__fadeIn", "label": "Fade In" },
+        { "group": "Fade", "value": "animate__fadeInDown", "label": "Fade-in-down" },
+        { "group": "Fade", "value": "animate__fadeInLeft", "label": "Fade-in-left" },
+        { "group": "Fade", "value": "animate__fadeInRight", "label": "Fade-in-right" },
+        { "group": "Fade", "value": "animate__fadeInUp", "label": "Fade-in-up" },
+        { "group": "Zoom", "value": "animate__zoomIn", "label": "Zoom-in" },
+        { "group": "Zoom", "value": "animate__zoomInDown", "label": "Zoom-in-down" },
+        { "group": "Zoom", "value": "animate__zoomInLeft", "label": "Zoom-in-left" },
+        { "group": "Zoom", "value": "animate__zoomInRight", "label": "Zoom-in-right" },
+        { "group": "Zoom", "value": "animate__zoomInUp", "label": "Zoom-in-up" },
+        { "group": "Back", "value": "animate__backInDown", "label": "Back-in-down" },
+        { "group": "Back", "value": "animate__backInLeft", "label": "Back-in-left" },
+        { "group": "Back", "value": "animate__backInRight", "label": "Back-in-right" },
+        { "group": "Back", "value": "animate__backInUp", "label": "Back-in-up" },
+        { "group": "Bounce", "value": "animate__bounceIn", "label": "Bounce-in" },
+        { "group": "Bounce", "value": "animate__bounceInDown", "label": "Bounce-in-down" },
+        { "group": "Bounce", "value": "animate__bounceInLeft", "label": "Bounce-in-left" },
+        { "group": "Bounce", "value": "animate__bounceInRight", "label": "Bounce-in-right" },
+        { "group": "Bounce", "value": "animate__bounceInUp", "label": "Bounce-in-up" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInLeft", "label": "LightSpeed-in-left" },
+        { "group": "LightSpeed", "value": "animate__lightSpeedInRight", "label": "LightSpeed-in-right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "Slower" },
+        { "value": "animate__slow", "label": "Slow" },
+        { "value": "", "label": "Normal" },
+        { "value": "animate__fast", "label": "Fast" },
+        { "value": "animate__faster", "label": "Faster" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Button (optional)"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "default": "btn-primary",
+      "options": [
+        { "group": "Primary", "label": "Fill", "value": "btn-primary" },
+        { "group": "Primary", "label": "Outline", "value": "btn-outline-primary" },
+        { "group": "Secondary", "label": "Fill", "value": "btn-secondary" },
+        { "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "pt",
+      "label": "Padding top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "pb",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "Margin top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "Margin bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Parallax image",
+      "category": "Image"
+    }
+  ]
+}
+{% endschema %}

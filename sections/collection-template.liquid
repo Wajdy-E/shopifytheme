@@ -14,8 +14,7 @@
                           <li class="nav-item">
                             <a class="nav-link btn btn-outline-primary"
                                href="{{ item.url }}"
-                               title="{{ item.title }}"
-                               data-image="{{ item.object.image | image_url: width: 400 }}">
+                               title="{{ item.title }}">
                               {{ item.title }}
                             </a>
                           </li>
@@ -70,25 +69,26 @@
                         Sort by: {{ collection.sort_by }}
                     </span>
                 </div>
-                <div id="layout-selector" class="d-flex gap-4 align-items-center" role="group" aria-label="Layout Selection">
-                    {% assign gridLayouts = "2x2,3x2,4x2,5x2" | split: ',' %}              
-                    {% for layout in gridLayouts %}
-                    {% assign columns = layout | split: 'x' | first | plus: 0 %}
-                    {% assign rows = layout | split: 'x' | last | plus: 0 %}          
+                <div id="layout-selector" class="d-flex gap-4 align-items-center" role="group" aria-label="Layout Selection">      
                     <button 
-                        class="grid-icon move-on-hover" 
-                        data-layout="{{ layout }}" 
-                        aria-label="Select {{ layout }} layout" 
+                        class="layout-icon move-on-hover" 
+                        data-layout="grid" 
+                        aria-label="Select grid layout" 
+                        role="radio" 
+                        aria-checked="false"
+                        tabindex="0"
+						data-columns={{ section.settings.desktop_breakpoint }}>
+						{% render 'grid-icon', icon-width: "24", icon-height: "24" %}
+                    </button>
+					<button 
+                        class="layout-icon move-on-hover" 
+                        data-layout="list" 
+                        aria-label="Select list layout" 
                         role="radio" 
                         aria-checked="false"
                         tabindex="0">
-                        <div class="grid-row">
-                            {% for col in (1..columns) %}
-                            <div class="grid-square"></div>
-                            {% endfor %}
-                        </div>
+						{% render 'list-icon', icon-width: "32", icon-height: "32" %}
                     </button>
-                    {% endfor %}
                 </div>
                 <div id="filter-results" class="align-content-center" style="color: black;">
                     {{ collection.products_count }} products
@@ -256,7 +256,7 @@
             </aside>
 
             <div class="col">
-            <div class="row {{ row_sm }} {{ row_lg }} g-{{ settings.product_card_gap }}" id="product-list">
+            <div class="row {{ row_sm }} {{ row_lg }} g-{{ settings.product_card_gap }}" id="collection-product-list">
                 {%- for product in collection.products -%}
                 <div class="col mb-4 {{ section.settings.aspect_ratio }}">
                     {% render 'product-card', product: product, section: section, index: forloop.index0 %}
@@ -271,7 +271,9 @@
 {% schema %}
 {
     "name": "Collection template",
-    "templates": ["collection"],
+    "enabled_on": {
+        "templates": ["collection"]
+    },
     "settings": [
         {
             "type": "header",

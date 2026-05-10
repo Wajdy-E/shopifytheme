@@ -1,0 +1,25 @@
+{% if product.media.size > 1 %}
+  {% assign thumb_size = '160' %}
+  {% if section.settings.gallery_thumbnails_position == 'left' %}
+    {% assign thumb_size = '80' %}
+  {% endif %}
+
+  <div class="thumbs-splide splide mt-3 mt-lg-4 {% unless section.settings.gallery_show_thumbnails_mobile %}d-none d-lg-block{% endunless %} {% if section.settings.gallery_thumbnails_position == 'left' %}thumbs-vertical{% endif %}" {% if product.media.size <= 1 %}hidden{% endif %}>
+    <div class="splide__track">
+      <div class="splide__list {% if section.settings.gallery_thumbnails_position == 'left' %}flex-column{% endif %}">
+        {% for media in product.media %}
+          <div class="splide__slide {% if media.media_type contains 'video' %}is-video{% endif %} {% if media.media_type == 'model' %}is-model{% endif %}">
+            <img
+              class="img-fluid rounded img-thumbnail exception"
+              src="{{ media.preview_image | image_url: width: thumb_size, height: thumb_size, crop: 'center' }}"
+              alt="{{ media.preview_image.alt | escape }}"
+              width="{{ thumb_size }}"
+              height="{{ thumb_size }}"
+              loading="lazy"
+            >
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endif %}

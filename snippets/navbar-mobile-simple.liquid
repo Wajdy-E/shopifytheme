@@ -1,0 +1,75 @@
+{% doc %}
+    Renders the Simple mobile navbar: hamburger / centered logo / cart.
+
+    @param {object} section - The parent section object (passed from sections/navbar.liquid).
+    @param {string} [navbar_classes] - Shared classes (background, shadow, padding, blur).
+    @param {string} [navbar_visibility] - Bootstrap responsive utility classes.
+{% enddoc %}
+
+<nav
+    id="navbar-mobile"
+    class="navbar navbar-mobile-simple {{ navbar_visibility }} {{ navbar_classes }}"
+>
+    <div class="container d-block">
+        <div class="row align-items-center">
+            <div class="col-3">
+                <div class="nav flex-nowrap">
+                    <a
+                        class="nav-link ms-n2"
+                        href="#offcanvas-menu"
+                        data-bs-toggle="offcanvas"
+                        aria-controls="offcanvas-menu"
+                        aria-label="{{ 'general.accessibility.menu' | t }}"
+                        role="button"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-6 text-center">
+                {% render 'navbar-logo', section: section, placement: 'mobile', extra_classes: 'mx-auto' %}
+            </div>
+
+            <div class="col-3">
+                <div class="nav justify-content-end flex-nowrap">
+                    <a
+                        class="cart-icon nav-link move-on-hover"
+                        {% if settings.cart_drawer_disable == true or request.page_type == 'cart' %}
+                            href="{{ routes.cart_url }}"
+                        {% else %}
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#CartDrawer"
+                            aria-controls="CartDrawer"
+                            href="#CartDrawer"
+                        {% endif %}
+                        aria-label="{{ 'general.accessibility.cart' | t }} {{ cart.item_count }}"
+                    >
+                        {% render 'cart-icon' %}
+                        <span
+                            class="cart-count-badge badge"
+                            {% if cart.item_count == 0 %}hidden{% endif %}
+                        >
+                            {{ cart.item_count }}
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

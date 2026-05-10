@@ -55,7 +55,76 @@
       "next_slide": "Slide right",
       "previous_slide": "Slide left",
       "name": "Slider"
+    },
+    "general": {
+      "optional": "optional",
+      "menu": "Menu"
+    },
+    "accessibility": {
+      "sorted_by": "Sorted by",
+      "skip_product_content": "Skip to product content",
+      "close": "Close",
+      "search": "Search",
+      "account": "Account",
+      "wishlist": "Wishlist",
+      "cart": "Cart",
+      "menu": "Menu",
+      "utility_icons": "Utility icons",
+      "decrease_qty": "Decrease quantity",
+      "increase_qty": "Increase quantity",
+      "model_3d_increase": "Zoom in",
+      "model_3d_decrease": "Zoom out",
+      "model_3d_fullscreen": "Full screen",
+      "model_3d_list_label": "3D models",
+      "product_media_gallery": "Product media gallery"
+    },
+    "breadcrumbs": {
+      "home": "Home",
+      "label": "Breadcrumb"
+    },
+    "offcanvas_search": {
+      "title_products": "Products",
+      "title_collections": "Collections",
+      "title_pages": "Pages",
+      "title_articles": "Articles",
+      "title_popular_products": "Popular products",
+      "input_label": "Search",
+      "search_by_voice": "Search by voice",
+      "result_found": "1 result found",
+      "results_found": "{{ count }} results found",
+      "no_results": "No results found",
+      "search_for": "Search for “{{ terms }}”"
+    },
+    "offcanvas_menu": {
+      "title_customer": "Hi, {{ name }}",
+      "title_guest": "Menu",
+      "subtitle_customer_html": "Manage your account, orders, and more.",
+      "subtitle_guest_html": "Browse our site and search for products."
+    },
+    "wishlist": {
+      "btn_label": "Wishlist",
+      "add_to_wishlist": "Add to wishlist",
+      "remove_from_wishlist": "Remove from wishlist"
     }
+  },
+  "cart": {
+    "title": "Cart",
+    "empty_html": "Your cart is empty",
+    "remove": "Remove",
+    "quantity": "Quantity"
+  },
+  "collection": {
+    "btn_filter_products": "Filter products"
+  },
+  "product": {
+    "select_variant": "Select a variant",
+    "add": "Add",
+    "sold_out": "Sold out",
+    "add_to_cart": "Add to cart",
+    "buy_it_now": "Buy it now",
+    "price_regular": "Regular price",
+    "price_sale": "Sale price",
+    "price_from": "From {{ price }}"
   },
   "newsletter": {
     "label": "Email",
@@ -280,6 +349,15 @@
         "other": "{{ count }} items"
       }
     },
+    "navbar": {
+      "bottom_bar": {
+        "home": "Home",
+        "search": "Search",
+        "menu": "Menu",
+        "account": "Account",
+        "cart": "Cart"
+      }
+    },
     "cart": {
       "title": "Your cart",
       "caption": "Cart items",
@@ -323,6 +401,27 @@
     "featured_collection": {
       "view_all": "View all",
       "view_all_label": "View all products in the {{ collection_name }} collection"
+    },
+    "image_compare": {
+      "slider_label": "Comparison slider, percent of before image shown",
+      "image_before_alt": "Before image in comparison",
+      "image_after_alt": "After image in comparison"
+    },
+    "marquee": {
+      "scrolling_region_aria_default": "Scrolling promotional content"
+    },
+    "lookbook": {
+      "shop_now": "Shop now",
+      "close": "Close",
+      "missing_product": "Select a product for this hotspot.",
+      "view_product": "View {{ title }}"
+    },
+    "brand_timeline": {
+      "timeline_region_aria": "Brand story timeline",
+      "badge_founded": "Founded",
+      "badge_milestone": "Milestone",
+      "badge_award": "Award",
+      "badge_launch": "Launch"
     },
     "collection_list": {
       "view_all": "View all"

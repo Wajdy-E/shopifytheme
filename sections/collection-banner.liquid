@@ -26,7 +26,10 @@
         <div class="banner-image position-relative {% unless section.settings.container == 'container-fluid' %}rounded{% endunless %} overflow-hidden">
            {% if collection.featured_image %}
             {{ collection.featured_image | image_url: width: collection.featured_image.width | image_tag: loading: loading, fetchpriority: fetchpriority, sizes: sizes, widths: widths, class: classes }}
-            <div class="overlay" style="--overlay-color: {{ section.settings.overlay_color }}; --overlay-opacity: {{ section.settings.overlay_opacity }};"></div>            
+            <div class="overlay" style="--overlay-color: {{ section.settings.overlay_color }}; --overlay-opacity: {{ section.settings.overlay_opacity }};"></div>
+          {% else %}
+            {{ 'collection-apparel-1' | placeholder_svg_tag: classes }}
+            <div class="overlay" style="--overlay-color: {{ section.settings.overlay_color }}; --overlay-opacity: {{ section.settings.overlay_opacity }};"></div>
           {% endif %}
             {% if section.settings.show_breadcrumbs %}
                 <div class="breadcrumbs-overlay position-absolute w-100 {{ section.settings.desktop_text_alignment }} {{ section.settings.mobile_text_alignment }}">
@@ -34,7 +37,7 @@
                 </div>
             {% endif %}
             
-            <div class="banner-content z-2 {% if collection.featured_image %}position-absolute {{ section.settings.desktop_content_position }} {{ section.settings.mobile_content_position }}{% endif %}">
+            <div class="banner-content z-2 position-absolute {{ section.settings.desktop_content_position }} {{ section.settings.mobile_content_position }}">
                 <div class="text-container {{ section.settings.desktop_text_alignment }} {{ section.settings.mobile_text_alignment }}">
                     <h1 class="banner-title fs-lg-{{ section.settings.title_font_size_desktop }} fs-{{ section.settings.title_font_size_mobile }}">
                         {{ collection.title }}
@@ -54,7 +57,11 @@
           %}
             <div class="row">
                 <div class="col-lg-6 col-12 rounded overflow-hidden">
-                  {{ collection.featured_image | image_url: width: collection.featured_image.width | image_tag: loading: loading, fetchpriority: fetchpriority, sizes: sizes, widths: widths, class: 'img-fluid' }}
+                  {% if collection.featured_image %}
+                    {{ collection.featured_image | image_url: width: collection.featured_image.width | image_tag: loading: loading, fetchpriority: fetchpriority, sizes: sizes, widths: widths, class: 'img-fluid' }}
+                  {% else %}
+                    {{ 'collection-apparel-1' | placeholder_svg_tag: 'img-fluid w-100' }}
+                  {% endif %}
                   </div>
                 <div class="col-lg-6 col-12 d-flex flex-column justify-content-center">
                     {% if section.settings.show_breadcrumbs %}
@@ -79,7 +86,9 @@
 {% schema %}
 {
     "name": "Collection banner",
-    "templates": ["collection"],
+    "enabled_on": {
+        "templates": ["collection"]
+    },
     "settings": [
         {
         "type": "header",
@@ -351,7 +360,7 @@
       "max": 20,
       "step": 1,
       "default": 0
-    }        
+    }
         ]
 }
 {% endschema %}

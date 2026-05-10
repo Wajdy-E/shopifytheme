@@ -2,8 +2,7 @@
   assign pt = section.settings.pt | prepend: 'pt-5 pt-sm-'
   assign pb = section.settings.pb | prepend: 'pb-'
   assign color_scheme_class = 'color-' | append: section.settings.color_scheme
-assign product_form_id = 'product-form-' | append: section.id
-
+  assign product_form_id = 'product-form-' | append: section.id
 %}
 
 <script>
@@ -14,11 +13,7 @@ assign product_form_id = 'product-form-' | append: section.id
   {{ 'general.accessibility.skip_product_content' | t }}
 </a>
 
-<section
-    id="product-template"
-    class="{{ pt }} {{ pb }} {{ color_scheme_class }}"
-    data-product-handle="{{ product.handle }}"
-    >
+<section id="product-template" class="{{ pt }} {{ pb }} {{ color_scheme_class }}" data-product-handle="{{ product.handle }}">
   <div class="container">
     {% if section.settings.show_breadcrumbs %}
       <div class="breadcrumbs-wrapper mb-6">
@@ -27,8 +22,21 @@ assign product_form_id = 'product-form-' | append: section.id
     {% endif %}
     <div class="row gx-lg-12 gy-10 gy-lg-0">
       <div class="col-lg-6">
-        <div class="product-gallery-wrapper">
-          {% render 'product-media-gallery', section: section %}
+        <div class="product-gallery-wrapper {% if section.settings.sticky_top %}sticky-gallery{% endif %}">
+          {% if section.settings.gallery_thumbnails_position == 'left' and section.settings.gallery_layout == 'slider' %}
+            <div class="row gx-0">
+              <div class="col-lg-2 d-none d-lg-block">
+                {% render 'product-media-thumbnails', section: section, product: product %}
+              </div>
+              <div class="col-lg-10">
+                {% render 'product-media-gallery', section: section %}
+              </div>
+            </div>
+          {% elsif section.settings.gallery_layout == 'two-column' %}
+            {% render 'two-col-media', section: section, product: product %}
+          {% else %}
+            {% render 'product-media-gallery', section: section %}
+          {% endif %}
         </div>
       </div>
       <div class="col-lg-6">
@@ -38,41 +46,41 @@ assign product_form_id = 'product-form-' | append: section.id
             {% liquid
               for block in section.blocks
                 case block.type
-                when 'vendor'
+                  when 'vendor'
                     render 'product-vendor', block: block, exception: true
-                when 'title'
+                  when 'title'
                     render 'product-title', block: block
-                when 'description'
+                  when 'description'
                     render 'product-description', block: block
-                when 'price'
+                  when 'price'
                     render 'product-price', block: block, form: form
-                when 'variant_selector'
-                    render 'product-variants', block: block, variant_style : block.settings.variant_style, columns: block.settings.num_of_columns
-                when 'buy_buttons'
+                  when 'variant_selector'
+                    render 'product-variants', block: block, variant_style: block.settings.variant_style, columns: block.settings.num_of_columns
+                  when 'buy_buttons'
                     render 'product-buy-buttons', block: block, form: form, product: product
-                when 'accordion'
+                  when 'accordion'
                     render 'accordion', block: block, product: product
-                when 'pickup_availability'
-                    render 'pickup-availability', product: product, product_form_id: product_form_id, section_id: section.id,
+                  when 'pickup_availability'
+                    render 'pickup-availability', product: product, product_form_id: product_form_id, section_id: section.id
                   when '@app'
                     render block
                 endcase
               endfor
             %}
           {% endform %}
-          </div>
-          </div>
-          </div>
-          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
           
-          {%  comment  %}  
-          {% if section.settings.show_share_btn %}
-            <div class="d-flex justify-content-end">
-              {% render 'share-button', title: product.title, url: product.url %}
-            </div>
-          {% endif %}
-          {% endcomment %}
+{% comment %}
+{% if section.settings.show_share_btn %}
+  <div class="d-flex justify-content-end">
+    {% render 'share-button', title: product.title, url: product.url %}
+  </div>
+{% endif %}
+{% endcomment %}
           
 {%- liquid
   if product.selected_or_first_available_variant.featured_media
@@ -143,7 +151,7 @@ assign product_form_id = 'product-form-' | append: section.id
         {
             "type": "checkbox",
             "id": "show_breadcrumbs",
-            "label": "Show Breacrumb",
+            "label": "Show Breadcrumb",
             "default": false
         },
         {
@@ -164,6 +172,12 @@ assign product_form_id = 'product-form-' | append: section.id
             "default": true
         },
         {
+            "type": "checkbox",
+            "id": "sticky_top",
+            "label": "Stick to top",
+            "default": true
+        },
+        {
             "type": "select",
             "label": "Image orientation",
             "default": "square",
@@ -175,7 +189,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 {"label": "Square", "value": "square"}
             ],
             "id": "aspect_ratio"
-    },
+        },
         {
             "type": "checkbox",
             "id": "gallery_mobile_full_width",
@@ -187,6 +201,33 @@ assign product_form_id = 'product-form-' | append: section.id
             "id": "gallery_show_thumbnails_mobile",
             "label": "Show thumb images on mobile",
             "default": true
+        },
+        {
+            "type": "select",
+            "id": "gallery_layout",
+            "label": "Gallery layout",
+            "default": "slider",
+            "options": [
+                { "value": "two-column", "label": "Two column" },
+                { "value": "slider", "label": "Slider" }
+            ]
+        },
+        {
+            "type": "checkbox",
+            "id": "equal_row_height",
+            "label": "Equal row height",
+            "info": "Equal height only applies if gallery layout is set to two column",
+            "default": true
+        },
+        {
+            "type": "select",
+            "id": "gallery_thumbnails_position",
+            "label": "Thumbnails position",
+            "default": "below",
+            "options": [
+                { "value": "below", "label": "Below gallery" },
+                { "value": "left", "label": "Left of gallery" }
+            ]
         },
         {
             "type": "checkbox",
@@ -267,12 +308,17 @@ assign product_form_id = 'product-form-' | append: section.id
             "limit": 1,
             "settings": [
                 {
+                    "type": "header",
+                    "content": "Font size"
+                },
+                {
                     "type": "range",
                     "id": "title_font_size_mobile",
                     "label": "Title font-size | mobile",
                     "min": 1,
                     "max": 12,
-                    "default": 7
+                    "default": 7,
+                    "step": 1
                 },
                 {
                     "type": "range",
@@ -280,7 +326,8 @@ assign product_form_id = 'product-form-' | append: section.id
                     "label": "Title font-size | desktop",
                     "min": 1,
                     "max": 12,
-                    "default": 9
+                    "default": 9,
+                    "step": 1
                 },
                 {
                     "type": "header",
@@ -331,12 +378,17 @@ assign product_form_id = 'product-form-' | append: section.id
                     "info": "Leave empty to hide"
                 },
                 {
+                    "type": "header",
+                    "content": "Font size"
+                },
+                {
                     "type": "range",
                     "id": "title_font_size_mobile",
                     "label": "Title font-size | mobile",
                     "min": 1,
                     "max": 12,
-                    "default": 6
+                    "default": 6,
+                    "step": 1
                 },
                 {
                     "type": "range",
@@ -344,7 +396,8 @@ assign product_form_id = 'product-form-' | append: section.id
                     "label": "Title font-size | desktop",
                     "min": 1,
                     "max": 12,
-                    "default": 8
+                    "default": 8,
+                    "step": 1
                 },
                 {
                     "type": "range",
@@ -352,7 +405,8 @@ assign product_form_id = 'product-form-' | append: section.id
                     "label": "Description font-size | mobile",
                     "min": 1,
                     "max": 12,
-                    "default": 2
+                    "default": 2,
+                    "step": 1
                 },
                 {
                     "type": "range",
@@ -360,7 +414,8 @@ assign product_form_id = 'product-form-' | append: section.id
                     "label": "Description font-size | desktop",
                     "min": 1,
                     "max": 12,
-                    "default": 2
+                    "default": 2,
+                    "step": 1
                 },
                 {
                     "type": "header",
@@ -391,6 +446,10 @@ assign product_form_id = 'product-form-' | append: section.id
             "name": "Price",
             "limit": 1,
             "settings": [
+                {
+                    "type": "header",
+                    "content": "Font size"
+                },
                 {
                     "type": "range",
                     "id": "font_size_mobile",
@@ -436,6 +495,10 @@ assign product_form_id = 'product-form-' | append: section.id
             "name": "Variant selector",
             "limit": 1,
             "settings": [
+                {
+                    "type": "header",
+                    "content": "Layout"
+                },
                 {
                     "type": "select",
                     "id": "variant_style",
@@ -498,6 +561,10 @@ assign product_form_id = 'product-form-' | append: section.id
             "name": "Buy Buttons",
             "limit": 1,
             "settings": [
+                {
+                    "type": "header",
+                    "content": "Layout"
+                },
                 {
                     "type": "checkbox",
                     "id": "show_qty_field",
@@ -640,9 +707,13 @@ assign product_form_id = 'product-form-' | append: section.id
                     "label": "Title (optional)"
                 },
                 {
+                    "type": "header",
+                    "content": "Title"
+                },
+                {
                     "type": "range",
                     "id": "title_font_size_mobile",
-                    "label": "Title font-size | mobile",
+                    "label": "Font-size | mobile",
                     "min": 1,
                     "max": 12,
                     "default": 4
@@ -650,7 +721,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 {
                     "type": "range",
                     "id": "title_font_size_desktop",
-                    "label": "Title font-size | desktop",
+                    "label": "Font-size | desktop",
                     "min": 1,
                     "max": 12,
                     "default": 4
@@ -658,7 +729,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 {
                     "type": "select",
                     "id": "title_text_transform",
-                    "label": "Title text-transform",
+                    "label": "Text-transform",
                     "default": "text-capitalize",
                     "options": [
                         { "value": "", "label": "Normal" },
@@ -669,6 +740,10 @@ assign product_form_id = 'product-form-' | append: section.id
                     ]
                 },
                 {
+                    "type": "header",
+                    "content": "Description"
+                },
+                {
                     "type": "richtext",
                     "id": "description",
                     "label": "Description (optional)",
@@ -677,7 +752,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 {
                     "type": "range",
                     "id": "description_font_size_mobile",
-                    "label": "Description font-size | mobile",
+                    "label": "Font-size | mobile",
                     "min": 1,
                     "max": 12,
                     "default": 2
@@ -685,7 +760,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 {
                     "type": "range",
                     "id": "description_font_size_desktop",
-                    "label": "Description font-size | desktop",
+                    "label": "Font-size | desktop",
                     "min": 1,
                     "max": 12,
                     "default": 2
@@ -693,7 +768,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 {
                     "type": "select",
                     "id": "description_text_transform",
-                    "label": "Description text-transform",
+                    "label": "Text-transform",
                     "default": "",
                     "options": [
                         { "value": "", "label": "Normal" },
@@ -762,6 +837,10 @@ assign product_form_id = 'product-form-' | append: section.id
             "limit": 1,
             "settings": [
                 {
+                    "type": "header",
+                    "content": "General"
+                },
+                {
                     "type": "text",
                     "id": "option_name",
                     "label": "Option name",
@@ -798,6 +877,10 @@ assign product_form_id = 'product-form-' | append: section.id
                     "id": "title",
                     "label": "Title",
                     "default": "Size Chart"
+                },
+                {
+                    "type": "header",
+                    "content": "Content"
                 },
                 {
                     "type": "image_picker",
@@ -854,7 +937,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 },
                 {
                     "type": "header",
-                    "content": "item 1"
+                    "content": "Item 1"
                 },
                 {
                     "type": "image_picker",
@@ -868,7 +951,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 },
                 {
                     "type": "header",
-                    "content": "item 2"
+                    "content": "Item 2"
                 },
                 {
                     "type": "image_picker",
@@ -882,7 +965,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 },
                 {
                     "type": "header",
-                    "content": "item 3"
+                    "content": "Item 3"
                 },
                 {
                     "type": "image_picker",
@@ -896,7 +979,7 @@ assign product_form_id = 'product-form-' | append: section.id
                 },
                 {
                     "type": "header",
-                    "content": "item 4"
+                    "content": "Item 4"
                 },
                 {
                     "type": "image_picker",
@@ -1015,6 +1098,10 @@ assign product_form_id = 'product-form-' | append: section.id
         "name": "Accordion",
         "settings": [
             {
+            "type": "header",
+            "content": "General"
+            },
+            {
             "type": "select",
             "id": "accordion_style",
             "label": "Accordion style",
@@ -1025,10 +1112,24 @@ assign product_form_id = 'product-form-' | append: section.id
             ]
             },
             {
+                "type": "select",
+                "id": "accordion_spacing",
+                "label": "Spacing",
+                "default": "",
+                "options": [
+                    { "value": "", "label": "None" },
+                    { "value": "space-between", "label": "Space between" }
+                ]
+            },
+            {
             "type": "checkbox",
             "id": "open_first_item",
             "label": "Open first item by default",
             "default": true
+            },
+            {
+            "type": "header",
+            "content": "Font size"
             },
             {
             "type": "range",
@@ -1036,7 +1137,7 @@ assign product_form_id = 'product-form-' | append: section.id
             "label": "Title font-size | mobile",
             "min": 1,
             "max": 12,
-            "default": 2
+            "default": 5
             },
             {
             "type": "range",
@@ -1044,7 +1145,7 @@ assign product_form_id = 'product-form-' | append: section.id
             "label": "Title font-size | desktop",
             "min": 1,
             "max": 12,
-            "default": 2
+            "default": 5
             },
             {
             "type": "range",
@@ -1052,7 +1153,7 @@ assign product_form_id = 'product-form-' | append: section.id
             "label": "Description font-size | mobile",
             "min": 1,
             "max": 12,
-            "default": 2
+            "default": 4
             },
             {
             "type": "range",
@@ -1060,7 +1161,7 @@ assign product_form_id = 'product-form-' | append: section.id
             "label": "Description font-size | desktop",
             "min": 1,
             "max": 12,
-            "default": 2
+            "default": 4,
             },
             {
             "type": "header",

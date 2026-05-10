@@ -1,6 +1,12 @@
 {
+  "useTabs": true,
   "printWidth": 120,
   "singleQuote": true,
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": false,
+  "editor.tabSize": 4,
+  "editor.detectIndentation": false,
+  "prettier.useTabs": true,
   "overrides": [
     {
       "files": "*.liquid",

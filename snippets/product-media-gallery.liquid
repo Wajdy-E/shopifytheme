@@ -25,7 +25,10 @@
       {% if section.settings.gallery_mobile_full_width %}main-splide-mobile-full-width{% endif %}
     "
   >
-    <div class="splide__track">
+    <div class="splide__track product-media-list">
+       {% render 'splide-prev-arrow' %}
+       {% render 'splide-next-arrow' %}
+       <div class="splide__arrows"></div>
       <div class="splide__list {{ section.settings.aspect_ratio }}">
         {% for media in product.media %}
           <div class="splide__slide overflow-hidden" data-media-id="{{ media.id }}">
@@ -36,7 +39,7 @@
                   data-pswp-width="{{ media.src.width }}"
                   data-pswp-height="{{ media.src.height}}"
                   class="pswp-link"
-                >
+                ></a>
                   <img
                     class="img-fluid rounded"
                     src="{{ media.src | image_url: width: media.src.width }}"
@@ -47,18 +50,14 @@
                     fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
 
                   >
-                </a>
               {% when 'external_video' %}
                 <div class="ratio">
-                  <a href="{{ media | external_video_url }}" class="pswp-link">
                     {{ media | external_video_tag }}
-                  </a>
                 </div>
               {% when 'video' %}
                 <div class="ratio">
-                  <a href="{{ media.sources.last.url }}" class="pswp-link">
                     {{ media | video_tag: controls: true, image_size: '1200x', loading: 'lazy', class: 'img-fluid rounded' }}
-                  </a>
+                  
                 </div>
               {% when 'model' %}
                 <div class="product-gallery-model-3d w-100 h-100">
@@ -127,34 +126,8 @@
       </div>
     </div>
   </div>
-  <div
-    class="
-      thumbs-splide splide mt-3 mt-lg-4
-      {% unless section.settings.gallery_show_thumbnails_mobile %}
-          d-none d-lg-block
-      {% endunless %}
-    "
-    {% if product.media.size <= 1 %}
-      hidden
+    {% if section.settings.gallery_thumbnails_position == 'below' %}
+      {% render 'product-media-thumbnails', section: section, product: product, hide_thumbnails: hide_thumbnails %}
     {% endif %}
-  >
-    <div class="splide__track">
-      <div class="splide__list">
-        {% for media in product.media %}
-          <div class="splide__slide {% if media.media_type contains 'video' %}is-video{% endif %} {% if media.media_type == 'model' %}is-model{% endif %}">
-            <img
-              class="img-fluid rounded img-thumbnail exception"
-              src="{{ media.preview_image | image_url: width: '160', height: '160', crop: 'center' }}"
-              alt="{{ media.preview_image.alt }}"
-              width="160"
-              height="160"
-              loading="lazy"
-            >
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
 </div>
-
 {% endif %}

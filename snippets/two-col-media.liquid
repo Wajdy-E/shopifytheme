@@ -1,0 +1,74 @@
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+%}
+
+{% if current_variant.metafields.custom.variant_media != null %}
+  {% render 'product-gallery-variant-based' %}
+{% else %}
+<div
+  id="product-gallery-{{ product.id }}"
+  class="product-gallery d-none d-md-block mb-4"
+  data-product-id="{{ product.id }}"
+  aria-label="{{ 'general.accessibility.product_media_gallery' | t }}"
+>
+  <div class="container">
+    <div class="{% if section.settings.equal_row_height %}equal-row-height{% else %}row g-3{% endif %} product-media-list {{ section.settings.equal_row_height }}">
+      {% for media in product.media %}
+        <div class="{% unless section.settings.equal_row_height %}col-md-6 {{ section.settings.aspect_ratio }}{% endunless %}" data-media-id="{{ media.id }}">
+          {% case media.media_type %}
+            {% when 'image' %}
+              <a
+                href="{{ media.src | image_url: width: media.src.width }}"
+                data-pswp-width="{{ media.src.width }}"
+                data-pswp-height="{{ media.src.height }}"
+                class="d-block mb-2 pswp-link"
+              ></a>
+                <img
+                  class="img-fluid rounded w-100"
+                  src="{{ media.src | image_url: width: 800 }}"
+                  alt="{{ media.alt | escape }}"
+                  width="{{ media.src.width }}"
+                  height="{{ media.src.height }}"
+                  loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                  fetchpriority="{% if forloop.first %}high{% else %}low{% endif %}"
+                >
+			
+            {% when 'external_video' %}
+              <div class="ratio">
+                {{ media | external_video_tag }}
+              </div>
+
+            {% when 'video' %}
+              <div class="ratio">
+                {{ media | video_tag: controls: true, image_size: '1200x', loading: 'lazy', class: 'img-fluid rounded w-100' }}
+              </div>
+
+            {% when 'model' %}
+              <div class="product-gallery-model-3d w-100 h-100 border rounded position-relative">
+                <div class="ratio">
+                  {{ media | model_viewer_tag: image_size: '1200x' }}
+                </div>
+                <ul
+                  class="list-unstyled position-absolute bottom-0 end-0 mb-3 me-3"
+                  aria-label="{{ 'general.accessibility.model_3d_list_label' | t }}"
+                >
+                  <li class="d-flex gap-2">
+                    <button class="btn btn-light btn-sm" data-model-3d-increase-zoom aria-label="{{ 'general.accessibility.model_3d_increase' | t }}">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                    <button class="btn btn-light btn-sm" data-model-3d-decrease-zoom aria-label="{{ 'general.accessibility.model_3d_decrease' | t }}">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <button class="btn btn-light btn-sm" data-model-3d-fullscreen aria-label="{{ 'general.accessibility.model_3d_fullscreen' | t }}">
+                      <i class="bi bi-fullscreen"></i>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+          {% endcase %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}

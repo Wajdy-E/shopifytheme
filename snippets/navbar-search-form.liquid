@@ -1,0 +1,77 @@
+{% doc %}
+    Renders an inline search form that submits to the Shopify search route.
+
+    Used by the Stacked desktop layout and (optionally) by the Classic / Split
+    layouts when the merchant enables the inline search bar setting. The form
+    is intentionally minimal so it composes cleanly inside any Bootstrap row.
+
+    @param {object} section - The parent section object (passed from sections/navbar.liquid).
+    @param {string} [extra_classes] - Optional extra classes appended to the form element.
+    @param {string} [size] - Optional Bootstrap input size: 'sm', 'lg', or empty.
+{% enddoc %}
+
+{%- liquid
+    assign size_class = ''
+    if size == 'sm'
+        assign size_class = 'input-group-sm'
+    elsif size == 'lg'
+        assign size_class = 'input-group-lg'
+    endif
+-%}
+
+<form
+    action="{{ routes.search_url }}"
+    method="get"
+    role="search"
+    class="navbar-search-form {{ extra_classes }}"
+>
+    <label class="visually-hidden" for="NavbarSearch-{{ section.id }}">
+        {{ 'general.search.search' | t }}
+    </label>
+    <div class="input-group {{ size_class }}">
+        <span class="input-group-text bg-transparent border-end-0">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+            >
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        </span>
+        <input
+            type="search"
+            name="q"
+            id="NavbarSearch-{{ section.id }}"
+            class="form-control border-start-0"
+            placeholder="{{ 'general.search.search' | t }}"
+            autocomplete="off"
+        >
+        <input type="hidden" name="options[prefix]" value="last">
+        <button type="submit" class="btn btn-outline-secondary">
+            {{ 'general.search.search' | t }}
+        </button>
+    </div>
+</form>
+
+{% stylesheet %}
+    .navbar-search-form .input-group-text {
+        border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);
+    }
+
+    .navbar-search-form .form-control:focus {
+        box-shadow: none;
+    }
+
+    .navbar-search-form .input-group:focus-within {
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb, 13, 110, 253), 0.15);
+        border-radius: var(--bs-border-radius);
+    }
+{% endstylesheet %}

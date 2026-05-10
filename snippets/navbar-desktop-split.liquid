@@ -1,0 +1,30 @@
+{% doc %}
+    Renders the Split desktop navbar layout: menu on the left, logo
+    centered, utility icons on the right. Uses Bootstrap order utilities
+    so the columns reflow predictably at smaller breakpoints.
+
+    @param {object} section - The parent section object (passed from sections/navbar.liquid).
+    @param {string} [navbar_classes] - Shared classes (background, shadow, padding, blur).
+    @param {string} [navbar_visibility] - Bootstrap responsive utility classes.
+{% enddoc %}
+
+<nav
+    id="navbar-desktop"
+    class="navbar navbar-desktop-split {{ navbar_visibility }} {{ navbar_classes }} {{ section.settings.menu_desktop_trigger }}"
+>
+    <div class="{{ section.settings.container }}">
+        <div class="row align-items-center flex-grow-1 g-3">
+            <div class="col-lg-5 order-0">
+                {% render 'navbar-megamenu', section: section %}
+            </div>
+
+            <div class="col-lg-2 order-1 text-center">
+                {% render 'navbar-logo', section: section, placement: 'desktop', extra_classes: 'mx-auto' %}
+            </div>
+
+            <div class="col-lg-5 order-2">
+                {% render 'navbar-desktop-icons', section: section %}
+            </div>
+        </div>
+    </div>
+</nav>

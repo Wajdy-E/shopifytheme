@@ -1,0 +1,91 @@
+{% doc %}
+    Renders the Stacked desktop navbar: an optional thin top bar, a middle
+    row containing the brand on the left, an inline search input in the
+    center and the utility icons on the right, and a third row underneath
+    that hosts the centered mega menu navigation.
+
+    Inline search is always visible in this layout regardless of the
+    `enable_search_bar_desktop` setting.
+
+    @param {object} section - The parent section object (passed from sections/navbar.liquid).
+    @param {string} [navbar_classes] - Shared classes (background, shadow, padding, blur).
+    @param {string} [navbar_visibility] - Bootstrap responsive utility classes.
+{% enddoc %}
+
+{%- liquid
+    assign has_top_bar = false
+    if section.settings.top_bar_text != blank
+        assign has_top_bar = true
+    endif
+-%}
+
+<div
+    id="navbar-desktop"
+    class="navbar-desktop-stacked-wrapper {{ navbar_visibility }} {{ navbar_classes }}"
+>
+    {%- if has_top_bar -%}
+        <div class="navbar-top-bar border-bottom small">
+            <div class="{{ section.settings.container }}">
+                <div class="d-flex justify-content-center align-items-center py-2">
+                    {%- if section.settings.top_bar_link != blank -%}
+                        <a href="{{ section.settings.top_bar_link }}" class="text-decoration-none">
+                            {{ section.settings.top_bar_text | escape }}
+                        </a>
+                    {%- else -%}
+                        <span>{{ section.settings.top_bar_text | escape }}</span>
+                    {%- endif -%}
+                </div>
+            </div>
+        </div>
+    {%- endif -%}
+
+    <nav
+        class="navbar navbar-desktop-stacked {{ section.settings.menu_desktop_trigger }}"
+    >
+        <div class="{{ section.settings.container }} w-100">
+            <div class="row align-items-center flex-grow-1 g-3">
+                <div class="col-lg-3">
+                    {% render 'navbar-logo', section: section, placement: 'desktop' %}
+                </div>
+
+                <div class="col-lg-6">
+                    {% render 'navbar-search-form', section: section, extra_classes: 'mx-auto' %}
+                </div>
+
+                <div class="col-lg-3">
+                    {% render 'navbar-desktop-icons', section: section %}
+                </div>
+            </div>
+
+            <div class="row mt-3 border-top pt-2">
+                <div class="col-12">
+                    {% render 'navbar-megamenu', section: section %}
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+{% stylesheet %}
+    .navbar-desktop-stacked-wrapper {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .navbar-desktop-stacked {
+        padding-top: 1rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .navbar-desktop-stacked .navbar-search-form {
+        max-width: 540px;
+    }
+
+    .navbar-top-bar a {
+        color: inherit;
+    }
+
+    .navbar-top-bar a:hover {
+        text-decoration: underline;
+    }
+{% endstylesheet %}

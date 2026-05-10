@@ -73,7 +73,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
                     {%- assign key = metafield_parts[1] -%}
                     {%- assign author_image_metafield = article.metafields[namespace][key].value -%}
                   <div class="author-information">
-                    <img src="{% if author_image_metafield %}{{ author_image_metafield | image_url: width: author_image_metafield.width }}{% endif %}" alt="Author Image" class="img-fluid article-card-author-img"
+                    <img src="{% if author_image_metafield %}{{ author_image_metafield | image_url: width: author_image_metafield.width }}{% endif %}" alt="Author Image" width="{{ author_image_metafield.width }}" height="{{ author_image_metafield.height }}" class="img-fluid article-card-author-img"
                     style="width: 30px; height: 30px; object-fit:cover;">
                     <span class="caption-with-letter-spacing">
                       By: <span class="text-decoration-underline">{{ article.author }}</span>
@@ -109,7 +109,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
           {%- endfor -%}
           <div class="article-template__back element-margin-top center">
             <a href="{{ blog.url }}" class="article-template__link link animate-arrow">
-              <span class="icon-wrap">{% render 'icon-arrow' %}</span>
+                {% comment %} <span class="icon-wrap">{% render 'icon-arrow' %}</span> {% endcomment %}
               {{ 'blogs.article.back_to_blog' | t: title: blog.title | escape }}
             </a>
           </div>
@@ -145,7 +145,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
                   {%- if form.errors -%}
                     <div class="form__message" role="alert">
                       <h3 class="form-status caption-large text-body" tabindex="-1" autofocus>
-                        {% render 'icon-error' %}
+                        {% comment %} {% render 'icon-error' %} {% endcomment %}
                         {{ 'templates.contact.form.error_heading' | t }}
                       </h3>
                     </div>
@@ -168,7 +168,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
                   {%- elsif form.posted_successfully? -%}
                     <div class="form-status-list form__message" role="status">
                       <h3 class="form-status" tabindex="-1" autofocus>
-                        {% render 'icon-success' %}
+                        {% comment %} {% render 'icon-success' %} {% endcomment %}
                         {{ post_message | t }}
                       </h3>
                     </div>
@@ -198,7 +198,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
                       {%- if form.errors contains 'author' -%}
                         <small id="CommentForm-author-error">
                           <span class="form__message">
-                            {%- render 'icon-error' -%}
+                            {% comment %} {%- render 'icon-error' -%} {% endcomment %}
                             {{- 'blogs.article.name' | t }}
                             {{ form.errors.messages.author }}.
                           </span>
@@ -230,7 +230,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
                       {%- if form.errors contains 'email' -%}
                         <small id="CommentForm-email-error">
                           <span class="form__message">
-                            {%- render 'icon-error' -%}
+                            {% comment %} {%- render 'icon-error' -%} {% endcomment %}
                             {{- 'blogs.article.email' | t }}
                             {{ form.errors.messages.email }}.
                           </span>
@@ -258,7 +258,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
                       {%- if form.errors contains 'body' -%}
                         <small id="CommentForm-body-error">
                           <span class="form__message">
-                            {%- render 'icon-error' -%}
+                            {% comment %} {%- render 'icon-error' -%} {% endcomment %}
                             {{- 'blogs.article.message' | t }}
                             {{ form.errors.messages.body }}.
                           </span>
@@ -276,7 +276,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
           {%- endif -%}
         </div>
           {% if blog.articles_count > 0 and section.settings.show_related_articles %}
-            <aside aria-labelledby="related-articles-heading" class="related-articles col-md-3 v-hr" role="complementary">
+            <aside aria-labelledby="related-articles-heading" class="related-articles col-md-3 v-hr ps-7" role="complementary">
               <div class="related-articles-wrapper sticky-top h-fit z-1" style="top: 70px;">
                 <h2 class="mb-6">Related Articles</h2>
                 <div class="related-articles__list row g-{{ settings.blog_card_gap }} row-cols-1 {{ section.settings.aspect_ratio }}">
@@ -306,7 +306,6 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
   "name": "t:sections.main-article.name",
   "tag": "section",
   "class": "section",
-  "templates": ["article"],
   "settings": [
     {
       "type": "select",

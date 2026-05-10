@@ -4,6 +4,14 @@ assign pt = section.settings.pt | prepend: 'pt-'
 assign pb = section.settings.pb | prepend: 'pb-'
 assign mt = section.settings.mt | prepend: 'mt-'
 assign mb = section.settings.mb | prepend: 'mb-'
+case section.settings.text_align
+when 'text-start'
+  assign btn_justify = 'justify-content-start'
+when 'text-end'
+  assign btn_justify = 'justify-content-end'
+else
+  assign btn_justify = 'justify-content-center'
+endcase
 %}
 
 <section class="rich-text enter-view {{pt}} {{pb}} {{mt}} {{mb}} {{ color_scheme_class }}" id="rich-text-{{ section.id }}">
@@ -35,7 +43,12 @@ assign mb = section.settings.mb | prepend: 'mb-'
                     assign s-btn-type = block.settings.s-btn-type
                     assign s-btn-url = block.settings.s-btn-url
                   %}
-                  <div class="btn-wrapper d-flex gap-6">
+                  <div
+                    class="btn-wrapper d-flex flex-wrap gap-6 {{ btn_justify }}{% unless section.settings.animation == '' %} animate__animated opacity-0 {{ section.settings.animation_speed }}{% endunless %}"
+                    data-animate-class="{{ section.settings.animation }}"
+                    style="animation-delay: {{ forloop.index | times: 150 }}ms;"
+                    {{ block.shopify_attributes }}
+                  >
                     {% unless p-btn-text == blank %}
                       <a href="{{ p-btn-url }}" class="btn rounded {{ p-btn-type }}">
                         {{ p-btn-text }}

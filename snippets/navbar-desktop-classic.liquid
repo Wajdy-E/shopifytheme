@@ -1,0 +1,35 @@
+{% doc %}
+    Renders the Classic desktop navbar layout: logo on the left,
+    inline mega menu in the middle, utility icons on the right.
+
+    @param {object} section - The parent section object (passed from sections/navbar.liquid).
+    @param {string} [navbar_classes] - Shared classes (background, shadow, padding, blur).
+    @param {string} [navbar_visibility] - Bootstrap responsive utility classes (e.g. 'd-none d-lg-block').
+{% enddoc %}
+
+<nav
+    id="navbar-desktop"
+    class="navbar navbar-desktop-classic {{ navbar_visibility }} {{ navbar_classes }} {{ section.settings.menu_desktop_trigger }}"
+>
+    <div class="{{ section.settings.container }}">
+        <div class="row align-items-center flex-grow-1 g-3">
+            <div class="col-lg-3 col-md-3">
+                {% render 'navbar-logo', section: section, placement: 'desktop' %}
+            </div>
+
+            <div class="col-lg-{% if section.settings.enable_search_bar_desktop %}5{% else %}6{% endif %}">
+                {% render 'navbar-megamenu', section: section %}
+            </div>
+
+            {% if section.settings.enable_search_bar_desktop %}
+                <div class="col-lg-2 d-none d-xl-block">
+                    {% render 'navbar-search-form', section: section, size: 'sm', extra_classes: 'w-100' %}
+                </div>
+            {% endif %}
+
+            <div class="col-lg-{% if section.settings.enable_search_bar_desktop %}2{% else %}3{% endif %}">
+                {% render 'navbar-desktop-icons', section: section %}
+            </div>
+        </div>
+    </div>
+</nav>

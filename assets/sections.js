@@ -86,57 +86,160 @@ document.addEventListener('shopify:section:load', (e) => {
   }
 });
 
-/** before and after */
+/** Image comparison */
+const initImageCompare = (rootElement) => {
+  const scope = rootElement || document;
 
-document.addEventListener('DOMContentLoaded', function () {
-  function initializeSlider(container) {
-    const slider = container.querySelector('.slider');
-    const revealDirection = container.getAttribute('data-reveal-direction');
-    const updateSliderPosition = (value) => {
-      if (revealDirection === 'vertical') {
-        const reversedValue = value; // reverse value for vertical direction
-        const currentHeight = slider.offsetHeight;
-        const currentWidth = slider.offsetWidth;
-        slider.style.width = currentHeight + 'px';
-        slider.style.height = currentWidth + 'px';
-        container.style.setProperty('--position', `${reversedValue}%`);
-      } else {
-        container.style.setProperty('--position', `${value}%`);
+  function syncCompare(root, input) {
+    const v = String(input.value);
+    root.style.setProperty('--compare', `${v}%`);
+    root.style.setProperty('--compare-num', v);
+    input.setAttribute('aria-valuenow', v);
+  }
+
+  function valueFromPointer(root, clientX, clientY) {
+    const media = root.querySelector('.image-compare__media');
+    if (!media) return 50;
+    const rect = media.getBoundingClientRect();
+    const h = rect.height;
+    const w = rect.width;
+    if (w <= 0 || h <= 0) return 50;
+    const vertical = root.dataset.compareOrientation === 'vertical';
+    let t = vertical ? (clientY - rect.top) / h : (clientX - rect.left) / w;
+    if (t < 0) t = 0;
+    if (t > 1) t = 1;
+    return Math.round(t * 100);
+  }
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function bind(root) {
+    if (root.dataset.imageCompareReady === 'true') return;
+    root.dataset.imageCompareReady = 'true';
+    const input = root.querySelector('[data-image-compare-input]');
+    const hit = root.querySelector('[data-image-compare-hit]');
+    if (!input || !hit) return;
+
+    let introRaf = 0;
+    let introCancelled = false;
+
+    function cancelIntro() {
+      introCancelled = true;
+      if (introRaf) {
+        cancelAnimationFrame(introRaf);
+        introRaf = 0;
+      }
+    }
+
+    function markIntroFinished() {
+      root.dataset.imageCompareIntro = 'done';
+    }
+
+    function runScrollIntro() {
+      if (root.dataset.imageCompareIntro === 'done' || root.dataset.imageCompareIntro === 'playing') return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        input.value = '50';
+        syncCompare(root, input);
+        markIntroFinished();
+        return;
+      }
+      root.dataset.imageCompareIntro = 'playing';
+      introCancelled = false;
+      const from = 0;
+      const to = 50;
+      const duration = 1000;
+      const start = performance.now();
+
+      function tick(now) {
+        if (introCancelled) {
+          introRaf = 0;
+          return;
+        }
+        const elapsed = now - start;
+        const t = Math.min(1, elapsed / duration);
+        const v = Math.round(from + (to - from) * easeOutCubic(t));
+        input.value = String(v);
+        syncCompare(root, input);
+        if (t < 1) {
+          introRaf = requestAnimationFrame(tick);
+        } else {
+          introRaf = 0;
+          markIntroFinished();
+        }
+      }
+
+      introRaf = requestAnimationFrame(tick);
+    }
+
+    const onInput = () => {
+      cancelIntro();
+      markIntroFinished();
+      syncCompare(root, input);
+    };
+    input.addEventListener('input', onInput);
+    input.addEventListener('change', onInput);
+
+    const setFromPointer = (e) => {
+      const v = valueFromPointer(root, e.clientX, e.clientY);
+      input.value = String(v);
+      syncCompare(root, input);
+    };
+
+    const onPointerDown = (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      cancelIntro();
+      markIntroFinished();
+      hit.setPointerCapture(e.pointerId);
+      setFromPointer(e);
+      e.preventDefault();
+    };
+
+    const onPointerMove = (e) => {
+      if (!hit.hasPointerCapture(e.pointerId)) return;
+      setFromPointer(e);
+    };
+
+    const onPointerUp = (e) => {
+      if (hit.hasPointerCapture(e.pointerId)) {
+        hit.releasePointerCapture(e.pointerId);
       }
     };
 
-    slider.addEventListener(
-      'input',
-      (e) => {
-        e.preventDefault();
-        updateSliderPosition(e.target.value);
-      },
-      { passive: true },
-    );
+    hit.addEventListener('pointerdown', onPointerDown);
+    hit.addEventListener('pointermove', onPointerMove);
+    hit.addEventListener('pointerup', onPointerUp);
+    hit.addEventListener('pointercancel', onPointerUp);
 
-    slider.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      const rect = slider.getBoundingClientRect();
-      let value;
-      if (revealDirection === 'vertical') {
-        value = ((rect.bottom - touch.clientY) / rect.height) * 100;
-      } else {
-        value = ((touch.clientX - rect.left) / rect.width) * 100;
-      }
-      value = Math.max(0, Math.min(100, value)); // ensure value is between 0 and 100
-      slider.value = value;
-      updateSliderPosition(value);
-    });
+    syncCompare(root, input);
+
+    const sectionEl = root.closest('section.image-compare');
+    if (sectionEl && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              runScrollIntro();
+            }
+          });
+        },
+        { threshold: 0, rootMargin: '0px 0px -200px 0px' },
+      );
+      io.observe(sectionEl);
+    } else {
+      runScrollIntro();
+    }
   }
 
-  const containers = document.querySelectorAll('.image-comparison-section .image-comparison-container');
-  containers.forEach((container) => initializeSlider(container));
+  scope.querySelectorAll('[data-image-compare]').forEach((el) => bind(el));
+};
 
-  document.addEventListener('shopify:section:load', function (e) {
-    const newContainers = e.target.querySelectorAll('.image-comparison-section .image-comparison-container');
-    newContainers.forEach((container) => initializeSlider(container));
-  });
+document.addEventListener('DOMContentLoaded', () => initImageCompare());
+document.addEventListener('shopify:section:load', (e) => {
+  if (e.target && e.target.querySelector && e.target.querySelector('[data-image-compare]')) {
+    initImageCompare(e.target);
+  }
 });
 
 // Social media feed
@@ -659,3 +762,167 @@ window.closeSearchOffcanvas = (btn, event) => {
       bootstrap.Offcanvas.getOrCreateInstance('#offcanvas-search').hide()
   }, 300)
 }
+
+/** Shoppable lookbook — hotspot pins */
+const initShoppableLookbook = (rootElement) => {
+  const root = rootElement || document;
+  root.querySelectorAll('[data-lookbook-section]').forEach((section) => {
+    if (section.dataset.lookbookInit === 'true') return;
+    section.dataset.lookbookInit = 'true';
+
+    section.addEventListener('click', (e) => {
+      const pin = e.target.closest('[data-lookbook-pin]');
+      if (pin && section.contains(pin)) {
+        setLookbookOpen(section, pin.dataset.lookbookBlock, pin);
+        return;
+      }
+
+      const closeBtn = e.target.closest('[data-lookbook-close]');
+      if (closeBtn && section.contains(closeBtn)) {
+        closeLookbook(section, { restoreFocus: true });
+      }
+    });
+  });
+};
+
+const lookbookIsMobileMq = () =>
+  typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767.98px)').matches;
+
+const getLookbookTrigger = (section, blockId) =>
+  section.querySelector(`[data-lookbook-pin][data-lookbook-block="${CSS.escape(blockId)}"]`);
+const getLookbookPopover = (section, blockId) =>
+  section.querySelector(`[data-lookbook-popover][data-lookbook-block="${CSS.escape(blockId)}"]`);
+
+const closeLookbook = (section, { restoreFocus } = {}) => {
+  const openBlockId = section.dataset.lookbookOpenBlock;
+  if (openBlockId) {
+    const trigger = getLookbookTrigger(section, openBlockId);
+    const popover = getLookbookPopover(section, openBlockId);
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    if (popover) popover.hidden = true;
+  }
+
+  const sheet = section.querySelector('[data-lookbook-sheet]');
+  const sheetContent = section.querySelector('[data-lookbook-sheet-content]');
+  if (sheet) sheet.hidden = true;
+  if (sheetContent) sheetContent.innerHTML = '';
+
+  section.dataset.lookbookOpenBlock = '';
+
+  if (restoreFocus && section.dataset.lookbookLastTriggerId) {
+    section.querySelector(`#${CSS.escape(section.dataset.lookbookLastTriggerId)}`)?.focus?.({ preventScroll: true });
+  }
+};
+
+const setLookbookOpen = (section, blockId, trigger) => {
+  if (!blockId) return;
+
+  const current = section.dataset.lookbookOpenBlock;
+  if (current && current === blockId) {
+    closeLookbook(section, { restoreFocus: true });
+    return;
+  }
+
+  // Close any other open lookbook on the page.
+  document.querySelectorAll('[data-lookbook-section][data-lookbook-open-block]:not([data-lookbook-open-block=""])').forEach((other) => {
+    if (other !== section) closeLookbook(other);
+  });
+
+  closeLookbook(section);
+  section.dataset.lookbookOpenBlock = blockId;
+
+  if (trigger) {
+    if (!trigger.id) trigger.id = `LookbookPin-${section.dataset.lookbookSection}-${blockId}`;
+    section.dataset.lookbookLastTriggerId = trigger.id;
+  }
+
+  const popover = getLookbookPopover(section, blockId);
+  const sheet = section.querySelector('[data-lookbook-sheet]');
+  const sheetContent = section.querySelector('[data-lookbook-sheet-content]');
+  const shouldUseSheet = section.dataset.lookbookMobileBehavior === 'bottom_sheet' && lookbookIsMobileMq();
+
+  if (!popover) return;
+  trigger?.setAttribute?.('aria-expanded', 'true');
+
+  if (shouldUseSheet && sheet && sheetContent) {
+    const content = popover.querySelector('.lookbook-popover__content');
+    sheetContent.innerHTML = content ? content.innerHTML : popover.innerHTML;
+    sheet.hidden = false;
+    sheet.querySelector('[data-lookbook-close]')?.focus({ preventScroll: true });
+  } else {
+    popover.hidden = false;
+    popover.querySelector('[data-lookbook-close]')?.focus({ preventScroll: true });
+  }
+};
+
+if (!window.__shoppableLookbookGlobalBound) {
+  window.__shoppableLookbookGlobalBound = true;
+
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      const openSections = document.querySelectorAll(
+        '[data-lookbook-section][data-lookbook-open-block]:not([data-lookbook-open-block=""])',
+      );
+      openSections.forEach((section) => {
+        const openBlockId = section.dataset.lookbookOpenBlock;
+        const popover = openBlockId ? getLookbookPopover(section, openBlockId) : null;
+        const trigger = openBlockId ? getLookbookTrigger(section, openBlockId) : null;
+        const sheet = section.querySelector('[data-lookbook-sheet]');
+
+        const withinPopover = popover && popover.contains(e.target);
+        const withinSheet = sheet && !sheet.hidden && sheet.contains(e.target);
+        const withinTrigger = trigger && trigger.contains(e.target);
+        if (!withinPopover && !withinSheet && !withinTrigger) {
+          closeLookbook(section, { restoreFocus: true });
+        }
+      });
+    },
+    { passive: true },
+  );
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document
+        .querySelectorAll('[data-lookbook-section][data-lookbook-open-block]:not([data-lookbook-open-block=""])')
+        .forEach((section) => closeLookbook(section, { restoreFocus: true }));
+      return;
+    }
+
+    if (e.key === 'Tab') {
+      document
+        .querySelectorAll('[data-lookbook-section][data-lookbook-open-block]:not([data-lookbook-open-block=""])')
+        .forEach((section) => {
+          const sheet = section.querySelector('[data-lookbook-sheet]');
+          if (!sheet || sheet.hidden) return;
+          const focusables = sheet.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          );
+          if (!focusables.length) return;
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        });
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    document
+      .querySelectorAll('[data-lookbook-section][data-lookbook-open-block]:not([data-lookbook-open-block=""])')
+      .forEach((section) => {
+        const openBlockId = section.dataset.lookbookOpenBlock;
+        const trigger = openBlockId ? getLookbookTrigger(section, openBlockId) : null;
+        if (!openBlockId) return;
+        setLookbookOpen(section, openBlockId, trigger);
+      });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => initShoppableLookbook());
+document.addEventListener('shopify:section:load', (e) => initShoppableLookbook(e.target));

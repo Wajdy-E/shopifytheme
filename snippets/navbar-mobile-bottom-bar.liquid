@@ -1,0 +1,222 @@
+{% doc %}
+    Renders the Bottom navigation bar mobile layout: a minimal top bar
+    (centered logo + cart) plus a fixed bottom bar with the most common
+    actions (Home, Search, Menu, Account, Cart). Designed to feel native
+    to a mobile shopping app, with safe-area padding on iOS.
+
+    The body receives a bottom padding via the page-bottom-bar-spacer class
+    so site content is not obscured by the fixed bar.
+
+    @param {object} section - The parent section object (passed from sections/navbar.liquid).
+    @param {string} [navbar_classes] - Shared classes (background, shadow, padding, blur).
+    @param {string} [navbar_visibility] - Bootstrap responsive utility classes.
+{% enddoc %}
+
+<nav
+    id="navbar-mobile"
+    class="navbar navbar-mobile-bottom-bar-top {{ navbar_visibility }} {{ navbar_classes }}"
+>
+    <div class="container d-block">
+        <div class="row align-items-center">
+            <div class="col-3"></div>
+
+            <div class="col-6 text-center">
+                {% render 'navbar-logo', section: section, placement: 'mobile', extra_classes: 'mx-auto' %}
+            </div>
+
+            <div class="col-3">
+                <div class="nav justify-content-end flex-nowrap">
+                    <a
+                        class="cart-icon nav-link move-on-hover"
+                        {% if settings.cart_drawer_disable == true or request.page_type == 'cart' %}
+                            href="{{ routes.cart_url }}"
+                        {% else %}
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#CartDrawer"
+                            aria-controls="CartDrawer"
+                            href="#CartDrawer"
+                        {% endif %}
+                        aria-label="{{ 'general.accessibility.cart' | t }} {{ cart.item_count }}"
+                    >
+                        {% render 'cart-icon' %}
+                        <span
+                            class="cart-count-badge badge"
+                            {% if cart.item_count == 0 %}hidden{% endif %}
+                        >
+                            {{ cart.item_count }}
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<nav
+    id="navbar-mobile-bottom"
+    class="navbar-bottom-bar {{ navbar_visibility }} {{ section.settings.bg_color }} {{ section.settings.shadow }}"
+    aria-label="{{ 'general.accessibility.menu' | t }}"
+>
+    <ul class="nav justify-content-around align-items-center w-100 m-0 p-0">
+        <li class="nav-item flex-fill text-center">
+            <a class="nav-link bottom-bar-link" href="{{ routes.root_url }}" aria-label="{{ 'sections.navbar.bottom_bar.home' | t }}">
+                {% render 'home-icon' %}
+                <span class="d-block extra-small mt-1">{{ 'sections.navbar.bottom_bar.home' | t }}</span>
+            </a>
+        </li>
+
+        <li class="nav-item flex-fill text-center">
+            <a
+                class="nav-link bottom-bar-link"
+                href="#offcanvas-search"
+                data-bs-toggle="offcanvas"
+                aria-controls="offcanvas-search"
+                role="button"
+                aria-label="{{ 'general.accessibility.search' | t }}"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span class="d-block extra-small mt-1">{{ 'sections.navbar.bottom_bar.search' | t }}</span>
+            </a>
+        </li>
+
+        <li class="nav-item flex-fill text-center">
+            <a
+                class="nav-link bottom-bar-link"
+                href="#offcanvas-menu"
+                data-bs-toggle="offcanvas"
+                aria-controls="offcanvas-menu"
+                role="button"
+                aria-label="{{ 'general.accessibility.menu' | t }}"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                <span class="d-block extra-small mt-1">{{ 'sections.navbar.bottom_bar.menu' | t }}</span>
+            </a>
+        </li>
+
+        {% if shop.customer_accounts_enabled %}
+            <li class="nav-item flex-fill text-center">
+                <a
+                    class="nav-link bottom-bar-link {% if template.name == 'login' or template.name == 'account' %}active{% endif %}"
+                    aria-current="{% if template.name == 'login' or template.name == 'account' %}page{% endif %}"
+                    href="{{ routes.account_url }}"
+                    aria-label="{{ 'general.accessibility.account' | t }}"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span class="d-block extra-small mt-1">{{ 'sections.navbar.bottom_bar.account' | t }}</span>
+                </a>
+            </li>
+        {% endif %}
+
+        <li class="nav-item flex-fill text-center">
+            <a
+                class="nav-link bottom-bar-link cart-icon position-relative"
+                {% if settings.cart_drawer_disable == true or request.page_type == 'cart' %}
+                    href="{{ routes.cart_url }}"
+                {% else %}
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#CartDrawer"
+                    aria-controls="CartDrawer"
+                    href="#CartDrawer"
+                {% endif %}
+                aria-label="{{ 'general.accessibility.cart' | t }} {{ cart.item_count }}"
+            >
+                {% render 'cart-icon' %}
+                <span
+                    class="cart-count-badge badge position-absolute top-0 start-50 translate-middle-x"
+                    {% if cart.item_count == 0 %}hidden{% endif %}
+                >
+                    {{ cart.item_count }}
+                </span>
+                <span class="d-block extra-small mt-1">{{ 'sections.navbar.bottom_bar.cart' | t }}</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+{% stylesheet %}
+    .navbar-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1030;
+        padding: 0.5rem 0.25rem calc(0.5rem + env(safe-area-inset-bottom)) 0.25rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .navbar-bottom-bar .bottom-bar-link {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.15rem;
+        padding: 0.35rem 0.25rem;
+        font-size: 0.7rem;
+        line-height: 1;
+        opacity: 0.85;
+    }
+
+    .navbar-bottom-bar .bottom-bar-link:hover,
+    .navbar-bottom-bar .bottom-bar-link:focus,
+    .navbar-bottom-bar .bottom-bar-link.active {
+        opacity: 1;
+    }
+
+    .navbar-bottom-bar svg {
+        display: block;
+    }
+
+    @media (min-width: 992px) {
+        .navbar-bottom-bar {
+            display: none !important;
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        body {
+            padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+        }
+    }
+{% endstylesheet %}

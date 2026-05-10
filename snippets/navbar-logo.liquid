@@ -1,0 +1,42 @@
+{% doc %}
+    Renders the navbar brand (logo or shop name) for desktop or mobile.
+    Falls back to the desktop logo when no mobile-specific logo is set,
+    and to the shop name when no logo is configured at all.
+
+    @param {object} section - The parent section object (passed from sections/navbar.liquid).
+    @param {string} [placement] - 'desktop' or 'mobile'. Defaults to 'desktop'.
+    @param {string} [extra_classes] - Optional classes to append to the anchor.
+{% enddoc %}
+
+{%- liquid
+    assign placement = placement | default: 'desktop'
+
+    if placement == 'mobile'
+        if section.settings.logo_mobile
+            assign brand_logo = section.settings.logo_mobile
+        else
+            assign brand_logo = section.settings.logo
+        endif
+        assign brand_height = section.settings.logo_height_mobile
+    else
+        assign brand_logo = section.settings.logo
+        assign brand_height = section.settings.logo_height_desktop
+    endif
+
+    assign brand_height_x2 = brand_height | times: 2
+-%}
+
+<a class="navbar-brand py-0 {{ extra_classes }}" href="{{ routes.root_url }}">
+    {%- if brand_logo -%}
+        <img
+            class="img-fluid"
+            src="{{ brand_logo | image_url: height: brand_height_x2 }}"
+            alt="{{ shop.name | escape }}"
+            width="{{ brand_height | times: brand_logo.aspect_ratio | round }}"
+            height="{{ brand_height }}"
+            loading="lazy"
+        >
+    {%- else -%}
+        <span class="fs-5">{{ shop.name }}</span>
+    {%- endif -%}
+</a>

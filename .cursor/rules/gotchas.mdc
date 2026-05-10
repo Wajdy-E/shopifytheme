@@ -1,0 +1,160 @@
+---
+description: Project-wide gotchas for this Shopify theme (Liquid, theme-check, Bootstrap, locales, tooling)
+alwaysApply: true
+---
+
+# Theme gotchas
+
+## Liquid
+
+- Inside `{% liquid %}`, **each statement must be on a single line**. Multi-line `assign x = a | filter | filter` chains break the parser. Put long pipelines on one line, or split into multiple `assign` statements.
+- `{% render %}` creates an isolated scope. Snippets do NOT see variables from the calling file. Pass everything you need explicitly.
+- **Always pass `section: section` (and `block: block` when inside a `{% for block in section.blocks %}` loop or when rendering a block-scoped snippet)**, and declare them in the snippet's `{% doc %}`:
+  ```
+  {%- render 'my-snippet', section: section, block: block, foo: 'bar' -%}
+  ```
+  ```
+  {% doc %}
+    @param {object} section - The parent section object.
+    @param {object} block - The current block object (when applicable).
+  {% enddoc %}
+  ```
+  Without this, theme-check flags every `section.settings.*` / `block.settings.*` / `block.shopify_attributes` access as `Unknown object 'section'` / `Unknown object 'block'`. Apply the same pattern to any other context-bound objects you reach into a snippet (`product`, `article`, `forloop`, etc.) — pass them in, document them, don't rely on implicit scope.
+- **Don't put real `{% render '...' %}` calls inside `{% doc %}` example blocks.** theme-check parses them as live renders and can fire false `MissingTemplate` errors. Use prose, or rename the example.
+
+## Schema
+
+- **`text` / `textarea` defaults on upload:** Remote theme validation rejects **blank** defaults — **`"default": ""`**, and often **whitespace-only** values like **`" "`** (trimmed to empty) — with *setting default can't be blank*. Use real placeholder copy (e.g. `Optional subheading`); merchants clear it in the editor to hide. In Liquid, use `| strip` and treat stripped empty as hidden (see `block-header` subheading).
+- Every `range` setting needs `min`, `max`, **`step`**, and `default`. Omitting `step` triggers a theme-check warning.
+- **`range` defaults and decimals:** Theme upload validation requires the `default` value to use **at most one decimal place** (e.g. `0.4` is valid, `0.35` fails with “default must have 1 or less decimal digits”). Round defaults to one digit or pick an integer.
+- Shopify caps **`range` step count at 101** (i.e. `(max - min) / step + 1` must be ≤ 101). Exceeding that fails upload / remote validation (CLI: “step invalid. Range settings must have at most 101 steps”). Widen `step` or narrow `min`/`max` until the count fits.
+- Use CSS variables for single-property settings, CSS classes for multi-property settings (see `shopify-liquid` skill).
+- Backward-compat for renamed select values: keep the old `value` strings as aliases in `{% case %}` routers so existing templates don't break.
+
+## Images
+
+- **Do not add a theme setting for alt text** on `image_picker` (or duplicate “description” fields for accessibility). Alt is stored on the **image asset** in Shopify; use `image.alt` in Liquid (e.g. on `<img>`, or a `.visually-hidden` span when the image is only shown as a CSS background). Merchants edit alt in the admin Files / asset details or when assigning the image.
+
+## Section conventions (mirror [`sections/featured-collections.liquid`](sections/featured-collections.liquid))
+
+Reuse these schema patterns in every new section. They map to existing Bootstrap classes already wired through `theme.liquid`, so no extra CSS is needed.
+
+### Container (always include)
+
+```json
+{
+  "type": "select",
+  "id": "container",
+  "label": "Container",
+  "default": "container",
+  "options": [
+    { "value": "container", "label": "Container" },
+    { "value": "container-fluid", "label": "Fluid" }
+  ]
+}
+```
+Render with `<div class="{{ section.settings.container }}">`.
+
+### Font sizes (one mobile + one desktop range per text element)
+
+For every text element (title / subheader / description / card titles / etc.), expose **both** a mobile and a desktop range, range `1–12 step 1`. The values map to Bootstrap helpers `fs-{n}` and `fs-lg-{n}`:
+
+```json
+{ "type": "range", "id": "title_font_size_mobile",  "label": "Title font-size | mobile",  "min": 1, "max": 12, "step": 1, "default": 7 },
+{ "type": "range", "id": "title_font_size_desktop", "label": "Title font-size | desktop", "min": 1, "max": 12, "step": 1, "default": 8 }
+```
+```liquid
+{% liquid
+  assign title_fs_mobile  = section.settings.title_font_size_mobile  | prepend: 'fs-'
+  assign title_fs_desktop = section.settings.title_font_size_desktop | prepend: 'fs-lg-'
+%}
+<h2 class="{{ title_fs_mobile }} {{ title_fs_desktop }}">{{ section.settings.title }}</h2>
+```
+If the section has a title/subheader/description trio, render them with `{% render 'section-header', section: section %}` — that snippet already consumes the canonical `title`, `subheader`, `description` fields plus their `*_font_size_mobile` / `*_font_size_desktop` ranges and `animation` / `animation_speed` selects.
+
+### Breakpoints (items-per-row, when applicable)
+
+For grid/carousel sections, expose mobile + desktop counts and a "Scroll on mobile" toggle that maps to `row-cols-{n}` / `row-cols-lg-{n}`. The `-5` suffix on mobile triggers the existing horizontal-scroll CSS:
+
+```json
+{ "type": "header", "content": "Breakpoints", "info": "Adjust items per row based on screen resolution" },
+{ "type": "checkbox", "id": "scroll", "label": "Scroll on mobile", "default": true },
+{ "type": "range", "id": "breakpoint_sm", "label": "Items per row - mobile",  "min": 1, "max": 3, "step": 1, "default": 2 },
+{ "type": "range", "id": "breakpoint_lg", "label": "Items per row - desktop", "min": 1, "max": 6, "step": 1, "default": 3 }
+```
+```liquid
+{% liquid
+  assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-'
+  assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-'
+  if section.settings.scroll
+    assign row_sm = row_sm | append: '-5'
+  endif
+%}
+<div class="row {{ row_sm }} {{ row_lg }} {% if row_sm contains '-5' %}scroll{% endif %}">…</div>
+```
+
+### Spacing (always include)
+
+Padding **and** margin, top **and** bottom, all as `0–20 step 1` ranges that map to Bootstrap spacing utilities:
+
+```json
+{ "type": "header", "content": "Spacing" },
+{ "type": "range", "id": "pt", "label": "Padding top",    "min": 0, "max": 20, "step": 1, "default": 10 },
+{ "type": "range", "id": "pb", "label": "Padding bottom", "min": 0, "max": 20, "step": 1, "default": 10 },
+{ "type": "range", "id": "mt", "label": "Margin top",     "min": 0, "max": 20, "step": 1, "default": 0 },
+{ "type": "range", "id": "mb", "label": "Margin bottom",  "min": 0, "max": 20, "step": 1, "default": 0 }
+```
+```liquid
+{% liquid
+  assign pt = section.settings.pt | prepend: 'pt-'
+  assign pb = section.settings.pb | prepend: 'pb-'
+  assign mt = section.settings.mt | prepend: 'mt-'
+  assign mb = section.settings.mb | prepend: 'mb-'
+%}
+<section class="{{ pt }} {{ pb }} {{ mt }} {{ mb }}">…</section>
+```
+For mobile-vs-desktop padding/margin, add a parallel `*_lg` set and prepend `pt-lg-` / `pb-lg-` / `mt-lg-` / `mb-lg-`.
+
+### Visibility + color scheme (recommended)
+
+```json
+{ "type": "select", "id": "visibility", "label": "Visibility", "default": "d-flex",
+  "options": [
+    { "value": "d-flex",            "label": "All screen sizes" },
+    { "value": "d-sm-none d-lg-flex", "label": "On desktop only" },
+    { "value": "d-lg-none d-sm-flex", "label": "On mobile only" }
+  ]
+},
+{ "type": "color_scheme", "id": "color_scheme", "label": "Color scheme" }
+```
+Render with `class="{{ section.settings.visibility }} color-{{ section.settings.color_scheme }}"`.
+
+## CSS
+
+- Use Bootstrap 5 utilities first: `row`, `col-lg-*`, `position-fixed bottom-0`, `ratio ratio-4x3`, `object-fit-cover`, `order-*`, `border-top`, `card border-0`, `input-group`, `dropdown-menu`.
+- Only use `{% stylesheet %}` for **static** CSS that Bootstrap cannot express (e.g. `env(safe-area-inset-bottom)`, gradient overlays, hover-zoom transforms). **theme-check** (`StaticStylesheetAndJavascriptTags`) disallows Liquid inside `{% stylesheet %}` — no `{{ section.id }}`, no dynamic selectors/keyframes names. For section-scoped rules that need Liquid, use `{% style %}…{% endstyle %}` in the section (or snippet/block) instead.
+- Don't add new global CSS files in `assets/`. Don't use `asset_url` in liquid for component-level styles.
+- For css thats not specifc to a section id, add it to sections.css, same for javascript.
+- **Seamless horizontal loops** built by duplicating content and animating `translateX(-50%)` only line up if the number of duplicated **full block sequences** is **even**; an odd count can cause a visible jump at the loop boundary.
+
+## Translations
+
+- Every user-facing string goes through `{{ 'key' | t }}`.
+- **Storefront** strings (Liquid `| t`, visible on the site): add keys under `locales/en.default.json` (max **3 levels** deep, e.g. `sections.marquee.scrolling_label`). Other locales are for translators.
+- **Theme editor / schema** strings: labels and defaults referenced as `"t:sections.my_section.settings.foo.label"` in `{% schema %}` must exist in **`locales/en.default.schema.json`**, nested under `sections.my_section` (matching the section filename without `.liquid`). If they are missing, **theme-check** reports `ValidSchemaTranslations`. Do not rely on `en.default.json` for those `t:` schema keys in this theme.
+- Hierarchical, snake_case keys, max 3 levels deep for storefront JSON.
+- `general.accessibility.*` keys are missing from this repo's locale file (pre-existing issue carried over from the original Dawn-derived header). theme-check warnings about them are noise unless you're explicitly fixing translations.
+
+## Tooling
+
+- The `scripts/search_docs.mjs` and `scripts/validate.mjs` referenced in the `shopify-liquid` plugin skill **do not exist** in this repo. Use `ReadLints` and `shopify theme check` instead.
+- `shopify theme check` must be run as `shopify theme check` (no file argument); it scans the whole theme and outputs a Unicode-bordered report. Common checks when adding sections: **`StaticStylesheetAndJavascriptTags`** (Liquid in `{% stylesheet %}`) and **`ValidSchemaTranslations`** (`t:` keys not in `en.default.schema.json`).
+- Dev server is started with `shopify theme dev --store newthemebywaj.myshopify.com` (visible in terminal 1).
+
+## Header / navbar architecture
+
+- Active section: [`sections/navbar.liquid`](sections/navbar.liquid) (NOT `sections/header.liquid`).
+- It dispatches to per-layout snippets via `{% case section.settings.layout_desktop %}` and `{% case section.settings.layout_mobile %}`.
+- Mega menu styles live in `snippets/navbar-mega-{columns,promos,tiles}.liquid`, routed by `snippets/navbar-megamenu.liquid` based on `section.settings.mega_menu_style`.
+- Image promos for mega menus come from `mega_promo` section blocks filtered by `parent_position` (1-based index of the top-level menu link).
+- Legacy `Title|image.jpg` link-title convention is still supported as a fallback for backwards compatibility.

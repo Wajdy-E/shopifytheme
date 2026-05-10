@@ -1,0 +1,265 @@
+{% doc %}
+  @param {object} section - Parent section (settings, id).
+  @param {object} block - Milestone block.
+  @param {number} milestone_index - Zero-based index for alternating desktop layout.
+  @param {boolean} is_first - First milestone; used for image loading priority.
+{% enddoc %}
+
+{% liquid
+  assign img_left_lg = false
+  assign layout_full = false
+
+  case block.settings.layout
+    when 'image_left'
+      assign img_left_lg = true
+    when 'image_right'
+      assign img_left_lg = false
+    when 'full_width_image'
+      assign layout_full = true
+    else
+      case section.settings.desktop_layout
+        when 'alternate'
+          assign mod = milestone_index | modulo: 2
+          if mod == 0
+            assign img_left_lg = true
+          endif
+        when 'image_start'
+          assign img_left_lg = true
+        else
+          assign img_left_lg = false
+      endcase
+  endcase
+
+  assign mob_img_first = false
+  if section.settings.mobile_stack == 'image_first'
+    assign mob_img_first = true
+  endif
+
+  if mob_img_first
+    if img_left_lg
+      assign img_order = 'order-1 order-lg-1'
+      assign text_order = 'order-2 order-lg-2'
+    else
+      assign img_order = 'order-1 order-lg-2'
+      assign text_order = 'order-2 order-lg-1'
+    endif
+  else
+    if img_left_lg
+      assign img_order = 'order-2 order-lg-1'
+      assign text_order = 'order-1 order-lg-2'
+    else
+      assign img_order = 'order-2 order-lg-2'
+      assign text_order = 'order-1 order-lg-1'
+    endif
+  endif
+
+  assign ml_fs_m = section.settings.milestone_label_font_size_mobile | prepend: 'fs-'
+  assign ml_fs_d = section.settings.milestone_label_font_size_desktop | prepend: 'fs-lg-'
+  assign mt_fs_m = section.settings.milestone_title_font_size_mobile | prepend: 'fs-'
+  assign mt_fs_d = section.settings.milestone_title_font_size_desktop | prepend: 'fs-lg-'
+  assign mb_fs_m = section.settings.milestone_body_font_size_mobile | prepend: 'fs-'
+  assign mb_fs_d = section.settings.milestone_body_font_size_desktop | prepend: 'fs-lg-'
+
+  assign ratio_class = ''
+  case section.settings.image_ratio
+    when '1x1'
+      assign ratio_class = 'ratio ratio-1x1'
+    when '4x3'
+      assign ratio_class = 'ratio ratio-4x3'
+    when '16x9'
+      assign ratio_class = 'ratio ratio-16x9'
+  endcase
+
+  assign mw = section.settings.max_width_text
+  assign m_text_align = block.settings.text_alignment | default: 'text-start'
+  assign measure_class = 'brand-timeline__measure'
+  if mw != blank
+    assign measure_class = measure_class | append: ' ' | append: mw | append: ' brand-timeline__measure--constrained'
+  endif
+  assign measure_class = measure_class | append: ' ' | append: m_text_align
+
+  assign row_valign = section.settings.content_alignment
+
+  assign has_image = false
+  if block.settings.image != blank
+    assign has_image = true
+  endif
+
+  assign badge_text = ''
+  case block.settings.badge_preset
+    when 'founded'
+      assign badge_text = 'sections.brand_timeline.badge_founded' | t
+    when 'milestone'
+      assign badge_text = 'sections.brand_timeline.badge_milestone' | t
+    when 'award'
+      assign badge_text = 'sections.brand_timeline.badge_award' | t
+    when 'launch'
+      assign badge_text = 'sections.brand_timeline.badge_launch' | t
+    when 'custom'
+      assign badge_text = block.settings.badge_custom
+  endcase
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'low'
+  if is_first and section.index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+
+%}
+<li
+  class="brand-timeline__milestone pb-5 mb-lg-5{% if layout_full %} brand-timeline__milestone--full{% endif %}"
+  {{ block.shopify_attributes }}
+>
+  {% unless section.settings.timeline_style == 'none' %}
+    <span class="brand-timeline__node" aria-hidden="true"><span class="brand-timeline__node-core"></span></span>
+  {% endunless %}
+
+  {% if layout_full %}
+    <div class="brand-timeline__milestone-layout brand-timeline__milestone-layout--full">
+      {% if has_image %}
+        <div class="brand-timeline__media brand-timeline__media--hero w-100">
+          {% if ratio_class != '' %}
+            <div class="{{ ratio_class }} overflow-hidden">
+              {{
+                block.settings.image
+                | image_url: width: 1600
+                | image_tag:
+                  loading: loading,
+                  class: 'brand-timeline__img object-fit-cover w-100 h-100',
+                  widths: '375, 550, 750, 1100, 1500',
+                  sizes: '100vw',
+                  fetchpriority: fetchpriority,
+                  alt: block.settings.image.alt
+              }}
+            </div>
+          {% else %}
+            {{
+              block.settings.image
+              | image_url: width: 1600
+              | image_tag:
+                loading: loading,
+                class: 'brand-timeline__img w-100 img-fluid',
+                widths: '375, 550, 750, 1100, 1500',
+                sizes: '100vw',
+                fetchpriority: fetchpriority,
+                alt: block.settings.image.alt
+            }}
+          {% endif %}
+        </div>
+      {% endif %}
+      <div class="brand-timeline__shell brand-timeline__shell--solo w-100">
+        <div class="{{ measure_class }}">
+          {% if badge_text != blank %}
+            <span class="brand-timeline__badge">
+              {{- badge_text -}}
+            </span>
+          {% endif %}
+          {% unless block.settings.label == blank %}
+            <p class="brand-timeline__eyebrow {{ ml_fs_m }} {{ ml_fs_d }} mb-2">
+              {{ block.settings.label }}
+            </p>
+          {% endunless %}
+          {% unless block.settings.title == blank %}
+            <h3 class="brand-timeline__title {{ mt_fs_m }} {{ mt_fs_d }} mb-3">{{ block.settings.title }}</h3>
+          {% endunless %}
+          {% unless block.settings.text == blank %}
+            <div class="brand-timeline__body rte {{ mb_fs_m }} {{ mb_fs_d }} mb-3">{{ block.settings.text }}</div>
+          {% endunless %}
+          {% if block.settings.link != blank and block.settings.link_label != blank %}
+            <a href="{{ block.settings.link }}" class="brand-timeline__cta">
+              <span>{{ block.settings.link_label }}</span>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% elsif has_image %}
+    <div class="brand-timeline__shell brand-timeline__shell--split w-100">
+      <div class="row brand-timeline__split-row {{ row_valign }}">
+        <div class="col-12 col-lg-6 {{ img_order }}">
+          <div class="brand-timeline__media w-100">
+            {% if ratio_class != '' %}
+              <div class="{{ ratio_class }} overflow-hidden">
+                {{
+                  block.settings.image
+                  | image_url: width: 1200
+                  | image_tag:
+                    loading: loading,
+                    class: 'brand-timeline__img object-fit-cover w-100 h-100',
+                    widths: '375, 550, 750, 1000',
+                    sizes: '(min-width: 992px) 42vw, 100vw',
+                    fetchpriority: fetchpriority,
+                    alt: block.settings.image.alt
+                }}
+              </div>
+            {% else %}
+              {{
+                block.settings.image
+                | image_url: width: 1200
+                | image_tag:
+                  loading: loading,
+                  class: 'brand-timeline__img w-100 img-fluid',
+                  widths: '375, 550, 750, 1000',
+                  sizes: '(min-width: 992px) 42vw, 100vw',
+                  fetchpriority: fetchpriority,
+                  alt: block.settings.image.alt
+              }}
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-12 col-lg-6 {{ text_order }}">
+          <div class="{{ measure_class }}">
+            {% if badge_text != blank %}
+              <span class="brand-timeline__badge">
+                {{- badge_text -}}
+              </span>
+            {% endif %}
+            {% unless block.settings.label == blank %}
+              <p class="brand-timeline__eyebrow {{ ml_fs_m }} {{ ml_fs_d }} mb-2">
+                {{ block.settings.label }}
+              </p>
+            {% endunless %}
+            {% unless block.settings.title == blank %}
+              <h3 class="brand-timeline__title {{ mt_fs_m }} {{ mt_fs_d }} mb-3">{{ block.settings.title }}</h3>
+            {% endunless %}
+            {% unless block.settings.text == blank %}
+              <div class="brand-timeline__body rte {{ mb_fs_m }} {{ mb_fs_d }} mb-3">{{ block.settings.text }}</div>
+            {% endunless %}
+            {% if block.settings.link != blank and block.settings.link_label != blank %}
+              <a href="{{ block.settings.link }}" class="brand-timeline__cta">
+                <span>{{ block.settings.link_label }}</span>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="brand-timeline__shell brand-timeline__shell--text-only w-100">
+      <div class="{{ measure_class }}">
+        {% if badge_text != blank %}
+          <span class="brand-timeline__badge">
+            {{- badge_text -}}
+          </span>
+        {% endif %}
+        {% unless block.settings.label == blank %}
+          <p class="brand-timeline__eyebrow {{ ml_fs_m }} {{ ml_fs_d }} mb-2">
+            {{ block.settings.label }}
+          </p>
+        {% endunless %}
+        {% unless block.settings.title == blank %}
+          <h3 class="brand-timeline__title {{ mt_fs_m }} {{ mt_fs_d }} mb-3">{{ block.settings.title }}</h3>
+        {% endunless %}
+        {% unless block.settings.text == blank %}
+          <div class="brand-timeline__body rte {{ mb_fs_m }} {{ mb_fs_d }} mb-3">{{ block.settings.text }}</div>
+        {% endunless %}
+        {% if block.settings.link != blank and block.settings.link_label != blank %}
+          <a href="{{ block.settings.link }}" class="brand-timeline__cta">
+            <span>{{ block.settings.link_label }}</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</li>

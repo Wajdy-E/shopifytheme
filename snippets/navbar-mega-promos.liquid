@@ -1,0 +1,236 @@
+{% doc %}
+    Renders the "Columns + image promos" mega menu style: a row with text
+    link columns on the left and one or more image promo cards on the
+    right. Image promos come from `mega_promo` section blocks whose
+    `parent_position` matches the given top-level menu position.
+
+    Falls back to the legacy `Title|image.jpg` link-title convention
+    (existing in older theme installs) if no `mega_promo` blocks target
+    this parent position.
+
+    @param {object} section - The parent section object (passed from sections/navbar.liquid).
+    @param {object} link - The top-level menu link.
+    @param {number} parent_position - 1-based position of the link in the desktop menu.
+{% enddoc %}
+
+{%- liquid
+    assign max_cols = section.settings.mega_menu_max_cols | default: 4
+    assign font_classes = section.settings.menu_desktop_font_family | append: ' fs-' | append: section.settings.menu_desktop_font_size
+
+    assign all_promos = section.blocks | where: 'type', 'mega_promo'
+    assign promo_count = 0
+    for promo in all_promos
+        if promo.settings.parent_position == parent_position
+            assign promo_count = promo_count | plus: 1
+        endif
+    endfor
+
+    assign legacy_promo_count = 0
+    if promo_count == 0
+        for child_link in link.links
+            if child_link.title contains '.jpg' or child_link.title contains '.png' or child_link.title contains 'product'
+                assign legacy_promo_count = legacy_promo_count | plus: 1
+            endif
+        endfor
+    endif
+
+    assign has_any_promos = false
+    if promo_count > 0 or legacy_promo_count > 0
+        assign has_any_promos = true
+    endif
+
+    if has_any_promos
+        assign columns_col_class = 'col-lg-8'
+        assign promos_col_class = 'col-lg-4'
+    else
+        assign columns_col_class = 'col-12'
+        assign promos_col_class = 'd-none'
+    endif
+-%}
+
+<div class="mega-promos row g-4">
+    <div class="{{ columns_col_class }}">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-{{ max_cols | at_most: 4 }} g-4">
+            {%- for child_link in link.links -%}
+                {%- liquid
+                    assign is_legacy_image = false
+                    if child_link.title contains '.jpg' or child_link.title contains '.png' or child_link.title contains 'product'
+                        assign is_legacy_image = true
+                    endif
+                -%}
+                {%- if child_link.title == '|' -%}{%- continue -%}{%- endif -%}
+                {%- if is_legacy_image -%}{%- continue -%}{%- endif -%}
+
+                <div class="col mega-column">
+                    {%- if child_link.url == '#' -%}
+                        <h6 class="mega-column__heading mb-3 text-uppercase {{ font_classes }}">
+                            {{ child_link.title }}
+                        </h6>
+                    {%- else -%}
+                        <a
+                            class="mega-column__heading d-block mb-3 text-decoration-none text-uppercase {{ font_classes }} {% if child_link.active %}active{% endif %}"
+                            href="{{ child_link.url }}"
+                            aria-current="{% if child_link.active %}page{% endif %}"
+                        >
+                            {{ child_link.title }}
+                        </a>
+                    {%- endif -%}
+
+                    {%- if child_link.links.size > 0 -%}
+                        <ul class="list-unstyled mb-0">
+                            {%- for grandchild_link in child_link.links -%}
+                                <li>
+                                    <a
+                                        class="dropdown-item rounded {% if grandchild_link.active %}active{% endif %}"
+                                        href="{{ grandchild_link.url }}"
+                                        aria-current="{% if grandchild_link.active %}page{% endif %}"
+                                    >
+                                        {{ grandchild_link.title }}
+                                    </a>
+                                </li>
+                            {%- endfor -%}
+                        </ul>
+                    {%- endif -%}
+                </div>
+            {%- endfor -%}
+        </div>
+    </div>
+
+    {%- if has_any_promos -%}
+        <div class="{{ promos_col_class }}">
+            <div class="row g-3">
+                {%- if promo_count > 0 -%}
+                    {%- for promo in all_promos -%}
+                        {%- if promo.settings.parent_position != parent_position -%}{%- continue -%}{%- endif -%}
+                        <div class="{{ promo.settings.size | default: 'col-6' }}" {{ promo.shopify_attributes }}>
+                            <a
+                                class="mega-promo card border-0 text-decoration-none h-100"
+                                href="{{ promo.settings.link | default: '#' }}"
+                            >
+                                {%- if promo.settings.image -%}
+                                    <div class="ratio ratio-4x3 rounded overflow-hidden mb-2">
+                                        {{ promo.settings.image | image_url: width: 600 | image_tag:
+                                            class: 'mega-promo__img w-100 h-100 object-fit-cover',
+                                            widths: '300, 600, 900',
+                                            sizes: '(max-width: 768px) 50vw, 25vw',
+                                            loading: 'lazy',
+                                            alt: promo.settings.image.alt | default: promo.settings.heading
+                                        }}
+                                    </div>
+                                {%- else -%}
+                                    <div class="ratio ratio-4x3 rounded overflow-hidden mb-2 bg-body-secondary"></div>
+                                {%- endif -%}
+
+                                {%- if promo.settings.heading != blank -%}
+                                    <h6 class="mega-promo__heading mb-1 {{ font_classes }}">
+                                        {{ promo.settings.heading | escape }}
+                                    </h6>
+                                {%- endif -%}
+
+                                {%- if promo.settings.subheading != blank -%}
+                                    <p class="mega-promo__subheading small mb-0 opacity-75">
+                                        {{ promo.settings.subheading | escape }}
+                                    </p>
+                                {%- endif -%}
+                            </a>
+                        </div>
+                    {%- endfor -%}
+                {%- else -%}
+                    {%- comment -%} Legacy fallback: parse 'Title|image.jpg' from child link titles {%- endcomment -%}
+                    {%- for child_link in link.links -%}
+                        {%- liquid
+                            assign is_legacy_image = false
+                            if child_link.title contains '.jpg' or child_link.title contains '.png' or child_link.title contains 'product'
+                                assign is_legacy_image = true
+                            endif
+                        -%}
+                        {%- unless is_legacy_image -%}{%- continue -%}{%- endunless -%}
+
+                        <div class="col-6">
+                            <a class="mega-promo card border-0 text-decoration-none h-100" href="{{ child_link.url }}">
+                                {%- if child_link.title contains 'product' -%}
+                                    {%- assign product = child_link.object -%}
+                                    {%- if product.featured_image -%}
+                                        <div class="ratio ratio-4x3 rounded overflow-hidden mb-2">
+                                            <img
+                                                class="mega-promo__img w-100 h-100 object-fit-cover"
+                                                src="{{ product.featured_image | image_url: width: 480 }}"
+                                                alt="{{ product.featured_image.alt | escape }}"
+                                                width="480"
+                                                height="360"
+                                                loading="lazy"
+                                            >
+                                        </div>
+                                    {%- endif -%}
+                                    <h6 class="mega-promo__heading mb-1 {{ font_classes }}">
+                                        {{ child_link.title | split: '|' | first }}
+                                    </h6>
+                                    <p class="mega-promo__subheading small mb-0 opacity-75">
+                                        {{ product.price | money }}
+                                    </p>
+                                {%- else -%}
+                                    {%- assign image_handle = child_link.title | split: '|' | last | strip -%}
+                                    <div class="ratio ratio-4x3 rounded overflow-hidden mb-2">
+                                        {% comment %}theme-check-disable{% endcomment %}
+                                        <img
+                                            class="mega-promo__img w-100 h-100 object-fit-cover"
+                                            src="{{ image_handle | file_img_url: '480x360', crop: 'center' }}"
+                                            alt=""
+                                            width="480"
+                                            height="360"
+                                            loading="lazy"
+                                        >
+                                        {% comment %}theme-check-enable{% endcomment %}
+                                    </div>
+                                    <h6 class="mega-promo__heading mb-1 {{ font_classes }}">
+                                        {{ child_link.title | split: '|' | first }}
+                                    </h6>
+                                {%- endif -%}
+                            </a>
+                        </div>
+                    {%- endfor -%}
+                {%- endif -%}
+            </div>
+        </div>
+    {%- endif -%}
+</div>
+
+{% stylesheet %}
+    .mega-promos .mega-column__heading {
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        font-size: 0.85rem;
+    }
+
+    .mega-promos a.mega-column__heading {
+        color: inherit;
+    }
+
+    .mega-promos a.mega-column__heading:hover,
+    .mega-promos a.mega-column__heading:focus {
+        text-decoration: underline;
+    }
+
+    .mega-promos .mega-promo {
+        background: transparent;
+        color: inherit;
+        transition: transform 0.2s ease;
+    }
+
+    .mega-promos .mega-promo:hover .mega-promo__img {
+        transform: scale(1.04);
+    }
+
+    .mega-promos .mega-promo__img {
+        transition: transform 0.4s ease;
+    }
+
+    .mega-promos .mega-promo__heading {
+        font-weight: 600;
+    }
+
+    .mega-promos .dropdown-item {
+        padding: 0.35rem 0.5rem;
+        white-space: normal;
+    }
+{% endstylesheet %}

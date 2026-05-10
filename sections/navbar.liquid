@@ -1,4 +1,4 @@
-{% liquid 
+{% liquid
     assign pt = section.settings.pt | prepend: 'pt-'
     assign pb = section.settings.pb | prepend: 'pb-'
 
@@ -11,173 +11,66 @@
     if section.settings.bg_transparent and section.settings.bg_transparent_hover and request.page_type == 'index'
         assign bg_color = bg_color | append: ' navbar-hover navbar-transparent text-white'
     elsif section.settings.bg_transparent and request.page_type == 'index'
-         assign bg_color = bg_color | append: ' navbar-transparent text-white'
+        assign bg_color = bg_color | append: ' navbar-transparent text-white'
     endif
 
     if section.settings.always_show_toggle
         assign navbar_mobile_classes = ''
         assign navbar_desktop_classes = 'd-none'
-    else 
+    else
         assign navbar_mobile_classes = 'd-lg-none'
         assign navbar_desktop_classes = 'd-none d-lg-block'
     endif
+
+    assign navbar_blur_class = ''
+    if section.settings.bg_blur
+        assign navbar_blur_class = 'navbar-bg-blur'
+    endif
+
+    assign navbar_shared_classes = bg_color | append: ' ' | append: section.settings.shadow | append: ' ' | append: navbar_blur_class | append: ' ' | append: pt | append: ' ' | append: pb
 %}
 
+{%- case section.settings.layout_mobile -%}
+    {%- when 'navbar-mobile-bottom-bar' -%}
+        {%- render 'navbar-mobile-bottom-bar',
+            section: section,
+            navbar_classes: navbar_shared_classes,
+            navbar_visibility: navbar_mobile_classes
+        -%}
+    {%- when 'navbar-mobile-with-search' -%}
+        {%- render 'navbar-mobile-search',
+            section: section,
+            navbar_classes: navbar_shared_classes,
+            navbar_visibility: navbar_mobile_classes
+        -%}
+    {%- else -%}
+        {%- render 'navbar-mobile-simple',
+            section: section,
+            navbar_classes: navbar_shared_classes,
+            navbar_visibility: navbar_mobile_classes
+        -%}
+{%- endcase -%}
 
-<nav 
-    id="navbar-mobile" 
-    class="navbar {{ navbar_mobile_classes }} {{ bg_color }} {{ section.settings.shadow }} {% if section.settings.bg_blur %}navbar-bg-blur{% endif %} {{ pt }} {{ pb }}">
-    <div class="container d-block">
-        <div class="row align-items-center">
-            <div class="col-3">
-                <div class="nav flex-nowrap">
-                    <a 
-                        class="nav-link ms-n2"
-                        href="#offcanvas-menu" 
-                        data-bs-toggle="offcanvas" 
-                        aria-controls="offcanvas-menu"
-                        aria-label="{{ 'general.accessibility.menu' | t }}"
-                        role="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
-                        </svg>
-                        {% if section.settings.layout_mobile == 'navbar-mobile-with-search' %}
-                            {% if section.settings.mobile_menu_label %}
-                                <span class="ms-2 extra-small text-uppercase">
-                                    {{ 'general.general.menu' | t }}
-                                </span>
-                            {% else %}
-                                <span class="ms-10 extra-small text-uppercase"></span>
-                            {% endif %}
-                        {% endif %}
-                    </a>
-                </div>
-            </div>
-            <div class="col-6 text-center">
-                <a class="navbar-brand mx-auto py-0" href="{{ routes.root_url }}">
-                    {% if section.settings.logo_mobile or section.settings.logo %}
-                        {% liquid
-                            if section.settings.logo_mobile
-                                assign logo_mobile = section.settings.logo_mobile
-                            else
-                                assign logo_mobile = section.settings.logo
-                            endif
-                            assign logo_height_x2 = section.settings.logo_height_mobile | times: 2 
-                        %}
-                        <img
-                            class="img-fluid"
-                            src="{{ logo_mobile | image_url: height: logo_height_x2 }}" 
-                            alt="{{ shop.name }}"
-                            width="{{ section.settings.logo_height_mobile | times: logo_mobile.aspect_ratio | round }}" 
-                            height="{{ section.settings.logo_height_mobile }}"
-                            loading="lazy">
-                    {% else %}
-                        <span class="fs-5">
-                            {{ shop.name }}
-                        </span>
-                    {% endif %}
-                </a>
-            </div>
-            <div class="col-3">
-                <div class="nav justify-content-end flex-nowrap">
-                    {% if section.settings.layout_mobile == 'navbar-mobile-with-search' %}
-                        <a 
-                            class="nav-link px-3"
-                            href="#offcanvas-search" 
-                            data-bs-toggle="offcanvas" 
-                            aria-controls="CartDrawer"
-                            aria-label="Search"
-                            role="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                        </a>
-                    {% endif %}
-                    {% if shop.customer_accounts_enabled and section.settings.always_show_toggle %}
-                        <a 
-                            class="nav-link d-none d-lg-block {% if template.name == 'login' or template.name == 'account' %}active{% endif %}" 
-                            aria-current="{% if template.name == 'login' or template.name == 'account' %}page{% endif %}" 
-                            href="{{ routes.account_url }}"
-                            aria-label="{{ 'general.accessibility.account' | t }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                        </a>
-                    {% endif %}
-                    {% if settings.wishlist_enable and section.settings.always_show_toggle %}
-                        <a 
-                            class="wishlist-icon nav-link d-none d-lg-block"
-                            href="#offcanvas-wishlist"
-                            data-bs-toggle="offcanvas" 
-                            aria-controls="offcanvas-wishlist" 
-                            aria-label="{{ 'general.accessibility.wishlist' | t }}"
-                            role="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                            <span 
-                                class="wishlist-count-badge badge" 
-                                aria-live="polite"
-                                aria-atomic="true"
-                                hidden>
-                            </span>
-                        </a>
-                    {% endif %}
-                    <a 
-                    class="cart-icon nav-link move-on-hover" 
-                    {% if settings.cart_drawer_disable == true or request.page_type == 'cart' %}
-                        href="{{ routes.cart_url }}" 
-                    {% else %}
-                        class="btn" data-bs-toggle="offcanvas" data-bs-target="#CartDrawer" aria-controls="CartDrawer" href="#CartDrawer"
-                    {% endif %}
-                    aria-label="{{ 'general.accessibility.cart' | t }} {{ cart.item_count }}">
-                    {% render 'cart-icon' %}
-                    <span 
-                        class="cart-count-badge badge"
-                        {% if cart.item_count == 0 %}hidden{% endif %}>
-                        {{ cart.item_count }}
-                    </span>
-                </a>        
-                </div>
-            </div>
-        </div>
-    </div>
-</nav>
-
-<nav 
-    id="navbar-desktop" 
-    class="navbar {{ navbar_desktop_classes }} {{ bg_color }} {{ section.settings.shadow }} {{ section.settings.menu_desktop_trigger }} {% if section.settings.bg_blur %}navbar-bg-blur{% endif %} {{ pt }} {{ pb }}">
-    <div class="{{ section.settings.container }}">
-        <div class="row align-items-center flex-grow-1">
-            <div class="{% if section.settings.layout_desktop == 'navbar-desktop-logo-left' %}col-3{% else %}col-2 order-1 text-center{% endif %}">
-                <a class="navbar-brand me-auto py-0" href="{{ routes.root_url }}">
-                    {% if section.settings.logo %}
-                        {% assign logo_height_x2 = section.settings.logo_height_desktop | times: 2 %}
-                        <img
-                            class="img-fluid"
-                            src="{{ section.settings.logo | image_url: height: logo_height_x2 }}" 
-                            alt="{{ shop.name }}"
-                            width="{{ section.settings.logo_height_desktop | times: section.settings.logo.aspect_ratio | round }}" 
-                            height="{{ section.settings.logo_height_desktop }}"
-                            loading="lazy">
-                    {% else %}
-                        <span class="fs-5">
-                            {{ shop.name }}
-                        </span>
-                    {% endif %}
-                </a>
-            </div>
-            <div class="{% if section.settings.layout_desktop == 'navbar-desktop-logo-left' %}col-6{% else %}col-5 order-0{% endif %}">
-                {% render 'navbar-megamenu' %}
-            </div>
-            <div class="{% if section.settings.layout_desktop == 'navbar-desktop-logo-left' %}col-3{% else %}col-5 order-2{% endif %}">
-                {% render 'navbar-desktop-icons' %}
-            </div>
-        </div>
-    </div>
-</nav>
+{%- case section.settings.layout_desktop -%}
+    {%- when 'navbar-desktop-stacked' -%}
+        {%- render 'navbar-desktop-stacked',
+            section: section,
+            navbar_classes: navbar_shared_classes,
+            navbar_visibility: navbar_desktop_classes
+        -%}
+    {%- when 'navbar-desktop-logo-center' -%}
+        {%- render 'navbar-desktop-split',
+            section: section,
+            navbar_classes: navbar_shared_classes,
+            navbar_visibility: navbar_desktop_classes
+        -%}
+    {%- else -%}
+        {%- render 'navbar-desktop-classic',
+            section: section,
+            navbar_classes: navbar_shared_classes,
+            navbar_visibility: navbar_desktop_classes
+        -%}
+{%- endcase -%}
 
 {% render 'offcanvas-menu' %}
 
@@ -203,7 +96,7 @@
         "url": {{ request.origin | append: page.url | json }}
     }
 </script>
-  
+
 {%- if request.page_type == 'index' -%}
     {% assign potential_action_target = request.origin | append: routes.search_url | append: "?q={search_term_string}" %}
     <script type="application/ld+json">
@@ -231,7 +124,7 @@
             "content": "General"
         },
         {
-            "type": "select", 
+            "type": "select",
             "id": "bg_color",
             "label": "Background color",
             "default": "bg-body text-body",
@@ -303,7 +196,8 @@
             "label": "Layout - mobile",
             "options": [
                 { "value": "navbar-mobile-simple", "label": "Simple" },
-                { "value": "navbar-mobile-with-search", "label": "With Search" }
+                { "value": "navbar-mobile-with-search", "label": "With search" },
+                { "value": "navbar-mobile-bottom-bar", "label": "Bottom navigation bar" }
             ],
             "default": "navbar-mobile-with-search"
         },
@@ -312,8 +206,9 @@
             "id": "layout_desktop",
             "label": "Layout - desktop",
             "options": [
-                { "value": "navbar-desktop-logo-left", "label": "Logo left (default)" },
-                { "value": "navbar-desktop-logo-center", "label": "Logo center" }
+                { "value": "navbar-desktop-logo-left", "label": "Classic (logo left)" },
+                { "value": "navbar-desktop-logo-center", "label": "Split (logo center)" },
+                { "value": "navbar-desktop-stacked", "label": "Stacked (multi-row)" }
             ],
             "default": "navbar-desktop-logo-left"
         },
@@ -404,6 +299,7 @@
             "label": "Font-size",
             "min": 1,
             "max": 6,
+            "step": 1,
             "default": 2
         },
         {
@@ -473,7 +369,51 @@
             "label": "Font-size",
             "min": 1,
             "max": 6,
+            "step": 1,
             "default": 2
+        },
+        {
+            "type": "select",
+            "id": "mega_menu_style",
+            "label": "Mega menu style",
+            "info": "Applies when a top-level menu link has 2+ levels of children.",
+            "options": [
+                { "value": "mega-columns", "label": "Columns" },
+                { "value": "mega-with-promos", "label": "Columns + image promos" },
+                { "value": "mega-image-tiles", "label": "Image tiles" }
+            ],
+            "default": "mega-with-promos"
+        },
+        {
+            "type": "range",
+            "id": "mega_menu_max_cols",
+            "label": "Mega menu max columns",
+            "min": 2,
+            "max": 6,
+            "step": 1,
+            "default": 4
+        },
+        {
+            "type": "checkbox",
+            "id": "enable_search_bar_desktop",
+            "label": "Show inline search bar",
+            "info": "Always shown for the Stacked layout.",
+            "default": false
+        },
+        {
+            "type": "header",
+            "content": "Top bar (Stacked layout)"
+        },
+        {
+            "type": "text",
+            "id": "top_bar_text",
+            "label": "Top bar text",
+            "info": "Small text shown above the navbar in the Stacked layout."
+        },
+        {
+            "type": "url",
+            "id": "top_bar_link",
+            "label": "Top bar link"
         },
         {
             "type": "header",
@@ -496,6 +436,56 @@
             "max": 6,
             "step": 1,
             "default": 3
+        }
+    ],
+    "blocks": [
+        {
+            "type": "mega_promo",
+            "name": "Mega menu image / promo",
+            "limit": 12,
+            "settings": [
+                {
+                    "type": "range",
+                    "id": "parent_position",
+                    "label": "Attach to top-level menu item #",
+                    "info": "1 = first link in the desktop menu, 2 = second, etc.",
+                    "min": 1,
+                    "max": 12,
+                    "step": 1,
+                    "default": 1
+                },
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": "Image"
+                },
+                {
+                    "type": "text",
+                    "id": "heading",
+                    "label": "Heading"
+                },
+                {
+                    "type": "text",
+                    "id": "subheading",
+                    "label": "Subheading"
+                },
+                {
+                    "type": "url",
+                    "id": "link",
+                    "label": "Link"
+                },
+                {
+                    "type": "select",
+                    "id": "size",
+                    "label": "Size",
+                    "options": [
+                        { "value": "col-12", "label": "Full width" },
+                        { "value": "col-6", "label": "Half" },
+                        { "value": "col-4", "label": "Third" }
+                    ],
+                    "default": "col-6"
+                }
+            ]
         }
     ],
     "presets": [

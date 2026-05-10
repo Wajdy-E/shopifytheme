@@ -1,0 +1,135 @@
+{% doc %}
+  Renders one shoppable lookbook hotspot (pin button + product popover).
+
+  @param {object} section - Parent section.
+  @param {object} block - Hotspot block.
+  @param {object} forloop - Parent `forloop` object (for numbered pins and index).
+{% enddoc %}
+{% liquid
+  assign product = block.settings.product
+  assign pin_style = section.settings.pin_style_default
+  if block.settings.pin_style_override
+    assign pin_style = block.settings.pin_style
+  endif
+  assign a11y_label = block.settings.label
+  if a11y_label == blank and product != blank
+    assign a11y_label = 'sections.lookbook.view_product' | t: title: product.title
+  elsif a11y_label == blank
+    assign a11y_label = 'sections.lookbook.view_product' | t: title: 'Product'
+  endif
+%}
+<button
+  type="button"
+  class="lookbook-pin {% if pin_style == 'number' %}lookbook-pin--number{% endif %} {% if section.settings.pin_animation == 'pulse' %}is-pulse{% endif %} {% if block.settings.highlight %}is-highlight{% endif %}"
+  data-lookbook-pin
+  data-lookbook-block="{{ block.id }}"
+  aria-controls="LookbookPopover-{{ section.id }}-{{ block.id }}"
+  aria-expanded="false"
+  style="--x: {{ block.settings.x }}%; --y: {{ block.settings.y }}%;"
+  {{ block.shopify_attributes }}
+>
+  <span class="lookbook-pin__inner lookbook-pin__inner--{{ pin_style }}" aria-hidden="true">
+    {% if pin_style == 'plus' %}
+      <span class="lookbook-pin__plus" aria-hidden="true"></span>
+    {% elsif pin_style == 'number' %}
+      <span class="lookbook-pin__number" aria-hidden="true">
+        {% if block.settings.label != blank %}
+          {{ block.settings.label }}
+        {% else %}
+          {{ forloop.index }}
+        {% endif %}
+      </span>
+    {% endif %}
+  </span>
+  <span class="visually-hidden">{{ a11y_label }}</span>
+</button>
+
+<div
+  id="LookbookPopover-{{ section.id }}-{{ block.id }}"
+  class="lookbook-popover lookbook-popover--{{ section.settings.card_style }}"
+  data-lookbook-popover
+  data-lookbook-block="{{ block.id }}"
+  data-lookbook-align="{{ block.settings.desktop_align }}"
+  style="--x: {{ block.settings.x }}%; --y: {{ block.settings.y }}%;"
+  role="dialog"
+  aria-label="{{ a11y_label }}"
+  hidden
+>
+  <div class="lookbook-popover__card">
+    <button type="button" class="lookbook-popover__close" data-lookbook-close>
+      <span class="lookbook-popover__close-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">{{ 'sections.lookbook.close' | t }}</span>
+    </button>
+
+    <div class="lookbook-popover__content">
+      {% if product == blank %}
+        <div class="lookbook-card lookbook-card--empty">
+          <div class="lookbook-card__meta">
+            <p class="m-0 text-body-secondary">{{ 'sections.lookbook.missing_product' | t }}</p>
+          </div>
+        </div>
+      {% else %}
+        {% liquid
+          assign price = product.selected_or_first_available_variant.price
+          assign compare_at = product.selected_or_first_available_variant.compare_at_price
+          assign on_sale = false
+          if compare_at != blank and compare_at > price
+            assign on_sale = true
+          endif
+        %}
+        <div class="lookbook-card">
+          <a class="lookbook-card__media" href="{{ product.url }}" tabindex="-1">
+            {% if product.featured_image != blank %}
+              {{
+                product.featured_image
+                | image_url: width: 560
+                | image_tag:
+                  widths: '120, 180, 240, 360, 560',
+                  sizes: '120px',
+                  class: 'lookbook-card__img',
+                  loading: 'lazy',
+                  alt: product.featured_image.alt | default: product.title
+              }}
+            {% endif %}
+          </a>
+
+          <div class="lookbook-card__meta">
+            <div class="lookbook-card__meta-top">
+              {% if section.settings.show_vendor and product.vendor != blank %}
+                <span class="lookbook-card__vendor-pill">{{ product.vendor }}</span>
+              {% endif %}
+              {% if on_sale %}
+                <span class="lookbook-card__badge-sale">{{ 'products.product.on_sale' | t }}</span>
+              {% endif %}
+            </div>
+
+            <h3 class="lookbook-card__heading h6 mb-0">
+              <a href="{{ product.url }}" class="lookbook-card__title-link">{{ product.title }}</a>
+            </h3>
+
+            {% if section.settings.show_price %}
+              <div class="lookbook-card__price-row">
+                <span class="lookbook-card__price-current {% if on_sale %}text-primary{% endif %}">{{ price | money }}</span>
+                {% if section.settings.show_compare_at_price and on_sale %}
+                  <s class="lookbook-card__price-compare">{{ compare_at | money }}</s>
+                {% endif %}
+              </div>
+            {% endif %}
+
+            <div class="lookbook-card__cta">
+              <a class="lookbook-card__cta-btn btn btn-primary btn-sm w-100" href="{{ product.url }}">
+                {% liquid
+                  assign cta_text = section.settings.cta_label
+                  if cta_text == blank
+                    assign cta_text = 'sections.lookbook.shop_now' | t
+                  endif
+                %}
+                {{ cta_text }}
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

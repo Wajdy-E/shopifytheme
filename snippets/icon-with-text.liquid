@@ -1,32 +1,33 @@
 {% unless title == blank %}
-  <div
-    class="
-      icon-with-text d-flex {{ height }} {{ orientation }} {{ text_alignment }} {{ inner_block_shadow }} p-5 rounded {{ border }}
-      {% if animation_class and animation_class != '' %}animate__animated opacity-0 {{ animation_speed }}{% endif %} {{ classes }}"
-    style="background-color: {{ block_bg_color }}; animation-delay: {{ animation_delay }}ms;"
-    data-animate-class="{{ animation_class }}"
-    {{ shopify_attributes }}
-  >
-    {% if icon == 'none' and svg_url != blank %}
-      <div class="custom-icon" style="width: {{ icon_size }}px; height: {{ icon_size }}px;">
-        {{ svg_url }}
-      </div>
-    {% else %}
-      {% render 'icon-accordion', icon: icon, size: icon_size, color: icon_color %}
-    {% endif %}
-    <div class="text-content {% if orientation == 'flex-column' %} mt-5 {% else %} ms-7{% endif %}">
-      <h3
-        class="fs-{{ title_font_size_mobile }} fs-lg-{{ title_font_size_desktop }} my-3"
-        style="color: {{ text_color }};"
-      >
-        {{ title }}
-      </h3>
-      <p
-        class="fs-{{ description_font_size_mobile }} fs-lg-{{ description_font_size_desktop }}"
-        style="color: {{ text_color }};"
-      >
-        {{ description }}
-      </p>
-    </div>
-  </div>
+	<div
+		class="
+			icon-with-text d-flex {{ height }} {{ orientation }} {{ text_alignment }} {{ inner_block_shadow }} p-5 rounded {{ border }}
+			{% if animation_class and animation_class != '' %}animate__animated opacity-0 {{ animation_speed }}{% endif %} {{ classes }}
+		"
+		style="background-color: {{ block_bg_color }}; animation-delay: {{ animation_delay }}ms;"
+		data-animate-class="{{ animation_class }}"
+		{{ shopify_attributes }}
+	>
+		{% if icon == 'none' and svg_url != blank %}
+			<div class="custom-icon" style="width: {{ icon_size }}px; height: {{ icon_size }}px;">
+				{{ svg_url }}
+			</div>
+		{% else %}
+			{% render 'icon-accordion', icon: icon, size: icon_size, color: icon_color %}
+		{% endif %}
+		<div class="text-content {% if orientation == 'flex-column' %} mt-5 {% else %} ms-7{% endif %}">
+			<h3
+				class="fs-{{ title_font_size_mobile }} fs-lg-{{ title_font_size_desktop }} my-3"
+				style="color: {{ text_color }};"
+			>
+				{{ title }}
+			</h3>
+			<p
+				class="fs-{{ description_font_size_mobile }} fs-lg-{{ description_font_size_desktop }}"
+				style="color: {{ text_color }};"
+			>
+				{{ description }}
+			</p>
+		</div>
+	</div>
 {% endunless %}

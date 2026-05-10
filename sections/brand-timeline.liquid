@@ -1,0 +1,541 @@
+{% liquid
+  assign pt = section.settings.pt | prepend: 'pt-'
+  assign pb = section.settings.pb | prepend: 'pb-'
+  assign mt = section.settings.mt | prepend: 'mt-'
+  assign mb = section.settings.mb | prepend: 'mb-'
+  assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+
+  assign visibility_class = 'd-flex'
+  if section.settings.visibility != blank and section.settings.visibility != nil
+    assign visibility_class = section.settings.visibility
+  endif
+
+  assign list_modifier = ''
+  if section.settings.timeline_style == 'line'
+    assign list_modifier = 'brand-timeline__list--line'
+  elsif section.settings.timeline_style == 'minimal'
+    assign list_modifier = 'brand-timeline__list--minimal'
+  endif
+
+%}
+
+<section
+  id="brand-timeline-{{ section.id }}"
+  class="brand-timeline brand-timeline--style-{{ section.settings.timeline_style }}{% if section.settings.enable_max_image_height %} brand-timeline--cap-image-height{% endif %} enter-view overflow-hidden {{ visibility_class }} flex-column justify-content-center {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }}"
+  {% if section.settings.enable_max_image_height %}
+    style="--bt-img-max-h-mobile: {{ section.settings.max_image_height_mobile }}px; --bt-img-max-h-lg: {{ section.settings.max_image_height_desktop }}px;"
+  {% endif %}
+>
+  <div class="{{ section.settings.container }} {{ section.settings.text_align }}">
+    {% render 'section-header', section: section %}
+  </div>
+
+  {% if section.blocks.size > 0 %}
+    <div class="{{ section.settings.container }}">
+      <ol
+        class="list-unstyled brand-timeline__list {{ list_modifier }}"
+        aria-label="{{ 'sections.brand_timeline.timeline_region_aria' | t }}"
+      >
+        {% for block in section.blocks %}
+          {% render 'brand-timeline-milestone',
+            section: section,
+            block: block,
+            milestone_index: forloop.index0,
+            is_first: forloop.first
+          %}
+        {% endfor %}
+      </ol>
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.brand_timeline.name",
+  "class": "section-brand-timeline",
+  "settings": [
+    {
+      "type": "select",
+      "id": "visibility",
+      "label": "t:sections.marquee.settings.visibility.label",
+      "default": "d-flex",
+      "options": [
+        { "value": "d-flex", "label": "t:sections.marquee.settings.visibility.options.all" },
+        { "value": "d-sm-none d-lg-flex", "label": "t:sections.marquee.settings.visibility.options.desktop_only" },
+        { "value": "d-lg-none d-sm-flex", "label": "t:sections.marquee.settings.visibility.options.mobile_only" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "t:sections.marquee.settings.container.label",
+      "default": "container",
+      "options": [
+        { "value": "container", "label": "t:sections.marquee.settings.container.options.container" },
+        { "value": "container-fluid", "label": "t:sections.marquee.settings.container.options.fluid" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.marquee.settings.color_scheme.label"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "t:sections.brand_timeline.settings.heading_text_align.label",
+      "info": "t:sections.brand_timeline.settings.heading_text_align.info",
+      "default": "text-center",
+      "options": [
+        { "value": "text-start", "label": "t:sections.marquee.settings.text_align.options.left" },
+        { "value": "text-center", "label": "t:sections.marquee.settings.text_align.options.center" },
+        { "value": "text-end", "label": "t:sections.brand_timeline.settings.heading_text_align.options.right" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.marquee.settings.title.label",
+      "default": "t:sections.brand_timeline.settings.title.default"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_mobile",
+      "label": "t:sections.marquee.settings.title_font_size_mobile.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_desktop",
+      "label": "t:sections.marquee.settings.title_font_size_desktop.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "text",
+      "id": "subheader",
+      "label": "t:sections.marquee.settings.subheader.label",
+      "default": "t:sections.brand_timeline.settings.subheader.default"
+    },
+    {
+      "type": "range",
+      "id": "subheader_font_size_mobile",
+      "label": "t:sections.marquee.settings.subheader_font_size_mobile.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "subheader_font_size_desktop",
+      "label": "t:sections.marquee.settings.subheader_font_size_desktop.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.marquee.settings.description.label",
+      "default": "t:sections.brand_timeline.settings.description.default"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_mobile",
+      "label": "t:sections.marquee.settings.description_font_size_mobile.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_desktop",
+      "label": "t:sections.marquee.settings.description_font_size_desktop.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "t:sections.marquee.settings.animation.label",
+      "default": "animate__fadeInUp",
+      "options": [
+        { "group": "t:sections.marquee.settings.animation.groups.disabled", "value": "", "label": "t:sections.marquee.settings.animation.options.none" },
+        { "group": "t:sections.marquee.settings.animation.groups.fade", "value": "animate__fadeIn", "label": "t:sections.marquee.settings.animation.options.fade_in" },
+        { "group": "t:sections.marquee.settings.animation.groups.fade", "value": "animate__fadeInDown", "label": "t:sections.marquee.settings.animation.options.fade_in_down" },
+        { "group": "t:sections.marquee.settings.animation.groups.fade", "value": "animate__fadeInLeft", "label": "t:sections.marquee.settings.animation.options.fade_in_left" },
+        { "group": "t:sections.marquee.settings.animation.groups.fade", "value": "animate__fadeInRight", "label": "t:sections.marquee.settings.animation.options.fade_in_right" },
+        { "group": "t:sections.marquee.settings.animation.groups.fade", "value": "animate__fadeInUp", "label": "t:sections.marquee.settings.animation.options.fade_in_up" },
+        { "group": "t:sections.marquee.settings.animation.groups.zoom", "value": "animate__zoomIn", "label": "t:sections.marquee.settings.animation.options.zoom_in" },
+        { "group": "t:sections.marquee.settings.animation.groups.zoom", "value": "animate__zoomInDown", "label": "t:sections.marquee.settings.animation.options.zoom_in_down" },
+        { "group": "t:sections.marquee.settings.animation.groups.zoom", "value": "animate__zoomInLeft", "label": "t:sections.marquee.settings.animation.options.zoom_in_left" },
+        { "group": "t:sections.marquee.settings.animation.groups.zoom", "value": "animate__zoomInRight", "label": "t:sections.marquee.settings.animation.options.zoom_in_right" },
+        { "group": "t:sections.marquee.settings.animation.groups.zoom", "value": "animate__zoomInUp", "label": "t:sections.marquee.settings.animation.options.zoom_in_up" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "label": "t:sections.marquee.settings.animation_speed.label",
+      "default": "animate__fast",
+      "options": [
+        { "value": "animate__slower", "label": "t:sections.marquee.settings.animation_speed.options.slower" },
+        { "value": "animate__slow", "label": "t:sections.marquee.settings.animation_speed.options.slow" },
+        { "value": "", "label": "t:sections.marquee.settings.animation_speed.options.normal" },
+        { "value": "animate__fast", "label": "t:sections.marquee.settings.animation_speed.options.fast" },
+        { "value": "animate__faster", "label": "t:sections.marquee.settings.animation_speed.options.faster" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brand_timeline.settings.header_timeline.content"
+    },
+    {
+      "type": "select",
+      "id": "desktop_layout",
+      "label": "t:sections.brand_timeline.settings.desktop_layout.label",
+      "default": "alternate",
+      "options": [
+        { "value": "alternate", "label": "t:sections.brand_timeline.settings.desktop_layout.options.alternate" },
+        { "value": "image_start", "label": "t:sections.brand_timeline.settings.desktop_layout.options.image_start" },
+        { "value": "text_start", "label": "t:sections.brand_timeline.settings.desktop_layout.options.text_start" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "mobile_stack",
+      "label": "t:sections.brand_timeline.settings.mobile_stack.label",
+      "default": "image_first",
+      "options": [
+        { "value": "image_first", "label": "t:sections.brand_timeline.settings.mobile_stack.options.image_first" },
+        { "value": "text_first", "label": "t:sections.brand_timeline.settings.mobile_stack.options.text_first" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "t:sections.brand_timeline.settings.content_alignment.label",
+      "info": "t:sections.brand_timeline.settings.content_alignment.info",
+      "default": "align-items-center",
+      "options": [
+        { "value": "align-items-start", "label": "t:sections.brand_timeline.settings.content_alignment.options.top" },
+        { "value": "align-items-center", "label": "t:sections.brand_timeline.settings.content_alignment.options.center" },
+        { "value": "align-items-end", "label": "t:sections.brand_timeline.settings.content_alignment.options.bottom" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "timeline_style",
+      "label": "t:sections.brand_timeline.settings.timeline_style.label",
+      "default": "line",
+      "options": [
+        { "value": "line", "label": "t:sections.brand_timeline.settings.timeline_style.options.line" },
+        { "value": "minimal", "label": "t:sections.brand_timeline.settings.timeline_style.options.minimal" },
+        { "value": "none", "label": "t:sections.brand_timeline.settings.timeline_style.options.none" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:sections.brand_timeline.settings.image_ratio.label",
+      "default": "4x3",
+      "options": [
+        { "value": "adapt", "label": "t:sections.brand_timeline.settings.image_ratio.options.adapt" },
+        { "value": "1x1", "label": "t:sections.brand_timeline.settings.image_ratio.options.1x1" },
+        { "value": "4x3", "label": "t:sections.brand_timeline.settings.image_ratio.options.4x3" },
+        { "value": "16x9", "label": "t:sections.brand_timeline.settings.image_ratio.options.16x9" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brand_timeline.settings.header_image_max_height.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_max_image_height",
+      "label": "t:sections.brand_timeline.settings.enable_max_image_height.label",
+      "info": "t:sections.brand_timeline.settings.enable_max_image_height.info",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "max_image_height_mobile",
+      "label": "t:sections.brand_timeline.settings.max_image_height_mobile.label",
+      "min": 100,
+      "max": 700,
+      "step": 10,
+      "unit": "px",
+      "default": 360
+    },
+    {
+      "type": "range",
+      "id": "max_image_height_desktop",
+      "label": "t:sections.brand_timeline.settings.max_image_height_desktop.label",
+      "min": 120,
+      "max": 1100,
+      "step": 10,
+      "unit": "px",
+      "default": 560
+    },
+    {
+      "type": "select",
+      "id": "max_width_text",
+      "label": "t:sections.brand_timeline.settings.max_width_text.label",
+      "default": "brand-timeline__copy--md",
+      "options": [
+        { "value": "", "label": "t:sections.brand_timeline.settings.max_width_text.options.full" },
+        { "value": "brand-timeline__copy--sm", "label": "t:sections.brand_timeline.settings.max_width_text.options.sm" },
+        { "value": "brand-timeline__copy--md", "label": "t:sections.brand_timeline.settings.max_width_text.options.md" },
+        { "value": "brand-timeline__copy--lg", "label": "t:sections.brand_timeline.settings.max_width_text.options.lg" },
+        { "value": "brand-timeline__copy--xl", "label": "t:sections.brand_timeline.settings.max_width_text.options.xl" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brand_timeline.settings.header_typography.content"
+    },
+    {
+      "type": "range",
+      "id": "milestone_label_font_size_mobile",
+      "label": "t:sections.brand_timeline.settings.milestone_label_font_size_mobile.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "milestone_label_font_size_desktop",
+      "label": "t:sections.brand_timeline.settings.milestone_label_font_size_desktop.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "milestone_title_font_size_mobile",
+      "label": "t:sections.brand_timeline.settings.milestone_title_font_size_mobile.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "milestone_title_font_size_desktop",
+      "label": "t:sections.brand_timeline.settings.milestone_title_font_size_desktop.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "range",
+      "id": "milestone_body_font_size_mobile",
+      "label": "t:sections.brand_timeline.settings.milestone_body_font_size_mobile.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "milestone_body_font_size_desktop",
+      "label": "t:sections.brand_timeline.settings.milestone_body_font_size_desktop.label",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "t:sections.marquee.settings.header_spacing.content"
+    },
+    {
+      "type": "range",
+      "id": "pt",
+      "label": "t:sections.marquee.settings.pt.label",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "pb",
+      "label": "t:sections.marquee.settings.pb.label",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mt",
+      "label": "t:sections.marquee.settings.mt.label",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mb",
+      "label": "t:sections.marquee.settings.mb.label",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "milestone",
+      "name": "t:sections.brand_timeline.blocks.milestone.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.label.label",
+          "default": "t:sections.brand_timeline.blocks.milestone.settings.label.default"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.title.label",
+          "default": "t:sections.brand_timeline.blocks.milestone.settings.title.default"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.text.label",
+          "default": "t:sections.brand_timeline.blocks.milestone.settings.text.default"
+        },
+        {
+          "type": "select",
+          "id": "badge_preset",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.badge_preset.label",
+          "default": "none",
+          "options": [
+            { "value": "none", "label": "t:sections.brand_timeline.blocks.milestone.settings.badge_preset.options.none" },
+            { "value": "founded", "label": "t:sections.brand_timeline.blocks.milestone.settings.badge_preset.options.founded" },
+            { "value": "milestone", "label": "t:sections.brand_timeline.blocks.milestone.settings.badge_preset.options.milestone" },
+            { "value": "award", "label": "t:sections.brand_timeline.blocks.milestone.settings.badge_preset.options.award" },
+            { "value": "launch", "label": "t:sections.brand_timeline.blocks.milestone.settings.badge_preset.options.launch" },
+            { "value": "custom", "label": "t:sections.brand_timeline.blocks.milestone.settings.badge_preset.options.custom" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "badge_custom",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.badge_custom.label"
+        },
+        {
+          "type": "select",
+          "id": "layout",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.layout.label",
+          "default": "default",
+          "options": [
+            { "value": "default", "label": "t:sections.brand_timeline.blocks.milestone.settings.layout.options.default" },
+            { "value": "image_left", "label": "t:sections.brand_timeline.blocks.milestone.settings.layout.options.image_left" },
+            { "value": "image_right", "label": "t:sections.brand_timeline.blocks.milestone.settings.layout.options.image_right" },
+            { "value": "full_width_image", "label": "t:sections.brand_timeline.blocks.milestone.settings.layout.options.full_width_image" }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.text_alignment.label",
+          "default": "text-start",
+          "options": [
+            { "value": "text-start", "label": "t:sections.brand_timeline.blocks.milestone.settings.text_alignment.options.left" },
+            { "value": "text-center", "label": "t:sections.brand_timeline.blocks.milestone.settings.text_alignment.options.center" },
+            { "value": "text-end", "label": "t:sections.brand_timeline.blocks.milestone.settings.text_alignment.options.right" }
+          ]
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.link.label"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "t:sections.brand_timeline.blocks.milestone.settings.link_label.label",
+          "default": "t:sections.brand_timeline.blocks.milestone.settings.link_label.default"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.brand_timeline.presets.name",
+      "category": "t:sections.brand_timeline.presets.category",
+      "blocks": [
+        {
+          "type": "milestone",
+          "settings": {
+            "label": "2018",
+            "title": "Where it started",
+            "text": "<p>We opened our first studio with a simple promise: craft goods that last.</p>",
+            "badge_preset": "founded",
+            "layout": "full_width_image"
+          }
+        },
+        {
+          "type": "milestone",
+          "settings": {
+            "label": "2020",
+            "title": "First flagship",
+            "text": "<p>A second home for the brand—designed for slow shopping and honest materials.</p>",
+            "badge_preset": "milestone"
+          }
+        },
+        {
+          "type": "milestone",
+          "settings": {
+            "label": "2022",
+            "title": "Responsible sourcing",
+            "text": "<p>We partnered with mills that meet our environmental and labor standards.</p>",
+            "badge_preset": "launch"
+          }
+        },
+        {
+          "type": "milestone",
+          "settings": {
+            "label": "2024",
+            "title": "Community grant",
+            "text": "<p>We reinvested in local makers through a recurring annual fund.</p>",
+            "badge_preset": "award"
+          }
+        },
+        {
+          "type": "milestone",
+          "settings": {
+            "label": "Today",
+            "title": "Still building",
+            "text": "<p>Every season is a chapter—written with care, not hurry.</p>",
+            "badge_preset": "none"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
