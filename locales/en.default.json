@@ -114,7 +114,13 @@
     "quantity": "Quantity"
   },
   "collection": {
-    "btn_filter_products": "Filter products"
+    "btn_filter_products": "Filter products",
+    "card_explore_collection": "Explore collection",
+    "card_shop_collection": "Shop collection",
+    "card_shop_now": "Shop now",
+    "card_products_count": "{{ count }} products",
+    "card_items_suffix": "items",
+    "card_eyebrow": "Collection"
   },
   "product": {
     "select_variant": "Select a variant",
@@ -124,7 +130,13 @@
     "buy_it_now": "Buy it now",
     "price_regular": "Regular price",
     "price_sale": "Sale price",
-    "price_from": "From {{ price }}"
+    "price_from": "From {{ price }}",
+    "quick_view": "Quick view",
+    "quick_view_thumbnails": "Quick view product images",
+    "premium_collection": "Premium collection",
+    "save_amount": "Save {{ amount }}",
+    "reviews_count": "({{ count }} reviews)",
+    "view_count": "{{ count }} views"
   },
   "newsletter": {
     "label": "Email",
@@ -333,6 +345,9 @@
     }
   },
   "sections": {
+    "accordion": {
+      "default_header": "Question"
+    },
     "announcements": {
       "previous_announcement": "Previous announcement",
       "next_announcement": "Next announcement",
@@ -414,7 +429,8 @@
       "shop_now": "Shop now",
       "close": "Close",
       "missing_product": "Select a product for this hotspot.",
-      "view_product": "View {{ title }}"
+      "view_product": "View {{ title }}",
+      "slider_region_label": "Products in this look"
     },
     "brand_timeline": {
       "timeline_region_aria": "Brand story timeline",

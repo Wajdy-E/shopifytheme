@@ -30,6 +30,7 @@ alwaysApply: true
 - Shopify caps **`range` step count at 101** (i.e. `(max - min) / step + 1` must be ≤ 101). Exceeding that fails upload / remote validation (CLI: “step invalid. Range settings must have at most 101 steps”). Widen `step` or narrow `min`/`max` until the count fits.
 - Use CSS variables for single-property settings, CSS classes for multi-property settings (see `shopify-liquid` skill).
 - Backward-compat for renamed select values: keep the old `value` strings as aliases in `{% case %}` routers so existing templates don't break.
+- **Theme editor `info` text** (and any merchant-visible setting description): write for **store owners**, not developers. Describe what appears on the storefront and what the setting changes in plain language. Avoid **library or framework names** (e.g. Splide, Bootstrap), **code/API terms** (e.g. `perPage`, props, hooks), and **implementation jargon** merchants do not need to implement the feature.
 
 ## Images
 

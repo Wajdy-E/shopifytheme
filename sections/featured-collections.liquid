@@ -20,9 +20,9 @@
     {{ pt }} {{ pb }} {{ mt }} {{ mb }} {{ color_scheme_class }}">
     <div class="{{ section.settings.container }}">
         {% render 'section-header', section: section %}   
-        <div class="row g-{{ settings.collection_card_gap }} {{ section.settings.aspect_ratio }} {{ row_sm }} {{ row_lg }} {% if row_sm contains '-5' %}scroll{% endif %}">
+        <div class="row g-{{ settings.collection_card_gap }} {{ row_sm }} {{ row_lg }} {% if row_sm contains '-5' %}scroll{% endif %}">
             {% for block in section.blocks %}
-                {% render 'collection-card', collection: collections[block.settings.collection], block: block, index: forloop.index %}
+                {% render 'collection-card', collection: collections[block.settings.collection], block: block, section: section, index: forloop.index0 %}
             {% endfor %}
         </div>
     </div>
@@ -208,7 +208,27 @@
         { "value": "portrait", "label": "Portrait" },
         { "value": "circle", "label": "Circle" }
       ],
-      "info": "Applies once a collection or image is selected."
+      "info": "Controls collection card image proportions."
+    },
+    {
+      "type": "select",
+      "id": "collection_image_height_mode",
+      "label": "Image height",
+      "default": "auto",
+      "options": [
+        { "value": "auto", "label": "Auto (from orientation)" },
+        { "value": "fixed", "label": "Fixed height" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "collection_image_height",
+      "label": "Fixed image height",
+      "min": 200,
+      "max": 560,
+      "step": 20,
+      "default": 320,
+      "info": "Used when image height is set to fixed. Same height across all cards in this section."
     },
     {
       "type": "select",
@@ -328,13 +348,27 @@
           "type": "image_picker",
           "id": "img",
           "label": "Image",
-          "info": "In case you prefer to use a different image"
+          "info": "Shows your chosen image instead of the collection image when set."
         },
         {
           "type": "text",
           "id": "title",
           "label": "Title",
-          "info": "In case you prefer to use a different title"
+          "info": "Leave blank to use the collection title."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Short description",
+          "default": "Optional line shown under the title on collection cards.",
+          "info": "If cleared, the collection description is used when available."
+        },
+        {
+          "type": "text",
+          "id": "badge_label",
+          "label": "Image label",
+          "default": "Optional label",
+          "info": "Small label on the card image, for example New or Sale. Clear to hide. You can also set a collection metafield named collection_card_badge."
         }
       ]
     }

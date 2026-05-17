@@ -15,7 +15,7 @@
 
 -%}
   
-<section class="announcement-bar {{ color_scheme_class }} {% if section.settings.visibility == 'd-block' %}d-flex {% else %} {{ section.settings.visibility }} {% endif %}
+<section class="announcement-bar {% if section.blocks.size > 0 %}has-announcements{% endif %} {{ color_scheme_class }} {% if section.settings.visibility == 'd-block' %}d-flex {% else %} {{ section.settings.visibility }} {% endif %}
     {% if customer and section.settings.showTo == 'guest' %}d-none{% elsif section.settings.showTo == 'customer' %} {% unless customer %}d-none{% endunless %}{% endif %}" 
     id="announcement-bar-{{ section.id }}" >
     <div class="container-fluid">

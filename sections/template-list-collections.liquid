@@ -6,6 +6,9 @@
 
     assign row_sm = section.settings.breakpoint_sm | prepend: 'row-cols-sm-'
     assign row_lg = section.settings.breakpoint_lg | prepend: 'row-cols-lg-'
+
+    assign animation = section.settings.animation
+    assign animation_speed = section.settings.animation_speed
 %}
 
 <section 
@@ -19,18 +22,26 @@
             </div>
         {% endif %}
 
-        <h1 class="title mb-4 {{ section.settings.title_font_size_mobile | prepend: 'fs-' }} {{ section.settings.title_font_size_desktop | prepend: 'fs-lg-' }}">
+        <h1
+          class="title mb-4 {{ section.settings.title_font_size_mobile | prepend: 'fs-' }} {{ section.settings.title_font_size_desktop | prepend: 'fs-lg-' }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+          data-animate-class="{{ animation }}"
+          style="animation-delay: 250ms;"
+        >
             {{ section.settings.title }}
         </h1>
         {% unless section.settings.description == blank %}
-            <div class="description rte mt-n3 mb-5 {{ section.settings.description_font_size_mobile | prepend: 'fs-' }} {{ section.settings.description_font_size_desktop | prepend: 'fs-lg-' }}">
+            <div
+              class="description rte mt-n3 mb-5 {{ section.settings.description_font_size_mobile | prepend: 'fs-' }} {{ section.settings.description_font_size_desktop | prepend: 'fs-lg-' }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+              data-animate-class="{{ animation }}"
+              style="animation-delay: 350ms;"
+            >
                 {{ section.settings.description }}
             </div>
         {% endunless %}
         {% paginate collections by section.settings.limit %}
-            <ul class="collection-list list-unstyled row  {{ row_sm }} {{ row_lg }} {{ section.settings.aspect_ratio }}">
+            <ul class="collection-list list-unstyled row {{ row_sm }} {{ row_lg }}">
                 {% for collection in collections %}
-                    {% render 'collection-card', collection: collection, section: section, index: forloop.index %}
+                    {% render 'collection-card', collection: collection, section: section, index: forloop.index0 %}
                 {% endfor %}
             </ul>
             {% render 'pagination' with paginate: paginate %}
@@ -64,9 +75,30 @@
             { "label": "Adapt", "value": ""},
             { "label": "Landscape", "value": "landscape"},
             {"label": "Portrait", "value": "portrait"},
-            {"label": "Square", "value": "square"}
+            {"label": "Square", "value": "square"},
+            { "label": "Circle", "value": "circle" }
         ],
         "id": "aspect_ratio"
+        },
+        {
+            "type": "select",
+            "id": "collection_image_height_mode",
+            "label": "Image height",
+            "default": "auto",
+            "options": [
+                { "value": "auto", "label": "Auto (from orientation)" },
+                { "value": "fixed", "label": "Fixed height" }
+            ]
+        },
+        {
+            "type": "range",
+            "id": "collection_image_height",
+            "label": "Fixed image height",
+            "min": 200,
+            "max": 560,
+            "step": 20,
+            "default": 320,
+            "info": "Used when image height is set to fixed."
         },
         {
             "type": "range",

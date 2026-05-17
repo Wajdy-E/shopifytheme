@@ -4,6 +4,10 @@
   assign mt = section.settings.mt | prepend: 'mt-'
   assign mb = section.settings.mb | prepend: 'mb-'
   assign color_scheme_class = 'color-' | append: section.settings.color_scheme
+  assign lookbook_is_split = false
+  if section.settings.layout == 'split_left' or section.settings.layout == 'split_right'
+    assign lookbook_is_split = true
+  endif
 
   assign ratio_class = ''
   case section.settings.image_ratio
@@ -20,20 +24,59 @@
   endcase
 %}
 
+{% if lookbook_is_split and section.settings.lookbook_slider_pagination == 'numbers' %}
+  {% style %}
+    #lookbook-splide-{{ section.id }} .splide__pagination {
+      counter-reset: pagination-num;
+    }
+    #lookbook-splide-{{ section.id }} .splide__pagination__page:before {
+      counter-increment: pagination-num;
+      content: counter(pagination-num);
+    }
+    #lookbook-splide-{{ section.id }} .splide__pagination__page {
+      height: auto;
+      width: auto;
+      padding: 2px 6px;
+    }
+  {% endstyle %}
+{% endif %}
+
 <section
   class="{{ section.settings.visibility }} {{ color_scheme_class }} {{ pt }} {{ pb }} {{ mt }} {{ mb }}"
   data-lookbook-section="{{ section.id }}"
   data-lookbook-mobile-behavior="{{ section.settings.mobile_behavior }}"
   data-lookbook-pin-animation="{{ section.settings.pin_animation }}"
+  data-lookbook-has-slider="{% if lookbook_is_split %}true{% else %}false{% endif %}"
   style="--lookbook-pin-size: {{ section.settings.pin_size }}px; --lookbook-pin-color: {{ section.settings.pin_color }}; --lookbook-overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"
 >
   <div class="{{ section.settings.container }}">
-    {% if section.settings.layout == 'image_only' %}
-      {% render 'section-header', section: section %}
+    {% if lookbook_is_split %}
+      <div class="lookbook__intro text-start mb-4 mb-lg-5">
+        {% render 'section-header', section: section %}
+        {% if section.settings.button_label != blank and section.settings.button_link != blank %}
+          <a class="btn btn-outline-primary mt-2" href="{{ section.settings.button_link }}">
+            {{ section.settings.button_label }}
+          </a>
+        {% endif %}
+        {% if section.settings.enable_view_all and section.settings.view_all_collection != blank %}
+          <div class="mt-4">
+            <a class="link-underline link-offset-2" href="{{ section.settings.view_all_collection.url }}">
+              {% liquid
+                assign view_all_text = section.settings.view_all_label
+                if view_all_text == blank
+                  assign view_all_text = 'sections.featured_collection.view_all' | t
+                endif
+              %}
+              {{ view_all_text }}
+            </a>
+          </div>
+        {% endif %}
+      </div>
     {% endif %}
 
     <div class="{% if section.settings.layout == 'image_only' %}lookbook{% else %}lookbook lookbook--split{% endif %}">
       {% if section.settings.layout == 'image_only' %}
+        {% render 'section-header', section: section %}
         <div class="lookbook__media-col">
           <div class="lookbook-media {% if ratio_class != blank %}{{ ratio_class }}{% endif %}">
             {% if section.settings.image != blank %}
@@ -55,23 +98,25 @@
             {% endif %}
 
             <div class="lookbook-pins" aria-label="{{ section.settings.pins_aria_label }}">
+              {% assign hotspot_idx = 0 %}
               {% for block in section.blocks %}
                 {% if block.type != 'hotspot' %}
                   {% continue %}
                 {% endif %}
-                {% render 'lookbook-hotspot', section: section, block: block, forloop: forloop %}
+                {% render 'lookbook-hotspot', section: section, block: block, forloop: forloop, show_popover: true, hotspot_index: hotspot_idx %}
+                {% assign hotspot_idx = hotspot_idx | plus: 1 %}
               {% endfor %}
             </div>
           </div>
         </div>
       {% else %}
-        <div class="row lookbook-split-row align-items-center">
+        <div class="row lookbook-split-row align-items-start g-4 g-lg-5">
           {% liquid
             assign media_col_order = ''
-            assign copy_col_order = ''
+            assign slider_col_order = ''
             if section.settings.layout == 'split_right'
               assign media_col_order = 'order-lg-2'
-              assign copy_col_order = 'order-lg-1'
+              assign slider_col_order = 'order-lg-1'
             endif
           %}
 
@@ -96,39 +141,81 @@
               {% endif %}
 
               <div class="lookbook-pins" aria-label="{{ section.settings.pins_aria_label }}">
+                {% assign hotspot_idx = 0 %}
                 {% for block in section.blocks %}
                   {% if block.type != 'hotspot' %}
                     {% continue %}
                   {% endif %}
-                  {% render 'lookbook-hotspot', section: section, block: block, forloop: forloop %}
+                  {% render 'lookbook-hotspot', section: section, block: block, forloop: forloop, show_popover: false, hotspot_index: hotspot_idx %}
+                  {% assign hotspot_idx = hotspot_idx | plus: 1 %}
                 {% endfor %}
               </div>
             </div>
           </div>
 
-          <div class="col-12 col-lg-6 {{ copy_col_order }}">
-            <div class="lookbook__copy text-start">
-              {% render 'section-header', section: section %}
-
-              {% if section.settings.button_label != blank and section.settings.button_link != blank %}
-                <a class="btn btn-outline-primary mt-2" href="{{ section.settings.button_link }}">
-                  {{ section.settings.button_label }}
-                </a>
-              {% endif %}
-
-              {% if section.settings.enable_view_all and section.settings.view_all_collection != blank %}
-                <div class="mt-4">
-                  <a class="link-underline link-offset-2" href="{{ section.settings.view_all_collection.url }}">
-                    {% liquid
-                      assign view_all_text = section.settings.view_all_label
-                      if view_all_text == blank
-                        assign view_all_text = 'sections.featured_collection.view_all' | t
-                      endif
-                    %}
-                    {{ view_all_text }}
-                  </a>
+          <div class="col-12 col-lg-6 {{ slider_col_order }}">
+            <div
+              class="lookbook-products-carousel"
+              aria-label="{{ 'sections.lookbook.slider_region_label' | t }}"
+            >
+              <div
+                id="lookbook-splide-{{ section.id }}"
+                class="splide lookbook-splide"
+                data-lookbook-splide
+                data-loop="false"
+                data-arrows="{% if section.settings.lookbook_slider_arrows %}true{% else %}false{% endif %}"
+                data-pagination-type="{{ section.settings.lookbook_slider_pagination }}"
+                data-desktop-gap="1"
+                data-desktop-padding-right="0"
+                data-desktop-padding-left="0"
+                data-mobile-gap="1"
+                data-mobile-padding-right="0"
+                data-mobile-padding-left="0"
+                data-per-page-desktop="{{ section.settings.lookbook_slider_per_page_desktop }}"
+                data-per-page-mobile="{{ section.settings.lookbook_slider_per_page_mobile }}"
+              >
+                <div class="splide__track">
+                  {% liquid
+                    assign lookbook_splide_dots = false
+                    if section.settings.lookbook_slider_pagination == 'default' or section.settings.lookbook_slider_pagination == 'numbers'
+                      assign lookbook_splide_dots = true
+                    endif
+                  %}
+                  {% if section.settings.lookbook_slider_arrows or lookbook_splide_dots %}
+                    <div class="lookbook-splide__controls d-flex justify-content-lg-end mb-3">
+                      <div class="splide__arrows lookbook-splide__arrows rounded-5 d-flex align-items-center flex-wrap gap-2 p-2">
+                        {% if section.settings.lookbook_slider_arrows %}
+                          <button type="button" class="splide__arrow splide__arrow--prev" aria-label="{{ 'general.slider.previous_slide' | t }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" focusable="false" aria-hidden="true">
+                              <path d="m15.5 0.932-4.3 4.38 14.5 14.6-14.5 14.5 4.3 4.4 14.6-14.6 4.4-4.3-4.4-4.4-14.6-14.6z"></path>
+                            </svg>
+                          </button>
+                        {% endif %}
+                        {% if lookbook_splide_dots %}
+                          <ul class="splide__pagination position-relative bottom-0 m-0 p-0 list-unstyled"></ul>
+                        {% endif %}
+                        {% if section.settings.lookbook_slider_arrows %}
+                          <button type="button" class="splide__arrow splide__arrow--next" aria-label="{{ 'general.slider.next_slide' | t }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" focusable="false" aria-hidden="true">
+                              <path d="m15.5 0.932-4.3 4.38 14.5 14.6-14.5 14.5 4.3 4.4 14.6-14.6 4.4-4.3-4.4-4.4-14.6-14.6z"></path>
+                            </svg>
+                          </button>
+                        {% endif %}
+                      </div>
+                    </div>
+                  {% endif %}
+                  <ul class="splide__list">
+                    {% assign slide_idx = 0 %}
+                    {% for block in section.blocks %}
+                      {% if block.type != 'hotspot' %}
+                        {% continue %}
+                      {% endif %}
+                      {% render 'lookbook-product-slide', section: section, block: block, hotspot_index: slide_idx %}
+                      {% assign slide_idx = slide_idx | plus: 1 %}
+                    {% endfor %}
+                  </ul>
                 </div>
-              {% endif %}
+              </div>
             </div>
           </div>
         </div>
@@ -350,6 +437,51 @@
     },
     {
       "type": "header",
+      "content": "t:sections.shoppable-lookbook.settings.slider_header.content",
+      "info": "t:sections.shoppable-lookbook.settings.slider_header.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "lookbook_slider_arrows",
+      "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_arrows.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "lookbook_slider_pagination",
+      "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_pagination.label",
+      "default": "default",
+      "options": [
+        { "value": "default", "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_pagination.options.default" },
+        { "value": "progress", "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_pagination.options.progress" },
+        { "value": "numbers", "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_pagination.options.numbers" },
+        { "value": "none", "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_pagination.options.none" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "lookbook_slider_per_page_desktop",
+      "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_per_page_desktop.label",
+      "default": "1",
+      "info": "t:sections.shoppable-lookbook.settings.lookbook_slider_per_page_desktop.info",
+      "options": [
+        { "value": "1", "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_per_page_desktop.options.one" },
+        { "value": "2", "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_per_page_desktop.options.two" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "lookbook_slider_per_page_mobile",
+      "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_per_page_mobile.label",
+      "default": "1",
+      "info": "t:sections.shoppable-lookbook.settings.lookbook_slider_per_page_mobile.info",
+      "options": [
+        { "value": "1", "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_per_page_mobile.options.one" },
+        { "value": "2", "label": "t:sections.shoppable-lookbook.settings.lookbook_slider_per_page_mobile.options.two" }
+      ]
+    },
+    {
+      "type": "header",
       "content": "t:sections.shoppable-lookbook.settings.pins_header.content"
     },
     {
@@ -398,35 +530,12 @@
       "type": "select",
       "id": "card_style",
       "label": "t:sections.shoppable-lookbook.settings.card_style.label",
+      "info": "t:sections.shoppable-lookbook.settings.card_style.info",
       "default": "floating",
       "options": [
         { "value": "floating", "label": "t:sections.shoppable-lookbook.settings.card_style.options.floating" },
         { "value": "minimal", "label": "t:sections.shoppable-lookbook.settings.card_style.options.minimal" }
       ]
-    },
-    {
-      "type": "checkbox",
-      "id": "show_vendor",
-      "label": "t:sections.shoppable-lookbook.settings.show_vendor.label",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "show_price",
-      "label": "t:sections.shoppable-lookbook.settings.show_price.label",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_compare_at_price",
-      "label": "t:sections.shoppable-lookbook.settings.show_compare_at_price.label",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "cta_label",
-      "label": "t:sections.shoppable-lookbook.settings.cta_label.label",
-      "default": "t:sections.shoppable-lookbook.settings.cta_label.default"
     },
     {
       "type": "select",
@@ -588,8 +697,7 @@
         "overlay_opacity": 35,
         "subheader": "Featured edit",
         "title": "Shop the look",
-        "description": "<p>Tap a pin to view product details. On mobile, the card opens as a bottom sheet for easier shopping.</p>",
-        "cta_label": "Shop now"
+        "description": "<p>Tap a pin to jump to that product in the carousel. Image-only layout still uses a popover or bottom sheet on small screens.</p>"
       },
       "blocks": [
         { "type": "hotspot", "settings": { "x": 28, "y": 38, "label": "1", "desktop_align": "right", "highlight": true } },

@@ -25,7 +25,7 @@
         <div class="row p-9 gap-7 rounded" style="background-color: var(--bs-body-bg-darken-3);">
           <div class="contact-information position-relative z-2 p-6 rounded col d-flex flex-column align-items-between justify-content-between">
               <div class="contact-header">
-                {% render 'section-header' %}
+                {% render 'section-header', section: section %}
               </div>
               <div class="contact-info d-flex flex-column gap-4">
                 {% unless settings.phone_number == blank %}

@@ -1,0 +1,49 @@
+{% doc %}
+  Renders one FAQ-style accordion row for the Accordion section.
+
+  @param {object} section - Parent section.
+  @param {object} block - Current block (collapsible_row).
+  @param {string} collapse_id - Unique suffix for this row’s collapse id.
+  @param {string} accordion_parent_id - DOM id of the parent `.accordion` (no `#`).
+  @param {boolean} open_by_default - Whether this row starts expanded.
+{% enddoc %}
+
+{% liquid
+  assign collapse_el_id = 'accordion-collapse-' | append: section.id | append: '-' | append: collapse_id
+  assign header_fallback = 'sections.accordion.default_header' | t
+%}
+
+<div class="accordion-item" {{ block.shopify_attributes }}>
+  <div class="accordion-header">
+    <button
+      class="accordion-button collapsed accordion-section__trigger{% if block.settings.icon != 'none' %} accordion-section__trigger--custom-icon{% endif %}"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#{{ collapse_el_id }}"
+      aria-expanded="{% if open_by_default %}true{% else %}false{% endif %}"
+      aria-controls="{{ collapse_el_id }}"
+    >
+      <span class="accordion-section__leading">
+        {% if block.settings.icon != 'none' %}
+          {% render 'icon-accordion', icon: block.settings.icon, size: 20 %}
+        {% else %}
+          <span class="accordion-section__toggle-icon fs-5 fs-lg-6" aria-hidden="true"></span>
+        {% endif %}
+      </span>
+      <span class="accordion-section__question fs-5 fs-lg-6">
+        {{- block.settings.header | default: header_fallback -}}
+      </span>
+    </button>
+  </div>
+  <div
+    id="{{ collapse_el_id }}"
+    class="accordion-collapse collapse{% if open_by_default %} show{% endif %}"
+    data-bs-parent="#{{ accordion_parent_id }}"
+  >
+    <div class="accordion-body accordion-section__answer">
+      <div class="accordion-section__answer-text fs-6 fs-lg-6">
+        {{ block.settings.content | newline_to_br }}
+      </div>
+    </div>
+  </div>
+</div>

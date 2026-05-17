@@ -1,0 +1,106 @@
+{% doc %}
+  @param {object} section - Accordion section instance.
+{% enddoc %}
+
+{% assign accordion_first_open_used = false %}
+{% if section.settings.columns == 'two' %}
+  <div class="accordion-section__card">
+    <div class="row g-0">
+      <div class="col-12 col-md-6 accordion-section__col accordion-section__col--left">
+        <div
+          id="accordion-left-{{ section.id }}"
+          class="accordion accordion-flush accordion-section__accordion w-100"
+        >
+          {% assign index = 0 %}
+          {% for block in section.blocks %}
+            {% if block.type == 'heading' %}
+              <div class="accordion-section__group-heading">
+                <h2 class="accordion-section__group-title fs-5 fs-lg-5 mb-0">{{ block.settings.seperator }}</h2>
+              </div>
+            {% else %}
+              {% assign is_even = index | modulo: 2 %}
+              {% if is_even == 0 %}
+                {% liquid
+                  assign open_row = false
+                  if section.settings.show and accordion_first_open_used == false
+                    assign open_row = true
+                    assign accordion_first_open_used = true
+                  endif
+                %}
+                {% render 'accordion-section-row',
+                  section: section,
+                  block: block,
+                  collapse_id: index,
+                  accordion_parent_id: 'accordion-left-' | append: section.id,
+                  open_by_default: open_row
+                %}
+              {% endif %}
+              {% assign index = index | plus: 1 %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-12 col-md-6 accordion-section__col accordion-section__col--right">
+        <div
+          id="accordion-right-{{ section.id }}"
+          class="accordion accordion-flush accordion-section__accordion w-100"
+        >
+          {% assign index = 0 %}
+          {% for block in section.blocks %}
+            {% if block.type == 'heading' %}
+            {% else %}
+              {% assign is_even = index | modulo: 2 %}
+              {% if is_even != 0 %}
+                {% liquid
+                  assign open_row = false
+                  if section.settings.show and accordion_first_open_used == false
+                    assign open_row = true
+                    assign accordion_first_open_used = true
+                  endif
+                %}
+                {% render 'accordion-section-row',
+                  section: section,
+                  block: block,
+                  collapse_id: index,
+                  accordion_parent_id: 'accordion-right-' | append: section.id,
+                  open_by_default: open_row
+                %}
+              {% endif %}
+              {% assign index = index | plus: 1 %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="accordion-section__card">
+    <div
+      id="accordion-panel-{{ section.id }}"
+      class="accordion accordion-flush accordion-section__accordion w-100"
+    >
+      {% for block in section.blocks %}
+        {% if block.type == 'heading' %}
+          <div class="accordion-section__group-heading">
+            <h2 class="accordion-section__group-title fs-5 fs-lg-5 mb-0">{{ block.settings.seperator }}</h2>
+          </div>
+        {% else %}
+          {% liquid
+            assign open_row = false
+            if section.settings.show and accordion_first_open_used == false
+              assign open_row = true
+              assign accordion_first_open_used = true
+            endif
+          %}
+          {% render 'accordion-section-row',
+            section: section,
+            block: block,
+            collapse_id: forloop.index,
+            accordion_parent_id: 'accordion-panel-' | append: section.id,
+            open_by_default: open_row
+          %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

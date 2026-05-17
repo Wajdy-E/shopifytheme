@@ -62,10 +62,13 @@
       "settings": {
         "style": {
           "options__1": {
-            "label": "Standard"
+            "label": "Minimalist clean"
           },
           "options__2": {
-            "label": "Card"
+            "label": "Bold overlay"
+          },
+          "options__3": {
+            "label": "Magazine editorial"
           },
           "label": "Style"
         }
@@ -3800,6 +3803,38 @@
         "button_link": {
           "label": "Button link"
         },
+        "slider_header": {
+          "content": "Product slider (split layout)",
+          "info": "Used when the section uses a two-column layout: the photo on one side and shoppable products on the other. Shoppers tap a pin on the photo to scroll the product list to that item."
+        },
+        "lookbook_slider_arrows": {
+          "label": "Show prev/next arrows"
+        },
+        "lookbook_slider_pagination": {
+          "label": "Pagination",
+          "options": {
+            "default": "Dots",
+            "progress": "Progress bar",
+            "numbers": "Numbers",
+            "none": "None"
+          }
+        },
+        "lookbook_slider_per_page_desktop": {
+          "label": "Products per view | desktop",
+          "info": "How many products appear next to each other in the list on large screens.",
+          "options": {
+            "one": "1 product",
+            "two": "2 products"
+          }
+        },
+        "lookbook_slider_per_page_mobile": {
+          "label": "Products per view | mobile",
+          "info": "How many products appear next to each other in the list on phones and tablets.",
+          "options": {
+            "one": "1 product",
+            "two": "2 products"
+          }
+        },
         "pins_header": {
           "content": "Hotspots"
         },
@@ -3829,24 +3864,12 @@
           }
         },
         "card_style": {
-          "label": "Card style",
+          "label": "Popover style",
+          "info": "Controls the hotspot popover frame. Product title, price, and buttons follow Theme settings → Product cards.",
           "options": {
             "floating": "Floating",
             "minimal": "Minimal"
           }
-        },
-        "show_vendor": {
-          "label": "Show vendor"
-        },
-        "show_price": {
-          "label": "Show price"
-        },
-        "show_compare_at_price": {
-          "label": "Show compare at price"
-        },
-        "cta_label": {
-          "label": "CTA label",
-          "default": "View product"
         },
         "mobile_behavior": {
           "label": "Mobile behavior",

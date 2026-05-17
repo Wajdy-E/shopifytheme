@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero_carousel_x7k2m": {
@@ -10,6 +19,8 @@
             "use_custom_colors": true,
             "subheading_color": "#ffffff",
             "subheading_background": "#2c2c2c",
+            "content_background": "",
+            "content_opacity": 0.2,
             "desktop_content_width": "w-lg-75",
             "subheader": "The everyday edit",
             "title": "Elevated essentials for every day",
@@ -31,7 +42,7 @@
             "description_font_size_mobile": 5,
             "description_font_size_desktop": 7,
             "overlay_color": "#000000",
-            "overlay_opacity": 0.45
+            "overlay_opacity": 0.5
           }
         },
         "slide_hero_b": {
@@ -41,6 +52,8 @@
             "use_custom_colors": true,
             "subheading_color": "#ffffff",
             "subheading_background": "#2c2c2c",
+            "content_background": "",
+            "content_opacity": 0.2,
             "desktop_content_width": "w-lg-75",
             "subheader": "Designed to last",
             "title": "Layers you will live in",
@@ -66,7 +79,10 @@
           }
         }
       },
-      "block_order": ["slide_hero_a", "slide_hero_b"],
+      "block_order": [
+        "slide_hero_a",
+        "slide_hero_b"
+      ],
       "settings": {
         "visibility": "d-flex",
         "showTo": "everyone",
@@ -126,7 +142,11 @@
           }
         }
       },
-      "block_order": ["mv_text_1", "mv_text_2", "mv_text_3"],
+      "block_order": [
+        "mv_text_1",
+        "mv_text_2",
+        "mv_text_3"
+      ],
       "settings": {
         "visibility": "d-flex",
         "container": "container-fluid",
@@ -138,6 +158,7 @@
         "subheader": "",
         "subheader_font_size_mobile": 4,
         "subheader_font_size_desktop": 5,
+        "description": "",
         "description_font_size_mobile": 5,
         "description_font_size_desktop": 7,
         "animation": "",
@@ -196,7 +217,11 @@
           }
         }
       },
-      "block_order": ["trust_ship", "trust_return", "trust_support"],
+      "block_order": [
+        "trust_ship",
+        "trust_return",
+        "trust_support"
+      ],
       "settings": {
         "visibility": "d-flex",
         "container": "container",
@@ -228,7 +253,9 @@
           "settings": {
             "collection": "collection1",
             "img": "shopify://shop_images/fashion-model-in-pink.jpg",
-            "title": ""
+            "title": "",
+            "description": "Optional line shown under the title on collection cards.",
+            "badge_label": "Optional label"
           }
         },
         "fc_2": {
@@ -236,7 +263,9 @@
           "settings": {
             "collection": "collection11",
             "img": "shopify://shop_images/small-business-interior.jpg",
-            "title": ""
+            "title": "",
+            "description": "Optional line shown under the title on collection cards.",
+            "badge_label": "Optional label"
           }
         },
         "fc_3": {
@@ -244,7 +273,9 @@
           "settings": {
             "collection": "collection10",
             "img": "shopify://shop_images/fall-vegetable-box.jpg",
-            "title": ""
+            "title": "",
+            "description": "Optional line shown under the title on collection cards.",
+            "badge_label": "Optional label"
           }
         },
         "fc_4": {
@@ -252,11 +283,18 @@
           "settings": {
             "collection": "collection12",
             "img": "shopify://shop_images/model-in-neutral-colors-by-window.jpg",
-            "title": ""
+            "title": "",
+            "description": "Optional line shown under the title on collection cards.",
+            "badge_label": "Optional label"
           }
         }
       },
-      "block_order": ["fc_1", "fc_2", "fc_3", "fc_4"],
+      "block_order": [
+        "fc_1",
+        "fc_2",
+        "fc_3",
+        "fc_4"
+      ],
       "settings": {
         "visibility": "d-flex",
         "container": "container",
@@ -273,7 +311,9 @@
         "description_font_size_desktop": 5,
         "animation": "animate__fadeIn",
         "animation_speed": "animate__slow",
-        "aspect_ratio": "portrait",
+        "aspect_ratio": "square",
+        "collection_image_height_mode": "auto",
+        "collection_image_height": 320,
         "collection_img_thumbnail": "",
         "collection_show_title": true,
         "collection_title_font_size_mobile": 5,
@@ -315,7 +355,11 @@
           }
         }
       },
-      "block_order": ["tab_new", "tab_best", "tab_sale"],
+      "block_order": [
+        "tab_new",
+        "tab_best",
+        "tab_sale"
+      ],
       "settings": {
         "container": "container",
         "color_scheme": "scheme-2",
@@ -374,7 +418,12 @@
           }
         }
       },
-      "block_order": ["rt_sub", "rt_head", "rt_desc", "rt_btn"],
+      "block_order": [
+        "rt_sub",
+        "rt_head",
+        "rt_desc",
+        "rt_btn"
+      ],
       "settings": {
         "container": "container",
         "color_scheme": "scheme-1",
@@ -461,7 +510,14 @@
           }
         }
       },
-      "block_order": ["story_sub", "story_head", "story_icon_a", "story_icon_b", "story_rte", "story_url"],
+      "block_order": [
+        "story_sub",
+        "story_head",
+        "story_icon_a",
+        "story_icon_b",
+        "story_rte",
+        "story_url"
+      ],
       "settings": {
         "visibility": "d-flex",
         "showTo": "everyone",
@@ -470,7 +526,7 @@
         "equal_column_height": true,
         "main_image": "shopify://shop_images/urban-mens-fashion-on-young-adult.jpg",
         "image_orientation": "landscape",
-        "video": "",
+        "media_max_height": 0,
         "column_width": "col-lg-6",
         "text_alignment": "text-start",
         "desktop_image_side": "flex-lg-row",
@@ -503,14 +559,16 @@
             "mobile_content_position": "position-mobile-middle-center",
             "desktop_text_alignment": "text-lg-start",
             "mobile_text_alignment": "text-center",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.4,
+            "block_bg_color": "",
+            "text_color": "",
             "subheader_font_size_mobile": 3,
             "subheader_font_size_desktop": 4,
             "title_font_size_mobile": 7,
             "title_font_size_desktop": 8,
             "description_font_size_mobile": 4,
-            "description_font_size_desktop": 5,
-            "overlay_color": "#000000",
-            "overlay_opacity": 0.35
+            "description_font_size_desktop": 5
           }
         },
         "promo_acc": {
@@ -531,28 +589,43 @@
             "mobile_content_position": "position-mobile-middle-center",
             "desktop_text_alignment": "text-lg-end",
             "mobile_text_alignment": "text-center",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.4,
+            "block_bg_color": "",
+            "text_color": "",
             "subheader_font_size_mobile": 3,
             "subheader_font_size_desktop": 4,
             "title_font_size_mobile": 7,
             "title_font_size_desktop": 8,
             "description_font_size_mobile": 4,
-            "description_font_size_desktop": 5,
-            "overlay_color": "#000000",
-            "overlay_opacity": 0.35
+            "description_font_size_desktop": 5
           }
         }
       },
-      "block_order": ["promo_outer", "promo_acc"],
+      "block_order": [
+        "promo_outer",
+        "promo_acc"
+      ],
       "settings": {
         "content_layout": "overlay",
         "visibility": "d-flex",
         "showTo": "everyone",
         "container": "container",
         "color_scheme": "scheme-1",
-        "animation": "animate__fadeInUp",
-        "animation_speed": "animate__fast",
+        "bg_color": "",
         "desktop_banner_height": "h-d-500",
         "mobile_banner_height": "h-m-400",
+        "animation": "animate__fadeInUp",
+        "animation_speed": "animate__fast",
+        "title_font_size_mobile": 6,
+        "title_font_size_desktop": 7,
+        "description_font_size_mobile": 3,
+        "description_font_size_desktop": 5,
+        "image_position": "flex-column",
+        "text_alignment": "text-start",
+        "scroll": true,
+        "breakpoint_sm": 2,
+        "breakpoint_lg": 3,
         "grid_cols_sm": 1,
         "grid_cols_lg": 2,
         "pt": 6,
@@ -571,8 +644,22 @@
             "subheader": "",
             "title": "Fit first",
             "description": "Patterns refined on real bodies—so shoulders, sleeves, and hemlines fall exactly where they should.",
+            "p-btn-url": "",
+            "p-btn-text": "Primary button",
+            "p-btn-type": "btn-primary",
+            "s-btn-url": "",
+            "s-btn-text": "Secondary button",
+            "s-btn-type": "btn-secondary",
+            "desktop_content_position": "position-middle-center",
+            "mobile_content_position": "position-mobile-middle-center",
+            "desktop_text_alignment": "desk_left",
+            "mobile_text_alignment": "mob_center",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.2,
             "block_bg_color": "",
             "text_color": "",
+            "subheader_font_size_mobile": 4,
+            "subheader_font_size_desktop": 6,
             "title_font_size_mobile": 6,
             "title_font_size_desktop": 7,
             "description_font_size_mobile": 4,
@@ -586,8 +673,22 @@
             "subheader": "",
             "title": "Fabric that lasts",
             "description": "We prioritize yarns and weaves that hold their shape wash after wash.",
+            "p-btn-url": "",
+            "p-btn-text": "Primary button",
+            "p-btn-type": "btn-primary",
+            "s-btn-url": "",
+            "s-btn-text": "Secondary button",
+            "s-btn-type": "btn-secondary",
+            "desktop_content_position": "position-middle-center",
+            "mobile_content_position": "position-mobile-middle-center",
+            "desktop_text_alignment": "desk_left",
+            "mobile_text_alignment": "mob_center",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.2,
             "block_bg_color": "",
             "text_color": "",
+            "subheader_font_size_mobile": 4,
+            "subheader_font_size_desktop": 6,
             "title_font_size_mobile": 6,
             "title_font_size_desktop": 7,
             "description_font_size_mobile": 4,
@@ -601,8 +702,22 @@
             "subheader": "",
             "title": "Endlessly versatile",
             "description": "Build a capsule that works at the office, on the weekend, and everywhere between.",
+            "p-btn-url": "",
+            "p-btn-text": "Primary button",
+            "p-btn-type": "btn-primary",
+            "s-btn-url": "",
+            "s-btn-text": "Secondary button",
+            "s-btn-type": "btn-secondary",
+            "desktop_content_position": "position-middle-center",
+            "mobile_content_position": "position-mobile-middle-center",
+            "desktop_text_alignment": "desk_left",
+            "mobile_text_alignment": "mob_center",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.2,
             "block_bg_color": "",
             "text_color": "",
+            "subheader_font_size_mobile": 4,
+            "subheader_font_size_desktop": 6,
             "title_font_size_mobile": 6,
             "title_font_size_desktop": 7,
             "description_font_size_mobile": 4,
@@ -610,19 +725,33 @@
           }
         }
       },
-      "block_order": ["pillar_fit", "pillar_fabric", "pillar_versatile"],
+      "block_order": [
+        "pillar_fit",
+        "pillar_fabric",
+        "pillar_versatile"
+      ],
       "settings": {
         "content_layout": "stacked",
         "visibility": "d-flex",
+        "showTo": "everyone",
         "container": "container",
         "color_scheme": "",
-        "image_position": "flex-column",
-        "text_alignment": "text-start",
+        "bg_color": "",
+        "desktop_banner_height": "h-d-600",
+        "mobile_banner_height": "h-m-400",
         "animation": "animate__fadeInUp",
         "animation_speed": "animate__fast",
+        "title_font_size_mobile": 6,
+        "title_font_size_desktop": 7,
+        "description_font_size_mobile": 3,
+        "description_font_size_desktop": 5,
+        "image_position": "flex-column",
+        "text_alignment": "text-start",
         "scroll": true,
         "breakpoint_sm": 1,
         "breakpoint_lg": 3,
+        "grid_cols_sm": 1,
+        "grid_cols_lg": 2,
         "pt": 6,
         "pb": 10,
         "mt": 0,
@@ -635,10 +764,8 @@
         "container": "container",
         "color_scheme": "scheme-2",
         "visibility": "d-flex",
-        "showTo": "everyone",
         "media_type": "image",
         "media_image": "shopify://shop_images/black-and-white-portrait-mens-fashion.jpg",
-        "media_alt": "Studio portrait showcasing our collection",
         "icon_1_1_icon": "truck",
         "icon_1_1_icon_color": "#2c2c2c",
         "icon_1_1_svg_url": "",
@@ -730,7 +857,11 @@
           }
         }
       },
-      "block_order": ["stat_satisfaction", "stat_orders", "stat_rating"],
+      "block_order": [
+        "stat_satisfaction",
+        "stat_orders",
+        "stat_rating"
+      ],
       "settings": {
         "container": "container",
         "color_scheme": "scheme-1",
@@ -789,7 +920,12 @@
           }
         }
       },
-      "block_order": ["ig_1", "ig_2", "ig_3", "ig_4"],
+      "block_order": [
+        "ig_1",
+        "ig_2",
+        "ig_3",
+        "ig_4"
+      ],
       "settings": {
         "color_scheme": "",
         "desktop_height": 400,
@@ -825,6 +961,119 @@
         "mt": 0,
         "mb": 0
       }
+    },
+    "image_compare_e93Qm4": {
+      "type": "image-compare",
+      "name": "Image comparison",
+      "settings": {
+        "visibility": "d-flex",
+        "container": "container",
+        "color_scheme": "",
+        "animation": "animate__fadeInUp",
+        "animation_speed": "animate__fast",
+        "label_before": "Before",
+        "label_after": "After",
+        "image_1": "shopify://shop_images/white-female-face-care-model.png",
+        "image_2": "shopify://shop_images/face-care-model.png",
+        "reveal_direction": "horizontal",
+        "image_height_desktop": "auto",
+        "image_height_mobile": "auto"
+      }
+    },
+    "shoppable_lookbook_piewdt": {
+      "type": "shoppable-lookbook",
+      "blocks": {
+        "hotspot_mTmnqh": {
+          "type": "hotspot",
+          "settings": {
+            "product": "amazing-aluminum-bag-collection1",
+            "x": 28,
+            "y": 38,
+            "label": "1",
+            "pin_style_override": false,
+            "pin_style": "dot",
+            "desktop_align": "right",
+            "highlight": true
+          }
+        },
+        "hotspot_DcwAdF": {
+          "type": "hotspot",
+          "settings": {
+            "product": "amazing-aluminum-bag-collection12",
+            "x": 62,
+            "y": 54,
+            "label": "2",
+            "pin_style_override": false,
+            "pin_style": "dot",
+            "desktop_align": "left",
+            "highlight": false
+          }
+        },
+        "hotspot_jmQwVP": {
+          "type": "hotspot",
+          "settings": {
+            "product": "amazing-aluminum-bag-collection10",
+            "x": 44,
+            "y": 72,
+            "label": "3",
+            "pin_style_override": false,
+            "pin_style": "dot",
+            "desktop_align": "right",
+            "highlight": false
+          }
+        }
+      },
+      "block_order": [
+        "hotspot_mTmnqh",
+        "hotspot_DcwAdF",
+        "hotspot_jmQwVP"
+      ],
+      "name": "Shoppable lookbook",
+      "settings": {
+        "visibility": "d-flex",
+        "container": "container",
+        "color_scheme": "",
+        "layout": "split_left",
+        "image": "shopify://shop_images/male-face-care-model.png",
+        "image_ratio": "adapt",
+        "overlay": true,
+        "overlay_opacity": 35,
+        "subheader": "Featured edit",
+        "subheader_font_size_mobile": 4,
+        "subheader_font_size_desktop": 5,
+        "title": "Shop the look",
+        "title_font_size_mobile": 7,
+        "title_font_size_desktop": 8,
+        "description": "<p>Tap a pin to jump to that product in the carousel. Image-only layout still uses a popover or bottom sheet on small screens.</p>",
+        "description_font_size_mobile": 5,
+        "description_font_size_desktop": 7,
+        "animation": "",
+        "animation_speed": "animate__fast",
+        "button_label": "",
+        "button_link": "",
+        "lookbook_slider_arrows": true,
+        "lookbook_slider_pagination": "default",
+        "lookbook_slider_per_page_desktop": "2",
+        "lookbook_slider_per_page_mobile": "1",
+        "pins_aria_label": "Shop this look",
+        "pin_style_default": "number",
+        "pin_size": 40,
+        "pin_color": "#ffffff",
+        "pin_animation": "pulse",
+        "card_style": "floating",
+        "show_vendor": false,
+        "show_price": true,
+        "show_compare_at_price": true,
+        "cta_label": "Shop now",
+        "mobile_behavior": "bottom_sheet",
+        "enable_view_all": false,
+        "view_all_collection": "",
+        "view_all_label": "",
+        "pt": 10,
+        "pb": 10,
+        "mt": 0,
+        "mb": 0
+      }
     }
   },
   "order": [
@@ -839,6 +1088,8 @@
     "images_text_pillars_h9c4d",
     "infographic_why_i0d5e",
     "statistics_proof_j1e6f",
-    "social_feed_k2f7g"
+    "social_feed_k2f7g",
+    "image_compare_e93Qm4",
+    "shoppable_lookbook_piewdt"
   ]
 }

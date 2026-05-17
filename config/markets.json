@@ -8,13 +8,5 @@
  * ------------------------------------------------------------
  */
 {
-  "sections": {
-    "main": {
-      "type": "activate_account-template",
-      "settings": {}
-    }
-  },
-  "order": [
-    "main"
-  ]
+  "markets": {}
 }

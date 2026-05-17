@@ -42,14 +42,76 @@
     {{ color_scheme_class }}
     {% if customer and section.settings.showTo == 'guest' %}d-none{% elsif section.settings.showTo == 'customer' %}{% unless customer %}d-none{% endunless %}{% endif %}
   "
-  {% unless layout_overlay %}style="background-color: {{ section.settings.bg_color }};"{% endunless %}
+  {% unless layout_overlay %}
+    style="background-color: {{ section.settings.bg_color }};"
+  {% endunless %}
 >
   {% if layout_overlay %}
     <div class="{{ section.settings.container }}">
       <div class="row {{ row_sm }} {{ row_lg }} g-8">
         {% for block in section.blocks %}
           {% liquid
-            assign alignment = block.settings.mobile_text_alignment | append: ' ' | append: block.settings.desktop_text_alignment
+            assign mobile_align = block.settings.mobile_text_alignment
+            assign desktop_align = block.settings.desktop_text_alignment
+            case mobile_align
+              when 'mob_left'
+                assign mobile_align = 'text-start align-items-start justify-content-start'
+              when 'mob_center'
+                assign mobile_align = 'text-center align-items-center justify-content-center'
+              when 'mob_right'
+                assign mobile_align = 'text-end align-items-end justify-content-end'
+            endcase
+            case desktop_align
+              when 'desk_left'
+                assign desktop_align = 'text-lg-start align-items-lg-start justify-content-lg-start'
+              when 'desk_center'
+                assign desktop_align = 'text-lg-center align-items-lg-center justify-content-lg-center'
+              when 'desk_right'
+                assign desktop_align = 'text-lg-end align-items-lg-end justify-content-lg-end'
+            endcase
+            unless mobile_align contains 'align-items'
+              if mobile_align contains 'center-left' or mobile_align contains 'center-center' or mobile_align contains 'center-right'
+                case mobile_align
+                  when 'text-start center-left'
+                    assign mobile_align = 'text-start align-items-start justify-content-start'
+                  when 'text-center center-center'
+                    assign mobile_align = 'text-center align-items-center justify-content-center'
+                  when 'text-end center-right'
+                    assign mobile_align = 'text-end align-items-end justify-content-end'
+                endcase
+              else
+                case mobile_align
+                  when 'text-start'
+                    assign mobile_align = 'text-start align-items-start justify-content-start'
+                  when 'text-center'
+                    assign mobile_align = 'text-center align-items-center justify-content-center'
+                  when 'text-end'
+                    assign mobile_align = 'text-end align-items-end justify-content-end'
+                endcase
+              endif
+            endunless
+            unless desktop_align contains 'align-items-lg'
+              if desktop_align contains 'center-left' or desktop_align contains 'center-center' or desktop_align contains 'center-right'
+                case desktop_align
+                  when 'text-lg-start center-left'
+                    assign desktop_align = 'text-lg-start align-items-lg-start justify-content-lg-start'
+                  when 'text-lg-center center-center'
+                    assign desktop_align = 'text-lg-center align-items-lg-center justify-content-lg-center'
+                  when 'text-lg-end center-right'
+                    assign desktop_align = 'text-lg-end align-items-lg-end justify-content-lg-end'
+                endcase
+              else
+                case desktop_align
+                  when 'text-lg-start'
+                    assign desktop_align = 'text-lg-start align-items-lg-start justify-content-lg-start'
+                  when 'text-lg-center'
+                    assign desktop_align = 'text-lg-center align-items-lg-center justify-content-lg-center'
+                  when 'text-lg-end'
+                    assign desktop_align = 'text-lg-end align-items-lg-end justify-content-lg-end'
+                endcase
+              endif
+            endunless
+            assign alignment = mobile_align | append: ' ' | append: desktop_align
             assign block_anim = block.settings.animation
             assign block_anim_sp = block.settings.animation_speed
             if forloop.first and section.index == 1
@@ -93,8 +155,7 @@
                     style="--overlay-color: {{ block.settings.overlay_color }}; --overlay-opacity: {{ block.settings.overlay_opacity }};"
                   ></div>
                   <div
-                    class="p-5 position-absolute z-2 h-fit {{ block.settings.desktop_content_position }} d-flex {{ block.settings.desktop_text_alignment }}
-                      {{ block.settings.mobile_content_position }} w-100"
+                    class="p-5 position-absolute z-2 h-fit mw-100 min-w-0 {{ block.settings.desktop_content_position }} {{ block.settings.mobile_content_position }}"
                   >
                     {% render 'block-header', block: block, section: section, alignment: alignment, header_animation: block_anim, header_animation_speed: block_anim_sp %}
                   </div>
@@ -138,8 +199,7 @@
                     style="--overlay-color: {{ block.settings.overlay_color }}; --overlay-opacity: {{ block.settings.overlay_opacity }};"
                   ></div>
                   <div
-                    class="p-5 position-absolute z-2 h-fit {{ block.settings.desktop_content_position }} d-flex {{ block.settings.desktop_text_alignment }}
-                      {{ block.settings.mobile_content_position }} w-100"
+                    class="p-5 position-absolute z-2 h-fit mw-100 min-w-0 {{ block.settings.desktop_content_position }} {{ block.settings.mobile_content_position }}"
                   >
                     {% render 'block-header', block: block, section: section, alignment: alignment, header_animation: block_anim, header_animation_speed: block_anim_sp %}
                   </div>
@@ -189,7 +249,7 @@
                     style="--overlay-color: {{ block.settings.overlay_color }}; --overlay-opacity: {{ block.settings.overlay_opacity }};"
                   ></div>
                   <div
-                    class="banner-content position-absolute z-2 h-fit {{ block.settings.desktop_content_position }} {{ block.settings.mobile_content_position }} d-flex {{ block.settings.desktop_text_alignment }} w-100"
+                    class="banner-content p-5 position-absolute z-2 h-fit mw-100 min-w-0 {{ block.settings.desktop_content_position }} {{ block.settings.mobile_content_position }}"
                   >
                     {% render 'block-header', block: block, section: section, alignment: alignment, header_animation: block_anim, header_animation_speed: block_anim_sp %}
                   </div>
@@ -213,6 +273,8 @@
             endif
             assign block_anim = block.settings.animation
             assign block_anim_sp = block.settings.animation_speed
+            assign stacked_media_height = section.settings.desktop_banner_height | append: ' ' | append: section.settings.mobile_banner_height
+            assign stacked_media_classes = 'd-block w-100 object-fit-cover ' | append: stacked_media_height
           %}
           <li
             class="col {% unless section.settings.animation == '' %}animate__animated opacity-0 {{ section.settings.animation_speed }}{% endunless %}"
@@ -235,11 +297,11 @@
                         controls: false,
                         preload: 'none',
                         poster: video_url,
-                        class: 'img-fluid w-100',
+                        class: stacked_media_classes,
                         loading: 'lazy'
                     }}
                   {% elsif block.settings.carousel_video_url != blank %}
-                    <div class="ratio ratio-16x9 w-100 bg-dark">
+                    <div class="position-relative w-100 bg-dark overflow-hidden {{ stacked_media_height }}">
                       {% if block.settings.carousel_video_url.type == 'youtube' %}
                         <iframe
                           class="position-absolute top-0 start-0 w-100 h-100 border-0"
@@ -266,14 +328,14 @@
               {% else %}
                 <div class="d-flex {{ section.settings.image_position }} block rounded has-image p-0">
                   {% if stacked_img == blank %}
-                    {{ 'hero-apparel-' | append: apparel_number | placeholder_svg_tag }}
+                    {{ 'hero-apparel-' | append: apparel_number | placeholder_svg_tag: stacked_media_classes }}
                   {% else %}
                     <img
                       src="{{ stacked_img | image_url: width: 1500 }}"
                       alt="{{ stacked_img.alt | escape }}"
                       width="{{ stacked_img.width }}"
                       height="{{ stacked_img.height }}"
-                      class="img-fluid"
+                      class="{{ stacked_media_classes }}"
                       loading="lazy"
                     >
                   {% endif %}
@@ -356,6 +418,40 @@
       "id": "bg_color",
       "label": "Background color",
       "info": "Stacked layout only (optional)"
+    },
+    {
+      "type": "select",
+      "id": "desktop_banner_height",
+      "label": "Desktop image height",
+      "options": [
+        { "label": "200px", "value": "h-d-200" },
+        { "label": "300px", "value": "h-d-300" },
+        { "label": "400px", "value": "h-d-400" },
+        { "label": "500px", "value": "h-d-500" },
+        { "label": "600px", "value": "h-d-600" },
+        { "label": "700px", "value": "h-d-700" },
+        { "label": "800px", "value": "h-d-800" },
+        { "label": "Full screen", "value": "h-d-full" },
+        { "label": "Adapt to first image", "value": "h-d-auto" }
+      ],
+      "default": "h-d-600"
+    },
+    {
+      "type": "select",
+      "id": "mobile_banner_height",
+      "label": "Mobile image height",
+      "options": [
+        { "label": "200px", "value": "h-m-200" },
+        { "label": "300px", "value": "h-m-300" },
+        { "label": "400px", "value": "h-m-400" },
+        { "label": "500px", "value": "h-m-500" },
+        { "label": "600px", "value": "h-m-600" },
+        { "label": "700px", "value": "h-m-700" },
+        { "label": "800px", "value": "h-m-800" },
+        { "label": "Full screen", "value": "h-m-full" },
+        { "label": "Adapt to first image", "value": "h-m-auto" }
+      ],
+      "default": "h-m-400"
     },
     {
       "type": "select",
@@ -497,37 +593,7 @@
     {
       "type": "header",
       "content": "Banner overlay",
-      "info": "Used when Display is Banner overlay. Same settings as the old Image banner (heights, columns per row)."
-    },
-    {
-      "type": "select",
-      "id": "desktop_banner_height",
-      "label": "Desktop image height",
-      "options": [
-        { "label": "400px", "value": "h-d-400" },
-        { "label": "500px", "value": "h-d-500" },
-        { "label": "600px", "value": "h-d-600" },
-        { "label": "700px", "value": "h-d-700" },
-        { "label": "800px", "value": "h-d-800" },
-        { "label": "Full screen", "value": "h-d-full" },
-        { "label": "Adapt to first image", "value": "h-d-auto" }
-      ],
-      "default": "h-d-600"
-    },
-    {
-      "type": "select",
-      "id": "mobile_banner_height",
-      "label": "Mobile image height",
-      "options": [
-        { "label": "400px", "value": "h-m-400" },
-        { "label": "500px", "value": "h-m-500" },
-        { "label": "600px", "value": "h-m-600" },
-        { "label": "700px", "value": "h-m-700" },
-        { "label": "800px", "value": "h-m-800" },
-        { "label": "Full screen", "value": "h-m-full" },
-        { "label": "Adapt to first image", "value": "h-m-auto" }
-      ],
-      "default": "h-m-400"
+      "info": "Used when Display is Banner overlay. Same column settings as the old Image banner."
     },
     {
       "type": "range",
@@ -730,22 +796,22 @@
           "id": "desktop_text_alignment",
           "label": "Desktop text alignment",
           "options": [
-            { "label": "Left", "value": "text-lg-start center-left" },
-            { "label": "Center", "value": "text-lg-center center-center" },
-            { "label": "Right", "value": "text-lg-end center-right" }
+            { "label": "Left", "value": "desk_left" },
+            { "label": "Center", "value": "desk_center" },
+            { "label": "Right", "value": "desk_right" }
           ],
-          "default": "text-lg-start center-left"
+          "default": "desk_left"
         },
         {
           "type": "select",
           "id": "mobile_text_alignment",
           "label": "Mobile text alignment",
           "options": [
-            { "label": "Left", "value": "text-start center-left" },
-            { "label": "Center", "value": "text-center center-center" },
-            { "label": "Right", "value": "text-end center-right" }
+            { "label": "Left", "value": "mob_left" },
+            { "label": "Center", "value": "mob_center" },
+            { "label": "Right", "value": "mob_right" }
           ],
-          "default": "text-center center-center"
+          "default": "mob_center"
         },
         {
           "type": "color",
@@ -972,22 +1038,22 @@
           "id": "desktop_text_alignment",
           "label": "Desktop text alignment",
           "options": [
-            { "label": "Left", "value": "text-lg-start center-left" },
-            { "label": "Center", "value": "text-lg-center center-center" },
-            { "label": "Right", "value": "text-lg-end center-right" }
+            { "label": "Left", "value": "desk_left" },
+            { "label": "Center", "value": "desk_center" },
+            { "label": "Right", "value": "desk_right" }
           ],
-          "default": "text-lg-start center-left"
+          "default": "desk_left"
         },
         {
           "type": "select",
           "id": "mobile_text_alignment",
           "label": "Mobile text alignment",
           "options": [
-            { "label": "Left", "value": "text-start center-left" },
-            { "label": "Center", "value": "text-center center-center" },
-            { "label": "Right", "value": "text-end center-right" }
+            { "label": "Left", "value": "mob_left" },
+            { "label": "Center", "value": "mob_center" },
+            { "label": "Right", "value": "mob_right" }
           ],
-          "default": "text-center center-center"
+          "default": "mob_center"
         },
         {
           "type": "header",
@@ -1212,22 +1278,22 @@
           "label": "Desktop text alignment",
           "id": "desktop_text_alignment",
           "options": [
-            { "label": "Left", "value": "text-lg-start"},
-            { "label": "Center", "value": "text-lg-center"},
-            { "label": "Right", "value": "text-lg-end"}
+            { "label": "Left", "value": "desk_left"},
+            { "label": "Center", "value": "desk_center"},
+            { "label": "Right", "value": "desk_right"}
           ],
-          "default": "text-lg-start"
+          "default": "desk_left"
         },
         {
           "type": "select",
           "label": "Mobile text alignment",
           "id": "mobile_text_alignment",
           "options": [
-            { "label": "Left", "value": "text-start"},
-            { "label": "Center", "value": "text-center"},
-            { "label": "Right", "value": "text-end"}
+            { "label": "Left", "value": "mob_left"},
+            { "label": "Center", "value": "mob_center"},
+            { "label": "Right", "value": "mob_right"}
           ],
-          "default": "text-center"
+          "default": "mob_center"
         },
         {
           "type": "header",

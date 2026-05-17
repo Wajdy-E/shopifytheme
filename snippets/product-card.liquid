@@ -1,53 +1,340 @@
+{% doc %}
+  Renders a product card with selectable visual styles.
+
+  @param {product} product - The product to render.
+  @param {object} section - The parent section object.
+  @param {number} [index] - The product position used for animation delay.
+  @param {string} [sizes] - Responsive image sizes.
+{% enddoc %}
+
 {% liquid
+  assign card_style = settings.product_card_style | default: 'minimalist'
+  assign product_card_color_scheme = settings.product_card_color_scheme | default: 'scheme-1'
+  assign product_card_color_scheme_class = 'color-' | append: product_card_color_scheme
+  assign product_card_qv_scheme = settings.product_card_quick_view_color_scheme | default: 'scheme-1'
+  assign product_card_quick_view_scheme_class = 'color-' | append: product_card_qv_scheme
+  assign card_index = index | default: 0
+  assign section_id = section.id | default: 'global'
+  assign modal_id = 'ProductQuickView-' | append: section_id | append: '-' | append: product.id | append: '-' | append: card_index
+  assign selected_variant = product.selected_or_first_available_variant
+  assign compare_price = selected_variant.compare_at_price
+  assign save_amount = compare_price | minus: selected_variant.price
+  assign save_amount_money = save_amount | money
+  assign show_compare_price = false
+  if compare_price > selected_variant.price
+    assign show_compare_price = true
+  endif
   assign hover_state = false
   if product.images.size > 1 and settings.second_on_hover
     assign hover_state = true
   endif
-  
+  assign image_classes = 'product-card__image zoom-on-hover'
   if hover_state
-    assign classes = 'img-fluid primary-image'
-  else 
-    assign classes = 'img-fluid zoom-on-hover'
+    assign image_classes = 'product-card__image primary-image'
   endif
+  assign rating = product.metafields.reviews.rating.value.rating
+  assign rating_count = product.metafields.reviews.rating_count.value | default: product.metafields.reviews.rating_count
+  assign has_rating = false
+  if rating != blank and rating_count != blank
+    assign has_rating = true
+  endif
+  assign has_sale_badge = false
+  if show_compare_price and settings.show_product_badges
+    assign has_sale_badge = true
+  endif
+  assign has_sold_out_badge = false
+  unless product.available
+    if settings.show_product_badges
+      assign has_sold_out_badge = true
+    endif
+  endunless
+  assign animation_class = ''
+  assign animation_name = ''
+  if section.settings.animation != blank
+    assign animation_class = 'animate__animated opacity-0 ' | append: section.settings.animation_speed
+    assign animation_name = section.settings.animation
+  endif
+  assign magazine_view_count = product.metafields.custom.view_count.value | default: product.metafields.custom.views.value
+  assign magazine_price_display = selected_variant.price | money_without_currency | strip
+  assign magazine_dec_sep = '.'
+  assign magazine_price_parts = magazine_price_display | split: '.'
+  if magazine_price_parts.size == 1 and magazine_price_display contains ','
+    assign magazine_dec_sep = ','
+    assign magazine_price_parts = magazine_price_display | split: ','
+  endif
+  assign magazine_price_major = magazine_price_parts | first
+  assign magazine_price_minor = ''
+  if magazine_price_parts.size > 1
+    assign magazine_price_minor = magazine_price_parts | last
+  endif
+  assign pc_btn_style = settings.product_card_button_style | default: 'btn-primary'
+  assign pc_btn_classes = 'btn ' | append: pc_btn_style
+  assign pc_qv_btn_style = settings.product_card_quick_view_button_style | default: 'btn-primary'
+  assign pc_qv_btn_classes = 'btn ' | append: pc_qv_btn_style
 %}
-<div class="product-card enter-view rounded {% if hover_state %}has-more-than-one{% endif %} {{ settings.product_card_shadow }}">
-    <div class="product-wrapper overflow-hidden p-0 rounded {% if settings.show_border %}border border-1 border-primary{% endif %} {% unless section.settings.animation == '' %}animate__animated opacity-0 {{ section.settings.animation_speed }}{% endunless %}"
-    data-animate-class="{{ section.settings.animation }}" style="animation-delay: {{ index | times: 15 }}ms;">
-        <div class="product-media {% if hover_state %}secondary-on-hover{% endif %} overflow-hidden position-relative border-bottom border-1">
-            {{- product.featured_image | image_url: width: product.featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200', class: classes -}}
-            {% if hover_state %}
-                {{- product.images[1] | image_url: width: product.featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200', class: 'img-fluid secondary-image' -}}
+
+<article class="product-card product-card--{{ card_style }} {{ product_card_color_scheme_class }} enter-view {% if hover_state %}has-more-than-one{% endif %}">
+  <div class="product-wrapper {{ settings.product_card_shadow }} {{ animation_class }} {% if settings.show_border and card_style == 'minimalist' %}border border-1 border-primary{% endif %}" data-animate-class="{{ animation_name }}" style="animation-delay: {{ card_index | times: 15 }}ms;">
+    <div class="product-media {% if hover_state %}secondary-on-hover{% endif %}">
+      <a href="{{ product.url }}" class="product-card__media-link" aria-label="{{ product.title | escape }}">
+        {% if product.featured_image %}
+          {{- product.featured_image | image_url: width: product.featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200', class: image_classes -}}
+          {% if hover_state %}
+            {{- product.images[1] | image_url: width: product.featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200', class: 'product-card__image secondary-image' -}}
+          {% endif %}
+        {% else %}
+          {{ 'product-1' | placeholder_svg_tag: 'product-card__image product-card__placeholder' }}
+        {% endif %}
+      </a>
+
+      {% if card_style == 'magazine' %}
+        {% if settings.show_wishlist %}
+          <div class="product-card__magazine-wishlist">
+            <button class="product-card__icon-btn product-card__icon-btn--magazine btn-wishlist-add-remove" type="button" data-product-handle="{{ product.handle }}" data-text-add="{{ 'general.wishlist.add_to_wishlist' | t }}" data-text-remove="{{ 'general.wishlist.remove_from_wishlist' | t }}" aria-label="{{ 'general.wishlist.add_to_wishlist' | t }}" onclick="addOrRemoveFromWishlist(this)">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        {% endif %}
+        {% if has_sale_badge %}
+          <span class="product-card__ribbon" aria-hidden="true">{{ 'products.product.on_sale' | t }}</span>
+        {% elsif has_sold_out_badge %}
+          <span class="product-card__ribbon product-card__ribbon--soldout" aria-hidden="true">{{ 'product.sold_out' | t }}</span>
+        {% endif %}
+        {% if settings.show_product_reviews and has_rating %}
+          <div class="product-card__rating-pill">
+            <span class="product-card__rating-pill-star" aria-hidden="true">★</span>
+            <span class="product-card__rating-pill-score">{{ rating }}</span>
+            <span class="product-card__rating-pill-count">({{ rating_count }})</span>
+          </div>
+        {% endif %}
+      {% else %}
+        {% if has_sale_badge or has_sold_out_badge %}
+          <div class="product-card__badges">
+            {% if has_sold_out_badge %}
+              <span class="product-card__badge">{{ 'product.sold_out' | t }}</span>
+            {% elsif has_sale_badge %}
+              <span class="product-card__badge">{{ 'products.product.on_sale' | t }}</span>
             {% endif %}
-            {% if settings.show_product_badges %}           
-                <div class="product-badges position-absolute top-0 start-0"></div>
+          </div>
+        {% endif %}
+
+        {% if settings.show_wishlist or settings.show_quick_view %}
+          <div class="product-card__actions">
+            {% if settings.show_wishlist %}
+              <button class="product-card__icon-btn btn-wishlist-add-remove" type="button" data-product-handle="{{ product.handle }}" data-text-add="{{ 'general.wishlist.add_to_wishlist' | t }}" data-text-remove="{{ 'general.wishlist.remove_from_wishlist' | t }}" aria-label="{{ 'general.wishlist.add_to_wishlist' | t }}" onclick="addOrRemoveFromWishlist(this)">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
             {% endif %}
-            {% if settings.show_quick_view or settings.show_wishlist %}
-                <div class="product-actions position-absolute top-0 end-0"></div>            
+            {% if settings.show_quick_view %}
+              <button class="product-card__icon-btn" type="button" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}" aria-label="{{ 'product.quick_view' | t }}">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
             {% endif %}
-            {% if settings.show_view_button %}  
-                <div class="product-view-button position-absolute end-0 bottom-0">
-                    <a href="{{ product.url }}">
-                        <div class="view-more-wrapper bg-secondary p-3">
-                            <svg class="view-more-button" xmlns="http://www.w3.org/2000/svg" width="24" height="16" viewBox="0 0 24 16" fill="none">
-                            <path d="M23.7071 8.70711C24.0976 8.31658 24.0976 7.68342 23.7071 7.29289L17.3431 0.928932C16.9526 0.538408 16.3195 0.538408 15.9289 0.928932C15.5384 1.31946 15.5384 1.95262 15.9289 2.34315L21.5858 8L15.9289 13.6569C15.5384 14.0474 15.5384 14.6805 15.9289 15.0711C16.3195 15.4616 16.9526 15.4616 17.3431 15.0711L23.7071 8.70711ZM0 9H23V7H0V9Z" fill="var(--bs-primary)" fill-opacity="0.6"/>
-                            </svg>
-                        </div>
-                    </a>
-                </div>
+          </div>
+        {% endif %}
+      {% endif %}
+
+      {% if card_style == 'overlay' %}
+        <div class="product-card__overlay-content">
+          {% if settings.show_product_reviews and has_rating %}
+            <div class="product-card__rating">
+              <span aria-hidden="true">★★★★★</span>
+              <span>{{ rating }}</span>
+              <span>({{ rating_count }})</span>
+            </div>
+          {% endif %}
+          <a href="{{ product.url }}" class="product-url">
+            <h3 class="product-card__title">{{ product.title }}</h3>
+          </a>
+          <div class="product-card__price-row">
+            <span class="product-card__price">{{ selected_variant.price | money }}</span>
+            {% if show_compare_price %}
+              <s class="product-card__compare">{{ compare_price | money }}</s>
             {% endif %}
+          </div>
+          <div class="product-card__overlay-buttons">
+            <form method="post" action="{{ routes.cart_add_url }}" enctype="multipart/form-data">
+              <input type="hidden" name="id" value="{{ selected_variant.id }}">
+              <button type="submit" class="product-card__cart-btn {{ pc_btn_classes }}">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 6h15l-1.5 8.5H8L6 3H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M18 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>{{ 'product.add_to_cart' | t }}</span>
+              </button>
+            </form>
+            {% if settings.show_wishlist %}
+              <button class="product-card__icon-btn btn-wishlist-add-remove" type="button" data-product-handle="{{ product.handle }}" data-text-add="{{ 'general.wishlist.add_to_wishlist' | t }}" data-text-remove="{{ 'general.wishlist.remove_from_wishlist' | t }}" aria-label="{{ 'general.wishlist.add_to_wishlist' | t }}" onclick="addOrRemoveFromWishlist(this)">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            {% endif %}
+          </div>
         </div>
-        <div class="product-content p-6 d-flex flex-column gap-5">
-            {% render 'product-vendor', product: product %}
-            <a href="{{ product.url }}" class="product-url">
-                <h4 class="product-title fs-lg-7 fs-5" {{ block.shopify_attributes }}>
-                    {{ product.title }}
-                </h4>
-            </a>
-            {% render 'product-price', product: product %}
-            <form method="post" action="/cart/add" enctype="multipart/form-data">
-            <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-            <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
-        </form>
-        </div>
+      {% endif %}
     </div>
-</div>
+
+    {% unless card_style == 'overlay' %}
+      <div class="product-content">
+        {% if card_style == 'magazine' %}
+          <p class="product-card__eyebrow">{{ 'product.premium_collection' | t }}</p>
+        {% endif %}
+        <a href="{{ product.url }}" class="product-url">
+          <h3 class="product-card__title">{{ product.title }}</h3>
+        </a>
+        {% if card_style != 'magazine' and settings.show_product_reviews and has_rating %}
+          <div class="product-card__rating">
+            <span aria-hidden="true">★★★★★</span>
+            <span>{{ rating }}</span>
+            <span>({{ rating_count }})</span>
+          </div>
+        {% endif %}
+        {% if card_style == 'magazine' %}
+          <div class="product-card__magazine-price">
+            {% if show_compare_price %}
+              <div class="product-card__magazine-price-top">
+                <s class="product-card__compare">{{ compare_price | money }}</s>
+                <span class="product-card__save">{{ 'product.save_amount' | t: amount: save_amount_money }}</span>
+              </div>
+            {% endif %}
+            <div class="product-card__magazine-price-bottom">
+              <p class="product-card__magazine-price-main">
+                <span class="visually-hidden">{{ selected_variant.price | money }}</span>
+                <span class="product-card__magazine-price-display" aria-hidden="true">
+                  <span class="product-card__magazine-currency">{{ cart.currency.symbol }}</span>
+                  {% if magazine_price_minor != '' %}
+                    <span class="product-card__magazine-major">{{ magazine_price_major }}</span><span class="product-card__magazine-sep">{{ magazine_dec_sep }}</span><span class="product-card__magazine-minor">{{ magazine_price_minor }}</span>
+                  {% else %}
+                    <span class="product-card__magazine-major">{{ magazine_price_display }}</span>
+                  {% endif %}
+                </span>
+              </p>
+              {% if magazine_view_count != blank %}
+                <div class="product-card__magazine-views">
+                  <svg aria-hidden="true" class="product-card__magazine-views-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="product-card__magazine-views-text">{{ 'product.view_count' | t: count: magazine_view_count }}</span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="product-card__price-row">
+            {% if show_compare_price %}
+              <s class="product-card__compare">{{ compare_price | money }}</s>
+            {% endif %}
+            <span class="product-card__price">{{ selected_variant.price | money }}</span>
+          </div>
+        {% endif %}
+        <form method="post" action="{{ routes.cart_add_url }}" enctype="multipart/form-data">
+          <input type="hidden" name="id" value="{{ selected_variant.id }}">
+          <button type="submit" class="product-card__cart-btn {{ pc_btn_classes }}">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <path d="M6 6h15l-1.5 8.5H8L6 3H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M18 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>{{ 'product.add_to_cart' | t }}</span>
+          </button>
+        </form>
+        {% if settings.show_quick_view and card_style == 'magazine' %}
+          <button class="product-card__quick-link {{ pc_btn_classes }}" type="button" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
+            {{ 'product.quick_view' | t }}
+          </button>
+        {% endif %}
+      </div>
+    {% endunless %}
+  </div>
+</article>
+
+{% if settings.show_quick_view %}
+  <div class="modal fade product-quick-view" id="{{ modal_id }}" tabindex="-1" aria-labelledby="{{ modal_id }}-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content {{ product_card_quick_view_scheme_class }}">
+        <button type="button" class="btn-close product-quick-view__close" data-bs-dismiss="modal" aria-label="{{ 'general.accessibility.close' | t }}"></button>
+        <div class="product-quick-view__grid">
+          <div class="product-quick-view__media" data-product-quick-view-media>
+            {% if product.featured_image %}
+              {{ product.featured_image | image_url: width: 1200 | image_tag: loading: 'lazy', class: 'product-quick-view__image' }}
+            {% endif %}
+            {% if has_sale_badge %}
+              <span class="product-card__badge product-quick-view__badge">{{ 'products.product.on_sale' | t }}</span>
+            {% endif %}
+            {% if product.images.size > 1 %}
+              <div class="product-quick-view__thumbs" aria-label="{{ 'product.quick_view_thumbnails' | t }}">
+                {% for image in product.images limit: 4 %}
+                  <button class="product-quick-view__thumb {% if forloop.first %}is-active{% endif %}" type="button" data-product-quick-view-thumb data-image-src="{{ image | image_url: width: 1200 }}" aria-label="{{ 'products.product.media.load_image' | t: index: forloop.index }}">
+                    {{ image | image_url: width: 160 | image_tag: loading: 'lazy', class: 'product-quick-view__thumb-image' }}
+                  </button>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="product-quick-view__content">
+            {% if settings.show_product_reviews and has_rating %}
+              <div class="product-card__rating">
+                <span aria-hidden="true">★★★★★</span>
+                <span>{{ rating }}</span>
+                <span>{{ 'product.reviews_count' | t: count: rating_count }}</span>
+              </div>
+            {% endif %}
+            <h2 id="{{ modal_id }}-title" class="product-quick-view__title">{{ product.title }}</h2>
+            <div class="product-card__price-row">
+              <span class="product-card__price">{{ selected_variant.price | money }}</span>
+              {% if show_compare_price %}
+                <s class="product-card__compare">{{ compare_price | money }}</s>
+              {% endif %}
+            </div>
+            {% if product.description != blank %}
+              <div class="product-quick-view__description">{{ product.description | strip_html | truncate: 150 }}</div>
+            {% endif %}
+            <form method="post" action="{{ routes.cart_add_url }}" enctype="multipart/form-data" class="product-quick-view__form">
+              {% if product.has_only_default_variant %}
+                <input type="hidden" name="id" value="{{ selected_variant.id }}">
+              {% else %}
+                <label class="product-quick-view__label" for="{{ modal_id }}-variant">{{ 'product.select_variant' | t }}</label>
+                <select id="{{ modal_id }}-variant" name="id" class="form-select">
+                  {% for variant in product.variants %}
+                    <option value="{{ variant.id }}" {% if variant.id == selected_variant.id %}selected{% endif %} {% unless variant.available %}disabled{% endunless %}>
+                      {{ variant.title }}{% unless variant.available %} - {{ 'product.sold_out' | t }}{% endunless %}
+                    </option>
+                  {% endfor %}
+                </select>
+              {% endif %}
+              <label class="product-quick-view__label" for="{{ modal_id }}-quantity">{{ 'products.product.quantity.label' | t }}</label>
+              <div class="product-quick-view__quantity">
+                <button type="button" data-quick-view-qty="decrease" aria-label="{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}">-</button>
+                <input id="{{ modal_id }}-quantity" type="number" name="quantity" value="1" min="1">
+                <button type="button" data-quick-view-qty="increase" aria-label="{{ 'products.product.quantity.increase' | t: product: product.title | escape }}">+</button>
+              </div>
+              <button type="submit" class="product-card__cart-btn product-quick-view__submit {{ pc_qv_btn_classes }}">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 6h15l-1.5 8.5H8L6 3H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M18 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>{{ 'product.add_to_cart' | t }}</span>
+              </button>
+              {% if settings.show_wishlist %}
+                <button class="product-quick-view__wishlist btn-wishlist-add-remove" type="button" data-product-handle="{{ product.handle }}" data-text-add="{{ 'general.wishlist.add_to_wishlist' | t }}" data-text-remove="{{ 'general.wishlist.remove_from_wishlist' | t }}" onclick="addOrRemoveFromWishlist(this)">
+                  {{ 'general.wishlist.add_to_wishlist' | t }}
+                </button>
+              {% endif %}
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}

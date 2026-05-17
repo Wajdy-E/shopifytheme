@@ -257,6 +257,8 @@
                         {%- capture product_settings -%}{%- if section.settings.product_show_vendor -%}vendor,{%- endif -%}title,price{%- endcapture -%}
                         {% render 'product-card',
                           product: item,
+                          section: section,
+                          index: forloop.index0
                         %}
                       {%- when 'article' -%}
                         {% render 'article-card',

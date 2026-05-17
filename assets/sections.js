@@ -763,6 +763,80 @@ window.closeSearchOffcanvas = (btn, event) => {
   }, 300)
 }
 
+/** Shoppable lookbook — Splide product slider (split layout) */
+const syncLookbookPinsToSlide = (section, index) => {
+  section.querySelectorAll('[data-lookbook-pin][data-lookbook-slide-index]').forEach((pin) => {
+    const idx = parseInt(pin.dataset.lookbookSlideIndex, 10);
+    const active = idx === index;
+    pin.classList.toggle('is-active-pin', active);
+    pin.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+};
+
+const initLookbookProductSplide = (rootElement) => {
+  const root = rootElement || document;
+  root.querySelectorAll('.lookbook-products-carousel:not(.initialized)').forEach((wrap) => {
+    const section = wrap.closest('[data-lookbook-section]');
+    if (!section || section.dataset.lookbookHasSlider !== 'true') return;
+    wrap.classList.add('initialized');
+    const el = wrap.querySelector('.splide[data-lookbook-splide]');
+    if (!el || typeof Splide === 'undefined') return;
+
+    const pagType = el.dataset.paginationType || 'default';
+    const arrows = el.getAttribute('data-arrows') === 'true';
+    const reduced =
+      typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const desktopGap = el.dataset.desktopGap ?? '1';
+    const mobileGap = el.dataset.mobileGap ?? '1';
+    const padR = el.dataset.desktopPaddingRight ?? '0';
+    const padL = el.dataset.desktopPaddingLeft ?? '0';
+    const padRm = el.dataset.mobilePaddingRight ?? '0';
+    const padLm = el.dataset.mobilePaddingLeft ?? '0';
+
+    const clampPerPage = (raw) => {
+      const n = parseInt(raw, 10);
+      if (Number.isNaN(n)) return 1;
+      return Math.min(2, Math.max(1, n));
+    };
+    const perDesktop = clampPerPage(el.dataset.perPageDesktop);
+    const perMobile = clampPerPage(el.dataset.perPageMobile);
+
+    const splide = new Splide(el, {
+      type: 'slide',
+      perPage: perDesktop,
+      perMove: 1,
+      gap: `${desktopGap}rem`,
+      padding: {
+        right: `${padR}rem`,
+        left: `${padL}rem`,
+      },
+      speed: reduced ? 0 : 400,
+      arrows,
+      pagination: pagType !== 'progress' && pagType !== 'none',
+      easing: 'ease',
+      breakpoints: {
+        768: {
+          perPage: perMobile,
+          gap: `${mobileGap}rem`,
+          padding: {
+            right: `${padRm}rem`,
+            left: `${padLm}rem`,
+          },
+        },
+      },
+    });
+
+    splide.mount();
+    section._lookbookSplide = splide;
+
+    splide.on('moved', () => {
+      syncLookbookPinsToSlide(section, splide.index);
+    });
+    syncLookbookPinsToSlide(section, splide.index);
+  });
+};
+
 /** Shoppable lookbook — hotspot pins */
 const initShoppableLookbook = (rootElement) => {
   const root = rootElement || document;
@@ -773,6 +847,16 @@ const initShoppableLookbook = (rootElement) => {
     section.addEventListener('click', (e) => {
       const pin = e.target.closest('[data-lookbook-pin]');
       if (pin && section.contains(pin)) {
+        if (
+          section.dataset.lookbookHasSlider === 'true' &&
+          pin.dataset.lookbookSlideIndex !== undefined &&
+          pin.dataset.lookbookSlideIndex !== ''
+        ) {
+          const splide = section._lookbookSplide;
+          const idx = parseInt(pin.dataset.lookbookSlideIndex, 10);
+          if (splide && !Number.isNaN(idx)) splide.go(idx);
+          return;
+        }
         setLookbookOpen(section, pin.dataset.lookbookBlock, pin);
         return;
       }
@@ -924,5 +1008,104 @@ if (!window.__shoppableLookbookGlobalBound) {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => initShoppableLookbook());
-document.addEventListener('shopify:section:load', (e) => initShoppableLookbook(e.target));
+document.addEventListener('DOMContentLoaded', () => {
+  initLookbookProductSplide();
+  initShoppableLookbook();
+  initProductQuickView();
+  initWishlistButtons();
+});
+document.addEventListener('shopify:section:load', (e) => {
+  initLookbookProductSplide(e.target);
+  initShoppableLookbook(e.target);
+  initProductQuickView(e.target);
+  initWishlistButtons(e.target);
+});
+
+const getWishlistHandles = () => {
+  try {
+    return JSON.parse(localStorage.getItem('theme:wishlist') || '[]');
+  } catch (error) {
+    return [];
+  }
+};
+
+const setWishlistHandles = (handles) => {
+  localStorage.setItem('theme:wishlist', JSON.stringify(handles));
+};
+
+const updateWishlistCount = () => {
+  const count = getWishlistHandles().length;
+  document.querySelectorAll('.wishlist-count-badge').forEach((badge) => {
+    badge.textContent = count;
+    badge.hidden = count === 0;
+  });
+};
+
+const syncWishlistButton = (button, handles) => {
+  const isActive = handles.includes(button.dataset.productHandle);
+  button.classList.toggle('active', isActive);
+  if (button.dataset.textAdd && button.dataset.textRemove) {
+    button.setAttribute('aria-label', isActive ? button.dataset.textRemove : button.dataset.textAdd);
+  }
+  if (button.classList.contains('product-quick-view__wishlist')) {
+    button.textContent = isActive ? button.dataset.textRemove : button.dataset.textAdd;
+  }
+};
+
+const initWishlistButtons = (rootElement) => {
+  const scope = rootElement || document;
+  const handles = getWishlistHandles();
+  scope.querySelectorAll('[data-product-handle]').forEach((button) => syncWishlistButton(button, handles));
+  updateWishlistCount();
+};
+
+window.addOrRemoveFromWishlist = (button) => {
+  const handle = button?.dataset?.productHandle;
+  if (!handle) return;
+
+  const handles = getWishlistHandles();
+  const existingIndex = handles.indexOf(handle);
+  if (existingIndex >= 0) {
+    handles.splice(existingIndex, 1);
+  } else {
+    handles.push(handle);
+  }
+
+  setWishlistHandles(handles);
+  document.querySelectorAll(`[data-product-handle="${handle}"]`).forEach((item) => syncWishlistButton(item, handles));
+  updateWishlistCount();
+};
+
+const initProductQuickView = (rootElement) => {
+  const scope = rootElement || document;
+
+  scope.querySelectorAll('.product-quick-view').forEach((modal) => {
+    if (modal.dataset.quickViewReady === 'true') return;
+    modal.dataset.quickViewReady = 'true';
+
+    const image = modal.querySelector('.product-quick-view__image');
+    modal.querySelectorAll('[data-product-quick-view-thumb]').forEach((thumb) => {
+      thumb.addEventListener('click', () => {
+        if (image && thumb.dataset.imageSrc) {
+          image.src = thumb.dataset.imageSrc;
+        }
+        modal.querySelectorAll('[data-product-quick-view-thumb]').forEach((item) => item.classList.remove('is-active'));
+        thumb.classList.add('is-active');
+      });
+    });
+
+    modal.querySelectorAll('[data-quick-view-qty]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const input = button.closest('.product-quick-view__quantity')?.querySelector('input[name="quantity"]');
+        if (!input) return;
+
+        const current = Number(input.value || 1);
+        if (button.dataset.quickViewQty === 'increase') {
+          input.value = String(current + 1);
+        } else {
+          input.value = String(Math.max(1, current - 1));
+        }
+      });
+    });
+  });
+};

@@ -1,0 +1,33 @@
+{% doc %}
+  One Splide slide for the shoppable lookbook product column (split layout).
+
+  @param {object} section - Parent section.
+  @param {object} block - Hotspot block (product from `block.settings.product`).
+  @param {number} hotspot_index - 0-based index matching the hotspot pin order.
+{% enddoc %}
+{% liquid
+  assign product = block.settings.product
+%}
+<li
+  class="splide__slide lookbook-slide"
+  id="lookbook-slide-{{ section.id }}-{{ block.id }}"
+  data-lookbook-slide-index="{{ hotspot_index }}"
+  {{ block.shopify_attributes }}
+>
+  {% if product == blank %}
+    <div class="lookbook-slide__empty card border h-100 shadow-sm">
+      <div class="card-body d-flex align-items-center justify-content-center text-body-secondary py-5">
+        <p class="m-0 small">{{ 'sections.lookbook.missing_product' | t }}</p>
+      </div>
+    </div>
+  {% else %}
+    <div class="lookbook-slide__product h-100">
+      {% render 'product-card',
+        product: product,
+        section: section,
+        index: hotspot_index,
+        sizes: '(min-width: 992px) 45vw, 100vw'
+      %}
+    </div>
+  {% endif %}
+</li>

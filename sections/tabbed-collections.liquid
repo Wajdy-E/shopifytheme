@@ -106,7 +106,7 @@
                 </div>
               {% endif %}
               <div class="col pb-8 {{ section.settings.aspect_ratio }}">      
-                {% render 'product-card', product: product, sizes: sizes, section: section %}
+                {% render 'product-card', product: product, sizes: sizes, section: section, index: forloop.index0 %}
               </div>
             {% endfor %}
           </div>

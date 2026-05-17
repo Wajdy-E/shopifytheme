@@ -2,16 +2,41 @@
     assign pt = section.settings.pt | prepend: 'pt-'
     assign pb = section.settings.pb | prepend: 'pb-'
 
+    assign navbar_is_transparent = false
+    if section.settings.bg_transparent and section.settings.bg_transparent_hover and request.page_type == 'index'
+        assign navbar_is_transparent = true
+    elsif section.settings.bg_transparent and request.page_type == 'index'
+        assign navbar_is_transparent = true
+    endif
+
     assign bg_color = section.settings.bg_color
+    if navbar_is_transparent
+        assign bg_classes_only = ''
+        assign bg_color_tokens = section.settings.bg_color | split: ' '
+        for token in bg_color_tokens
+            unless token contains 'text-'
+                assign bg_classes_only = bg_classes_only | append: token | append: ' '
+            endunless
+        endfor
+        assign bg_color = bg_classes_only | strip
+    endif
 
     if section.settings.bg_gradient
         assign bg_color = bg_color | append: ' bg-gradient'
     endif
 
     if section.settings.bg_transparent and section.settings.bg_transparent_hover and request.page_type == 'index'
-        assign bg_color = bg_color | append: ' navbar-hover navbar-transparent text-white'
+        assign bg_color = bg_color | append: ' navbar-hover navbar-transparent'
     elsif section.settings.bg_transparent and request.page_type == 'index'
-        assign bg_color = bg_color | append: ' navbar-transparent text-white'
+        assign bg_color = bg_color | append: ' navbar-transparent'
+    endif
+
+    if navbar_is_transparent
+        if section.settings.transparent_header_contrast == 'dark'
+            assign bg_color = bg_color | append: ' navbar-light'
+        else
+            assign bg_color = bg_color | append: ' navbar-dark'
+        endif
     endif
 
     if section.settings.always_show_toggle
@@ -29,6 +54,40 @@
 
     assign navbar_shared_classes = bg_color | append: ' ' | append: section.settings.shadow | append: ' ' | append: navbar_blur_class | append: ' ' | append: pt | append: ' ' | append: pb
 %}
+
+{%- if navbar_is_transparent -%}
+    {% style %}
+        #shopify-section-{{ section.id }} {
+            position: absolute;
+            top: var(--announcement-bar-height, 0px);
+            right: 0;
+            left: 0;
+            z-index: 1030;
+        }
+    {% endstyle %}
+
+    <script>
+        (function () {
+            var nav = document.getElementById('shopify-section-{{ section.id }}');
+            if (!nav) return;
+            var bar = document.querySelector('.announcement-bar-section');
+
+            function update() {
+                var h = bar ? bar.offsetHeight : 0;
+                document.documentElement.style.setProperty('--announcement-bar-height', h + 'px');
+            }
+
+            update();
+
+            if (bar && 'ResizeObserver' in window) {
+                var ro = new ResizeObserver(update);
+                ro.observe(bar);
+            }
+            window.addEventListener('resize', update);
+            window.addEventListener('load', update);
+        })();
+    </script>
+{%- endif -%}
 
 {%- case section.settings.layout_mobile -%}
     {%- when 'navbar-mobile-bottom-bar' -%}
@@ -161,6 +220,17 @@
             "label": "Background transparent hover effect",
             "default": false,
             "info": "Applies only in the homepage. When hovering on transparent it will show"
+        },
+        {
+            "type": "select",
+            "id": "transparent_header_contrast",
+            "label": "Text and icons on transparent header",
+            "default": "light",
+            "info": "Only applies on the homepage when the header is over the first section. Use light text on dark hero images, and dark text on light hero images.",
+            "options": [
+                { "value": "light", "label": "Light text (for dark backgrounds)" },
+                { "value": "dark", "label": "Dark text (for light backgrounds)" }
+            ]
         },
         {
             "type": "checkbox",

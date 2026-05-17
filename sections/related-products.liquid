@@ -29,8 +29,7 @@ assign color_scheme_class = 'color-' | append: section.settings.color_scheme
       >
         {% for recommendation in recommendations.products %}
           <li class="grid__item col">
-            {% render 'product-card', product: recommendation
-            %}
+            {% render 'product-card', product: recommendation, section: section, index: forloop.index0 %}
           </li>
         {% endfor %}
       </ul>

@@ -359,6 +359,32 @@
     "name": "Product card",
     "settings": [
       {
+        "type": "select",
+        "id": "product_card_style",
+        "label": "Card style",
+        "default": "minimalist",
+        "options": [
+          {
+            "label": "Minimalist hover",
+            "value": "minimalist"
+          },
+          {
+            "label": "Bold overlay",
+            "value": "overlay"
+          },
+          {
+            "label": "Magazine stack",
+            "value": "magazine"
+          }
+        ]
+      },
+      {
+        "type": "color_scheme",
+        "id": "product_card_color_scheme",
+        "label": "Color scheme",
+        "default": "scheme-1"
+      },
+      {
         "type": "checkbox",
         "default": true,
         "id": "second_on_hover",
@@ -412,8 +438,38 @@
       {
         "type": "checkbox",
         "default": true,
+        "id": "show_product_reviews",
+        "label": "Show reviews"
+      },
+      {
+        "type": "checkbox",
+        "default": true,
         "id": "show_quick_view",
         "label": "Show quick view"
+      },
+      {
+        "type": "header",
+        "content": "Quick view"
+      },
+      {
+        "type": "color_scheme",
+        "id": "product_card_quick_view_color_scheme",
+        "label": "Color scheme",
+        "default": "scheme-1",
+        "info": "Background and text colors inside the quick view panel. Only applies when quick view is turned on."
+      },
+      {
+        "type": "select",
+        "id": "product_card_quick_view_button_style",
+        "label": "Add to cart button style",
+        "options": [
+          { "group": "Primary", "label": "Fill", "value": "btn-primary" },
+          { "group": "Primary", "label": "Outline", "value": "btn-outline-primary" },
+          { "group": "Secondary", "label": "Fill", "value": "btn-secondary" },
+          { "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary" },
+          { "group": "Light", "label": "Fill", "value": "btn-light" }
+        ],
+        "default": "btn-primary"
       },
       {
         "type": "checkbox",
@@ -432,6 +488,23 @@
         "default": true,
         "id": "show_view_button",
         "label": "Show view button"
+      },
+      {
+        "type": "header",
+        "content": "Card buttons"
+      },
+      {
+        "type": "select",
+        "id": "product_card_button_style",
+        "label": "Add to cart button style",
+        "options": [
+          { "group": "Primary", "label": "Fill", "value": "btn-primary" },
+          { "group": "Primary", "label": "Outline", "value": "btn-outline-primary" },
+          { "group": "Secondary", "label": "Fill", "value": "btn-secondary" },
+          { "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary" },
+          { "group": "Light", "label": "Fill", "value": "btn-light" }
+        ],
+        "default": "btn-primary"
       }
     ]
   },
@@ -440,19 +513,29 @@
     "settings": [
       {
         "type": "select",
-        "default": "collection-standard-style",
+        "default": "minimalist",
         "id": "collection_card_style",
         "label": "Collection card style",
         "options": [
           {
-            "label": "Standard",
-            "value": "collection-standard-style"
+            "label": "Minimalist clean",
+            "value": "minimalist"
           },
           {
-            "label": "Card",
-            "value": "collection-card-style"
+            "label": "Bold overlay",
+            "value": "overlay"
+          },
+          {
+            "label": "Magazine editorial",
+            "value": "magazine"
           }
         ]
+      },
+      {
+        "type": "color_scheme",
+        "id": "collection_card_color_scheme",
+        "label": "Collection card color scheme",
+        "default": "scheme-1"
       },
       {
         "type": "checkbox",
@@ -498,6 +581,76 @@
         "label": "Gap",
         "default": 6,
         "step": 1
+      },
+      {
+        "type": "header",
+        "content": "Typography"
+      },
+      {
+        "type": "range",
+        "id": "collection_card_title_font_size_mobile",
+        "label": "Title font-size | mobile",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "default": 6
+      },
+      {
+        "type": "range",
+        "id": "collection_card_title_font_size_desktop",
+        "label": "Title font-size | desktop",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "default": 7
+      },
+      {
+        "type": "range",
+        "id": "collection_card_text_font_size_mobile",
+        "label": "Supporting text font-size | mobile",
+        "info": "Description, product count, eyebrow, and overlay copy. Buttons and image badges keep button sizing.",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "default": 3
+      },
+      {
+        "type": "range",
+        "id": "collection_card_text_font_size_desktop",
+        "label": "Supporting text font-size | desktop",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "default": 4
+      },
+      {
+        "type": "header",
+        "content": "Card buttons"
+      },
+      {
+        "type": "select",
+        "id": "collection_card_button_style",
+        "label": "Call-to-action style",
+        "info": "Applies to call-to-action buttons and image badges on minimalist and overlay collection cards, plus Shop now on magazine cards.",
+        "options": [
+          { "group": "Primary", "label": "Fill", "value": "btn-primary" },
+          { "group": "Primary", "label": "Outline", "value": "btn-outline-primary" },
+          { "group": "Secondary", "label": "Fill", "value": "btn-secondary" },
+          { "group": "Secondary", "label": "Outline", "value": "btn-outline-secondary" },
+          { "group": "Light", "label": "Fill", "value": "btn-light" }
+        ],
+        "default": "btn-primary"
+      },
+      {
+        "type": "select",
+        "id": "collection_card_button_size",
+        "label": "Call-to-action size",
+        "options": [
+          { "label": "Default", "value": "" },
+          { "label": "Small", "value": "btn-sm" },
+          { "label": "Large", "value": "btn-lg" }
+        ],
+        "default": ""
       }
     ]
   },

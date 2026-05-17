@@ -1,31 +1,265 @@
+{% doc %}
+  Renders a collection card with theme-selected layout (minimalist, overlay, or magazine).
+
+  @param {collection} collection - The collection to render.
+  @param {object} section - The parent section object.
+  @param {object} [block] - Block object when rendered from a section block (optional).
+  @param {number} [index] - Index for staggered animation delay.
+{% enddoc %}
+
 {% liquid
-  assign hover_state = false
-  if collection.products_count > 0 and settings.show_first_on_hover
-    assign hover_state = true
+  assign card_style = settings.collection_card_style | default: 'minimalist'
+
+  assign cc_scheme = settings.collection_card_color_scheme | default: 'scheme-1'
+  assign cc_scheme_class = 'color-' | append: cc_scheme
+
+  assign card_index = index | default: 0
+  assign animation_class = ''
+  assign animation_name = ''
+  if section.settings.animation != blank
+    assign animation_class = 'animate__animated opacity-0 ' | append: section.settings.animation_speed
+    assign animation_name = section.settings.animation
   endif
-  
+
+  assign card_image = collection.featured_image
+  if block != blank and block.settings.img != blank
+    assign card_image = block.settings.img
+  endif
+
+  assign card_title = collection.title
+  if block != blank and block.settings.title != blank
+    assign card_title = block.settings.title | strip
+  endif
+
+  assign card_description = ''
+  if block != blank and block.settings.description != blank
+    assign card_description = block.settings.description | strip
+  endif
+  if card_description == '' and collection.description != blank
+    assign card_description = collection.description | strip_html | truncate: 160
+  endif
+
+  assign card_badge = ''
+  if block != blank and block.settings.badge_label != blank
+    assign card_badge = block.settings.badge_label | strip
+  endif
+  if card_badge == '' and collection.metafields.custom.collection_card_badge != blank
+    assign card_badge = collection.metafields.custom.collection_card_badge.value
+  endif
+
+  assign show_title = true
+  if section.settings.collection_show_title == false
+    assign show_title = false
+  endif
+
+  assign hover_state = false
+  if card_style != 'overlay' and card_style != 'minimalist' and collection.products_count > 0 and settings.show_first_on_hover
+    if collection.products[0].featured_image != blank
+      assign hover_state = true
+    endif
+  endif
+  if card_style == 'overlay' and collection.products_count > 0 and settings.show_first_on_hover
+    if collection.products[0].featured_image != blank
+      assign hover_state = true
+    endif
+  endif
+
+  assign image_classes = 'collection-card__img img-fluid'
   if hover_state
-    assign classes = 'img-fluid primary-image'
-  else 
-    assign classes = 'img-fluid zoom-on-hover'
+    assign image_classes = 'collection-card__img img-fluid primary-image'
+  endif
+  if section.settings.collection_img_thumbnail != blank
+    assign image_classes = image_classes | append: ' ' | append: section.settings.collection_img_thumbnail
+  endif
+
+  assign sizes = '(min-width: 1200px) 20vw, (min-width: 992px) 25vw, (min-width: 576px) 33vw, 90vw'
+  assign card_img_alt = card_title
+  if card_image != blank and card_image.alt != blank
+    assign card_img_alt = card_image.alt
+  endif
+
+  assign secondary_img_alt = card_title
+  if hover_state
+    if collection.products[0].featured_image.alt != blank
+      assign secondary_img_alt = collection.products[0].featured_image.alt
+    endif
+  endif
+
+  assign cc_btn_style = settings.collection_card_button_style | default: 'btn-primary'
+  assign cc_btn_size = settings.collection_card_button_size | default: ''
+  assign cc_btn_classes = 'btn ' | append: cc_btn_style
+  if cc_btn_size != blank
+    assign cc_btn_classes = cc_btn_classes | append: ' ' | append: cc_btn_size
+  endif
+
+  assign cc_badge_classes = 'btn btn-sm ' | append: cc_btn_style
+
+  assign cc_title_fs_mobile = settings.collection_card_title_font_size_mobile | prepend: 'fs-'
+  assign cc_title_fs_desktop = settings.collection_card_title_font_size_desktop | prepend: 'fs-lg-'
+  assign cc_text_fs_mobile = settings.collection_card_text_font_size_mobile | prepend: 'fs-'
+  assign cc_text_fs_desktop = settings.collection_card_text_font_size_desktop | prepend: 'fs-lg-'
+  assign cc_title_fs = cc_title_fs_mobile | append: ' ' | append: cc_title_fs_desktop
+  assign cc_text_fs = cc_text_fs_mobile | append: ' ' | append: cc_text_fs_desktop
+
+  assign cc_media_ar = ''
+  assign cc_media_ar_class = ''
+  assign cc_media_height_class = ''
+  assign cc_media_circle_class = ''
+  assign cc_media_style = ''
+
+  if section.settings.collection_image_height_mode == 'fixed' and section.settings.collection_image_height != blank
+    assign cc_media_height_class = 'collection-card--media-height'
+    assign cc_media_style = '--cc-media-height: ' | append: section.settings.collection_image_height | append: 'px;'
+  elsif section.settings.aspect_ratio != blank
+    case section.settings.aspect_ratio
+      when 'square'
+        assign cc_media_ar = '1 / 1'
+      when 'landscape'
+        assign cc_media_ar = '3 / 2'
+      when 'portrait'
+        assign cc_media_ar = '2 / 3'
+      when 'circle'
+        assign cc_media_ar = '1 / 1'
+        assign cc_media_circle_class = 'collection-card--media-circle'
+    endcase
+    if cc_media_ar != ''
+      assign cc_media_ar_class = 'collection-card--media-ar'
+      assign cc_media_style = '--cc-media-ar: ' | append: cc_media_ar | append: ';'
+    endif
   endif
 %}
 
-<div class="col rounded collection-card {{ settings.collection_card_style }}" style="padding-bottom: var(--bs-gutter-x)">
-  <div class="collection-card-wrapper overflow-hidden rounded {% if hover_state %}has-more-than-one{% endif %} {{ settings.collection_card_shadow }}">
-    <a href="{{ collection.url }}" class="text-decoration-none">
-        <div class="collection-image position-relative overflow-hidden{% if hover_state %} secondary-on-hover{% endif %}">
-            {{  collection.featured_image | image_url: width: collection.featured_image.width |  image_tag: loading: 'lazy', fetchpriority: 'low', class: classes  }}
-            {% if hover_state and collection.products[0].featured_image %}
-              {{- collection.products[0].featured_image | image_url: width: collection.products[0].featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200', class: 'img-fluid secondary-image' -}}
-          {% endif %}
-            {% render 'product-count-badge', collection: collection %}
-        </div>
-    </a>
-    <div class="collection-info text-start d-flex align-items-center justify-content-between pt-8">
-        <h4 class="fs-lg-7 col-10 p-0 ms-4 h-100 align-content-center">{{ collection.title }}</h4>
-        <a href="{{ collection.url }}" title="{{ collection.title }}" class="col btn p-0 h-100 align-content-center view-button">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="20" width="20" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z"/></svg>        </a>
-    </div>
+<div
+  class="col collection-card collection-card--{{ card_style }} {{ cc_scheme_class }} {{ cc_media_ar_class }} {{ cc_media_height_class }} {{ cc_media_circle_class }} enter-view"
+  style="padding-bottom: var(--bs-gutter-x);{% if cc_media_style != '' %} {{ cc_media_style }}{% endif %}"
+>
+  <div
+    class="collection-card-wrapper collection-card__inner rounded {{ settings.collection_card_shadow }} {% if hover_state %}has-more-than-one{% endif %} {% unless card_style == 'magazine' %}overflow-hidden{% endunless %} {{ animation_class }}"
+    data-animate-class="{{ animation_name }}"
+    style="animation-delay: {{ card_index | times: 15 }}ms;"
+  >
+    {% case card_style %}
+      {% when 'overlay' %}
+        <a href="{{ collection.url }}" class="collection-card__link collection-card__link--overlay text-decoration-none">
+          <div class="collection-card__overlay-media">
+            <div class="collection-card__overlay-zoom{% if hover_state %} secondary-on-hover{% endif %}">
+              {% if card_image %}
+                {{- card_image | image_url: width: card_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600', class: image_classes, alt: card_img_alt -}}
+                {% if hover_state %}
+                  {{- collection.products[0].featured_image | image_url: width: collection.products[0].featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600', class: 'collection-card__img img-fluid secondary-image', alt: secondary_img_alt -}}
+                {% endif %}
+              {% else %}
+                {{ 'collection-apparel-1' | placeholder_svg_tag: 'collection-card__img collection-card__placeholder' }}
+              {% endif %}
+            </div>
+            <div class="collection-card__overlay-gradient" aria-hidden="true"></div>
+            {% if card_badge != '' %}
+              <span class="collection-card__overlay-pill {{ cc_badge_classes }} rounded-pill">{{ card_badge | escape }}</span>
+            {% endif %}
+            <div class="collection-card__overlay-content">
+              {% if settings.show_product_count %}
+                <p class="collection-card__overlay-count {{ cc_text_fs }}">{{ 'collection.card_products_count' | t: count: collection.products_count }}</p>
+              {% endif %}
+              {% if show_title %}
+                <h3 class="collection-card__overlay-title {{ cc_title_fs }}">{{ card_title | escape }}</h3>
+              {% endif %}
+              {% if card_description != '' %}
+                <p class="collection-card__overlay-desc {{ cc_text_fs }}">{{ card_description | escape }}</p>
+              {% endif %}
+            </div>
+            <span class="collection-card__overlay-cta {{ cc_btn_classes }}">
+              <span>{{ 'collection.card_explore_collection' | t }}</span>
+              <svg aria-hidden="true" class="collection-card__cta-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+      {% when 'magazine' %}
+        <span class="collection-card__magazine-plate" aria-hidden="true"></span>
+        <a href="{{ collection.url }}" class="collection-card__link collection-card__link--magazine text-decoration-none">
+          <div class="collection-card__magazine-top">
+            <div class="collection-card__magazine-media">
+              <div class="collection-card__magazine-zoom{% if hover_state %} secondary-on-hover{% endif %}">
+                {% if card_image %}
+                  {{- card_image | image_url: width: card_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600', class: image_classes, alt: card_img_alt -}}
+                  {% if hover_state %}
+                    {{- collection.products[0].featured_image | image_url: width: collection.products[0].featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600', class: 'collection-card__img img-fluid secondary-image', alt: secondary_img_alt -}}
+                  {% endif %}
+                {% else %}
+                  {{ 'collection-apparel-1' | placeholder_svg_tag: 'collection-card__img collection-card__placeholder' }}
+                {% endif %}
+              </div>
+              {% if settings.show_product_count %}
+                <div class="collection-card__items-pill">
+                  <span class="collection-card__items-pill-num {{ cc_text_fs }}">{{ collection.products_count }}</span>
+                  <span class="collection-card__items-pill-suffix {{ cc_text_fs }}">{{ 'collection.card_items_suffix' | t }}</span>
+                </div>
+              {% endif %}
+            </div>
+            {% if card_badge != '' %}
+              <span class="collection-card__ribbon" aria-hidden="true">{{ card_badge | escape }}</span>
+            {% endif %}
+          </div>
+          <div class="collection-card__magazine-body">
+            <p class="collection-card__eyebrow {{ cc_text_fs }}">{{ 'collection.card_eyebrow' | t }}</p>
+            {% if show_title %}
+              <h3 class="collection-card__title {{ cc_title_fs }}">{{ card_title | escape }}</h3>
+            {% endif %}
+            {% if card_description != '' %}
+              <p class="collection-card__desc {{ cc_text_fs }}">{{ card_description | escape }}</p>
+            {% endif %}
+            <span class="collection-card__cta collection-card__cta--magazine {{ cc_btn_classes }} w-100">
+              <span>{{ 'collection.card_shop_now' | t }}</span>
+              <svg aria-hidden="true" class="collection-card__cta-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+      {% else %}
+        <a href="{{ collection.url }}" class="collection-card__link collection-card__link--minimal text-decoration-none">
+          <div class="collection-card__minimal-media">
+            <div class="collection-card__minimal-zoom{% if hover_state %} secondary-on-hover{% endif %}">
+              {% if card_image %}
+                {{- card_image | image_url: width: card_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600', class: image_classes, alt: card_img_alt -}}
+                {% if hover_state %}
+                  {{- collection.products[0].featured_image | image_url: width: collection.products[0].featured_image.width | image_tag: loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '300,400,500,600,700,800,900,1000,1200,1400,1600', class: 'collection-card__img img-fluid secondary-image', alt: secondary_img_alt -}}
+                {% endif %}
+              {% else %}
+                {{ 'collection-apparel-1' | placeholder_svg_tag: 'collection-card__img collection-card__placeholder' }}
+              {% endif %}
+            </div>
+            {% if card_badge != '' %}
+              <span class="collection-card__tag {{ cc_badge_classes }} text-uppercase">{{ card_badge | escape }}</span>
+            {% endif %}
+            <span class="collection-card__minimal-cta-bar {{ cc_btn_classes }} w-100 rounded-bottom-0">
+              <span>{{ 'collection.card_shop_collection' | t }}</span>
+              <svg aria-hidden="true" class="collection-card__cta-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+          <div class="collection-card__minimal-body">
+            {% if show_title %}
+              <h3 class="collection-card__title {{ cc_title_fs }}">{{ card_title | escape }}</h3>
+            {% endif %}
+            {% if card_description != '' %}
+              <p class="collection-card__desc {{ cc_text_fs }}">{{ card_description | escape }}</p>
+            {% endif %}
+            {% if settings.show_product_count %}
+              <p class="collection-card__count {{ cc_text_fs }}">{{ 'collection.card_products_count' | t: count: collection.products_count }}</p>
+            {% endif %}
+            <span class="collection-card__minimal-cta-mobile {{ cc_btn_classes }} w-100">
+              <span>{{ 'collection.card_shop_collection' | t }}</span>
+              <svg aria-hidden="true" class="collection-card__cta-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+    {% endcase %}
   </div>
 </div>

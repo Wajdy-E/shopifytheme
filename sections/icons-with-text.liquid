@@ -18,7 +18,7 @@
     {{ pt }} {{ pb }} {{ mt }} {{ mb }}"  
     style="background-color: {{ section.settings.bg_color }};">
     <div class="{{ section.settings.container }}">
-        {% render 'section-header' %}
+        {% render 'section-header', section: section %}
         <ul class="list-unstyled row {{ mobile_scroll }} {{ row_sm }} {{ row_lg }} g-8">
             {% for block in section.blocks %}
                 {% assign animation_delay = forloop.index0 | times: 150 %}

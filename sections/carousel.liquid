@@ -132,8 +132,70 @@
                     splide__slide-content p-8 rounded enter-view {{ block.settings.desktop_content_width }} w-m-100 position-absolute z-2 h-fit 
                     {{ block.settings.desktop_content_position }} {{ block.settings.mobile_content_position }}
                   " style="background-color: rgba({{ block.settings.content_background |  color_to_rgb |  replace: "rgb(", "" |  remove_last: ")" }}, {{block.settings.content_opacity}}); "              >
-                {% assign alignment =  block.settings.mobile_text_alignment |  append: ' ' |  append: block.settings.desktop_text_alignment  %}
-                  {% render 'block-header', block: block, alignment: alignment, use_custom_colors: block.settings.use_custom_colors %}
+                {% liquid
+                  assign mobile_align = block.settings.mobile_text_alignment
+                  assign desktop_align = block.settings.desktop_text_alignment
+                  case mobile_align
+                    when 'mob_left'
+                      assign mobile_align = 'text-start align-items-start justify-content-start'
+                    when 'mob_center'
+                      assign mobile_align = 'text-center align-items-center justify-content-center'
+                    when 'mob_right'
+                      assign mobile_align = 'text-end align-items-end justify-content-end'
+                  endcase
+                  case desktop_align
+                    when 'desk_left'
+                      assign desktop_align = 'text-lg-start align-items-lg-start justify-content-lg-start'
+                    when 'desk_center'
+                      assign desktop_align = 'text-lg-center align-items-lg-center justify-content-lg-center'
+                    when 'desk_right'
+                      assign desktop_align = 'text-lg-end align-items-lg-end justify-content-lg-end'
+                  endcase
+                  unless mobile_align contains 'align-items'
+                    if mobile_align contains 'center-left' or mobile_align contains 'center-center' or mobile_align contains 'center-right'
+                      case mobile_align
+                        when 'text-start center-left'
+                          assign mobile_align = 'text-start align-items-start justify-content-start'
+                        when 'text-center center-center'
+                          assign mobile_align = 'text-center align-items-center justify-content-center'
+                        when 'text-end center-right'
+                          assign mobile_align = 'text-end align-items-end justify-content-end'
+                      endcase
+                    else
+                      case mobile_align
+                        when 'text-start'
+                          assign mobile_align = 'text-start align-items-start justify-content-start'
+                        when 'text-center'
+                          assign mobile_align = 'text-center align-items-center justify-content-center'
+                        when 'text-end'
+                          assign mobile_align = 'text-end align-items-end justify-content-end'
+                      endcase
+                    endif
+                  endunless
+                  unless desktop_align contains 'align-items-lg'
+                    if desktop_align contains 'center-left' or desktop_align contains 'center-center' or desktop_align contains 'center-right'
+                      case desktop_align
+                        when 'text-lg-start center-left'
+                          assign desktop_align = 'text-lg-start align-items-lg-start justify-content-lg-start'
+                        when 'text-lg-center center-center'
+                          assign desktop_align = 'text-lg-center align-items-lg-center justify-content-lg-center'
+                        when 'text-lg-end center-right'
+                          assign desktop_align = 'text-lg-end align-items-lg-end justify-content-lg-end'
+                      endcase
+                    else
+                      case desktop_align
+                        when 'text-lg-start'
+                          assign desktop_align = 'text-lg-start align-items-lg-start justify-content-lg-start'
+                        when 'text-lg-center'
+                          assign desktop_align = 'text-lg-center align-items-lg-center justify-content-lg-center'
+                        when 'text-lg-end'
+                          assign desktop_align = 'text-lg-end align-items-lg-end justify-content-lg-end'
+                      endcase
+                    endif
+                  endunless
+                  assign alignment = mobile_align | append: ' ' | append: desktop_align
+                %}
+                  {% render 'block-header', block: block, section: section, alignment: alignment, use_custom_colors: block.settings.use_custom_colors %}
                 </div>
               {% endif %}
             </li>
@@ -650,22 +712,22 @@
           "label": "Desktop text alignment",
           "id": "desktop_text_alignment",
           "options": [
-            { "label": "Left", "value": "text-lg-start center-left"},
-            { "label": "Center", "value": "text-lg-center center-center"},
-            { "label": "Right", "value": "text-lg-end center-right"}
+            { "label": "Left", "value": "desk_left"},
+            { "label": "Center", "value": "desk_center"},
+            { "label": "Right", "value": "desk_right"}
           ],
-          "default": "text-lg-start center-left"
+          "default": "desk_left"
         },
         {
           "type": "select",
           "label": "Mobile text alignment",
           "id": "mobile_text_alignment",
           "options": [
-            { "label": "Left", "value": "text-start center-left"},
-            { "label": "Center", "value": "text-center center-center"},
-            { "label": "Right", "value": "text-end center-right"}
+            { "label": "Left", "value": "mob_left"},
+            { "label": "Center", "value": "mob_center"},
+            { "label": "Right", "value": "mob_right"}
           ],
-          "default": "text-center center-center"
+          "default": "mob_center"
         },
         {
           "type": "header",
@@ -930,22 +992,22 @@
           "label": "Desktop text alignment",
           "id": "desktop_text_alignment",
           "options": [
-            { "label": "Left", "value": "text-lg-start"},
-            { "label": "Center", "value": "text-lg-center"},
-            { "label": "Right", "value": "text-lg-end"}
+            { "label": "Left", "value": "desk_left"},
+            { "label": "Center", "value": "desk_center"},
+            { "label": "Right", "value": "desk_right"}
           ],
-          "default": "text-lg-start"
+          "default": "desk_left"
         },
         {
           "type": "select",
           "label": "Mobile text alignment",
           "id": "mobile_text_alignment",
           "options": [
-            { "label": "Left", "value": "text-start"},
-            { "label": "Center", "value": "text-center"},
-            { "label": "Right", "value": "text-end"}
+            { "label": "Left", "value": "mob_left"},
+            { "label": "Center", "value": "mob_center"},
+            { "label": "Right", "value": "mob_right"}
           ],
-          "default": "text-center"
+          "default": "mob_center"
         },
         {
           "type": "header",

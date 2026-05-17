@@ -68,13 +68,13 @@
     </h2>
   {% endunless %}
   {% unless description == blank %}
-    <p
-      class="mt-n4 mb-5 {{ desc_fs_mobile }} {{ desc_fs_desktop }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
+    <div
+      class="block-header__description rte mt-n4 mb-5 {{ desc_fs_mobile }} {{ desc_fs_desktop }} {% unless animation == '' %}animate__animated opacity-0 {{ animation_speed }}{% endunless %}"
       data-animate-class="{{ animation }}"
       style="animation-delay: 350ms;"
     >
       {{ description }}
-    </p>
+    </div>
   {% endunless %}
   <div class="btn-wrapper d-flex gap-6">
   {% unless p-btn-text == blank %}

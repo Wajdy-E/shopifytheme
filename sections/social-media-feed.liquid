@@ -28,7 +28,7 @@
 >
   <div class="overflow-hidden">
     <div class="px-4">
-      {% render 'section-header' %}
+      {% render 'section-header', section: section %}
       {% if section.settings.btn_show %}
         <a
           class="btn mt-n2 mb-8 d-inline-flex align-items-center {{ section.settings.btn_color }}"
